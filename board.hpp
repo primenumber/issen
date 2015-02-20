@@ -1,3 +1,4 @@
+#pragma once
 #include <array>
 #include <immintrin.h>
 
@@ -26,7 +27,7 @@ struct bit_board {
   constexpr bit_accessor operator[](const size_t index) {
     return bit_accessor(&data, index);
   }
-  bool get(const size_t index) { return _bittest64((__int64 *)&data, index); }
+  bool get(const size_t index) const { return _bittest64((__int64 *)&data, index); }
   bool set(const size_t index) { return _bittestandset64((__int64 *)&data, index); }
   bool reset(const size_t index) { return _bittestandreset64((__int64 *)&data, index); }
   bool setval(const size_t index, const bool bit) {
@@ -49,6 +50,4 @@ union board {
   board(const uint64_t black, const uint64_t white) : black(black), white(white) {}
 };
 
-board initial_board() {
-  return board(UINT64_C(0x0000000810000000), UINT64_C(0x0000001008000000));
-}
+board initial_board();
