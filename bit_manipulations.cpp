@@ -4,6 +4,31 @@
 
 namespace bit_manipulations {
 
+__m128i operator^(__m128i lhs, __m128i rhs) {
+  return _mm_xor_si128(lhs, rhs);
+}
+
+__m128i operator&(__m128i lhs, __m128i rhs) {
+  return _mm_and_si128(lhs, rhs);
+}
+
+__m128i operator|(__m128i lhs, __m128i rhs) {
+  return _mm_or_si128(lhs, rhs);
+}
+
+__m128i operator<<(__m128i lhs, int index) {
+  return _mm_slli_epi64(lhs, index);
+}
+
+__m128i operator>>(__m128i lhs, int index) {
+  return _mm_srli_epi64(lhs, index);
+}
+
+__m128i delta_swap(__m128i bits, __m128i mask, int delta) {
+  __m128i tmp = mask & (bits ^ (bits << delta));
+  return bits ^ tmp ^ (tmp >> delta);
+}
+
 alignas(32) __m128i flip_vertical_shuffle_table;
 
 void init() {
@@ -18,30 +43,9 @@ board mirrorHorizontal(board bd) {
   __m128i mask1 = _mm_set1_epi8(0x55);
   __m128i mask2 = _mm_set1_epi8(0x33);
   __m128i mask3 = _mm_set1_epi8(0x0f);
-  bd.data = _mm_add_epi8(
-      _mm_and_si128(
-          _mm_srli_epi64(bd.data, 1),
-          mask1),
-      _mm_slli_epi64(
-          _mm_and_si128(bd.data, mask1),
-          1)
-      );
-  bd.data = _mm_add_epi8(
-      _mm_and_si128(
-          _mm_srli_epi64(bd.data, 2),
-          mask2),
-      _mm_slli_epi64(
-          _mm_and_si128(bd.data, mask2),
-          2)
-      );
-  bd.data = _mm_add_epi8(
-      _mm_and_si128(
-          _mm_srli_epi64(bd.data, 4),
-          mask3),
-      _mm_slli_epi64(
-          _mm_and_si128(bd.data, mask3),
-          4)
-      );
+  bd.data = ((bd.data >> 1) & mask1) | ((bd.data & mask1) << 1);
+  bd.data = ((bd.data >> 2) & mask2) | ((bd.data & mask2) << 2);
+  bd.data = ((bd.data >> 4) & mask3) | ((bd.data & mask3) << 4);
   return bd;
 }
 
