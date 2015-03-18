@@ -27,6 +27,7 @@ struct bit_board {
   constexpr bit_accessor operator[](const size_t index) {
     return bit_accessor(&data, index);
   }
+  constexpr bool operator[](const size_t index) const { return get(index); }
   bool get(const size_t index) const { return _bittest64((__int64 *)&data, index); }
   bool set(const size_t index) { return _bittestandset64((__int64 *)&data, index); }
   bool reset(const size_t index) { return _bittestandreset64((__int64 *)&data, index); }
