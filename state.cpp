@@ -2,18 +2,26 @@
 
 namespace state {
 
+enum class state {
+  NONE,
+  BLACK,
+  WHITE
+};
+
 void init() {
   for (int i = 0; i < 6561; ++i) {
-    uint8_t black = 0, white = 0;
+    std::array<state, 8> ary;
     int ii = i;
     for (int j = 0; j < 8; ++j) {
       switch (ii % 3) {
        case 1:
-        black |= 1 << j;
+        ary[j] = state::BLACK;
         break;
        case 2:
-        white |= 1 << j;
+        ary[j] = state::WHITE;
         break;
+       default:
+        ary[j] = state::NONE;
       }
     }
   }
