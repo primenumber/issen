@@ -1,4 +1,8 @@
+#include "board.hpp"
+
 namespace bit_manipulations {
+
+void init();
 
 board flipVertical(const board);
 board mirrorHorizontal(const board);
@@ -11,3 +15,5 @@ board rotate90antiClockwise(const board);
 
 board pseudoRotate45clockwise(const board);
 board pseudoRotate45antiClockwise(const board);
+
+} // namespace bit_manipulations
