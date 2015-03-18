@@ -24,10 +24,10 @@ struct bit_board {
   constexpr bit_board(const bit_board &) = default;
   constexpr bit_board(const uint64_t data) : data(data) {}
   constexpr bit_board(const std::array<uint8_t, 8> lines) : lines(lines) {}
-  constexpr bit_accessor operator[](const size_t index) {
+  bit_accessor operator[](const size_t index) {
     return bit_accessor(&data, index);
   }
-  constexpr bool operator[](const size_t index) const { return get(index); }
+  bool operator[](const size_t index) const { return get(index); }
   bool get(const size_t index) const { return _bittest64((__int64 *)&data, index); }
   bool set(const size_t index) { return _bittestandset64((__int64 *)&data, index); }
   bool reset(const size_t index) { return _bittestandreset64((__int64 *)&data, index); }
