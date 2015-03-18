@@ -1,5 +1,7 @@
 #include "state.hpp"
 
+namespace state {
+
 bool puttable_black_at_dir(const board & bd,
     const int i, const int j, const int dir) {
   const int di[8] = {1, 1, 0, -1, -1, -1, 0, 1};
@@ -70,3 +72,5 @@ std::vector<board> next_states(const board & bd) {
         res.emplace_back(put_black_at(bd, i, j), reverse_construct_t());
   return res;
 }
+
+} // namespace state

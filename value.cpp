@@ -10,7 +10,7 @@ int num_value(const board & bd) {
 }
 
 int value(const board & bd) {
-  if (puttable_black(bd) == 0) return num_value(bd);
+  if (state::puttable_black(bd) == 0) return num_value(bd);
   std::array<int, 64> ary = {{
     100, -50,  15,  15,  15,  15, -50, 100,
     -50, -75, -10, -10, -10, -10, -75, -50,
