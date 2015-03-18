@@ -1,12 +1,12 @@
 #include "value.hpp"
 
+namespace value {
+
+void init() {
+}
+
 int num_value(const board & bd) {
-  int score = 0;
-  for (int i = 0; i < 64; ++i) {
-    if (bd.black.get(i)) score += 100;
-    else if (bd.white.get(i)) score -= 100;
-  }
-  return score;
+  return 100 * (_popcnt64(bd.black.data) - _popcnt64(bd.white.data));
 }
 
 int value(const board & bd) {
@@ -28,3 +28,5 @@ int value(const board & bd) {
   }
   return score;
 }
+
+} // namespace value
