@@ -16,4 +16,6 @@ board rotate90antiClockwise(const board);
 board pseudoRotate45clockwise(const board);
 board pseudoRotate45antiClockwise(const board);
 
+uint16_t toBase3(uint8_t, uint8_t);
+
 } // namespace bit_manipulations

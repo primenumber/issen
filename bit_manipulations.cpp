@@ -4,6 +4,8 @@
 
 namespace bit_manipulations {
 
+alignas(32) uint16_t base3[256];
+
 __m128i operator^(__m128i lhs, __m128i rhs) {
   return _mm_xor_si128(lhs, rhs);
 }
@@ -33,6 +35,15 @@ alignas(32) __m128i flip_vertical_shuffle_table;
 
 void init() {
   flip_vertical_shuffle_table = _mm_set_epi8(8, 9, 10, 11, 12, 13, 14, 15, 0, 1, 2, 3, 4, 5, 6, 7);
+  for (int i = 0; i < 256; ++i) {
+    int res = 0;
+    int pow3 = 1;
+    for (int j = 0; j < 8; ++j) {
+      res += ((i >> j) & 1) * pow3;
+      pow3 *= 3;
+    }
+    base3[i] = res;
+  }
 }
 
 board flipVertical(const board bd) {
@@ -57,6 +68,10 @@ board flipDiagA1H8(board bd) {
   __m128i data = delta_swap(bd.data, mask3, 28);
   data = delta_swap(data, mask2, 14);
   return board(delta_swap(data, mask1, 7));
+}
+
+uint16_t toBase3(uint8_t black, uint8_t white) {
+  return base3[black] + 2*base3[white];
 }
 
 } // namespace bit_manipulations
