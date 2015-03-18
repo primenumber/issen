@@ -1,0 +1,13 @@
+namespace bit_manipulations {
+
+board flipVertical(const board);
+board mirrorHorizontal(const board);
+board flipDiagA1H8(const board);
+board flipDiagA8H1(const board);
+
+board rotate180(const board);
+board rotate90clockwise(const board);
+board rotate90antiClockwise(const board);
+
+board pseudoRotate45clockwise(const board);
+board pseudoRotate45antiClockwise(const board);
