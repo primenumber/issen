@@ -2,6 +2,8 @@
 #include <algorithm>
 #include "board.hpp"
 
+namespace search {
+
 template <typename ValueFunc>
 int negamax(const board & bd, const int depth, ValueFunc func) {
   if (depth == 0) {
@@ -42,3 +44,5 @@ board get_opt(const board & bd, const int depth, ValueFunc func) {
   }
   return res;
 }
+
+} // namespace search
