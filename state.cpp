@@ -2,6 +2,24 @@
 
 namespace state {
 
+void init() {
+  for (int i = 0; i < 6561; ++i) {
+    uint8_t black = 0, white = 0;
+    int ii = i;
+    for (int j = 0; j < 8; ++j) {
+      switch (ii % 3) {
+       case 1:
+        black |= 1 << j;
+        break;
+       case 2:
+        white |= 1 << j;
+        break;
+      }
+    }
+  }
+}
+
+
 bool puttable_black_at_dir(const board & bd,
     const int i, const int j, const int dir) {
   const int di[8] = {1, 1, 0, -1, -1, -1, 0, 1};
