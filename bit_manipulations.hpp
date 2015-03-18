@@ -5,7 +5,7 @@ namespace bit_manipulations {
 void init();
 
 board flipVertical(const board);
-board mirrorHorizontal(const board);
+board mirrorHorizontal(board);
 board flipDiagA1H8(const board);
 board flipDiagA8H1(const board);
 
