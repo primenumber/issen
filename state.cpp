@@ -24,6 +24,12 @@ void init() {
         ary[j] = state::NONE;
       }
     }
+    uint8_t res = 0;
+    /*
+    for (int j = 0; j < 8; ++j)
+      if (puttable_black_line(ary, j))
+        res |= 1 << j;
+        */
   }
 }
 
@@ -59,6 +65,11 @@ uint64_t puttable_black(const board & bd) {
       if (puttable_black_at(bd, i, j))
         res |= ((uint64_t)1 << (i * 8 + j));
   return res;
+}
+
+bool is_gameover(const board &bd) {
+  return puttable_black(bd) == 0 &&
+      puttable_black(board(bd, reverse_construct_t())) == 0;
 }
 
 void put_black_at_dir(board &bd, int i, int j, int dir) {
