@@ -92,6 +92,21 @@ board rotate90antiClockwise(board bd) {
   return flipVertical(flipDiagA1H8(bd));
 }
 
+__m128i rotr(__m128i bits, int index) {
+  board bd(bits);
+  return board(_lrotr(bd.black.data, index),
+      _lrotr(bd.white.data, index)).data;
+}
+
+board pseudoRotate45clockwise(board bd) {
+  __m128i mask1 = _mm_set1_epi8(0x55);
+  __m128i mask2 = _mm_set1_epi8(0x33);
+  __m128i mask3 = _mm_set1_epi8(0x0f);
+  __m128i data = bd.data ^ (mask1 & (bd.data ^ rotr(bd.data, 8)));
+  data = data ^ (mask2 & (data ^ rotr(data, 16)));
+  return data ^ (mask3 & (data ^ rotr(data, 32)));
+}
+
 uint16_t toBase3(uint8_t black, uint8_t white) {
   return base3[black] + 2*base3[white];
 }
