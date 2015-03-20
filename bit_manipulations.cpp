@@ -84,6 +84,14 @@ board rotate180(board bd) {
   return mirrorHorizontal(flipVertical(bd));
 }
 
+board rotate90clockwise(board bd) {
+  return flipVertical(flipDiagA8H1(bd));
+}
+
+board rotate90antiClockwise(board bd) {
+  return flipVertical(flipDiagA1H8(bd));
+}
+
 uint16_t toBase3(uint8_t black, uint8_t white) {
   return base3[black] + 2*base3[white];
 }
