@@ -50,6 +50,10 @@ union board {
       black(bd.white), white(bd.black) {}
   board(const uint64_t black, const uint64_t white) : black(black), white(white) {}
   board(__m128i data) : data(data) {}
+  static board initial_board() {
+    return board(UINT64_C(0x0000000810000000), UINT64_C(0x0000001008000000));
+  }
+  static board reverse_board(const board &bd) {
+    return board(bd, reverse_construct_t());
+  }
 };
-
-board initial_board();
