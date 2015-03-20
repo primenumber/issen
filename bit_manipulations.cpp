@@ -107,6 +107,15 @@ board pseudoRotate45clockwise(board bd) {
   return data ^ (mask3 & (data ^ rotr(data, 32)));
 }
 
+board pseudoRotate45antiClockwise(board bd) {
+  __m128i mask1 = _mm_set1_epi8(0xaa);
+  __m128i mask2 = _mm_set1_epi8(0xcc);
+  __m128i mask3 = _mm_set1_epi8(0xf0);
+  __m128i data = bd.data ^ (mask1 & (bd.data ^ rotr(bd.data, 8)));
+  data = data ^ (mask2 & (data ^ rotr(data, 16)));
+  return data ^ (mask3 & (data ^ rotr(data, 32)));
+}
+
 uint16_t toBase3(uint8_t black, uint8_t white) {
   return base3[black] + 2*base3[white];
 }
