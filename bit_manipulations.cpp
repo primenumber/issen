@@ -80,6 +80,10 @@ board flipDiagA8H1(board bd) {
   return board(delta_swap(data, mask1, 9));
 }
 
+board rotate180(board bd) {
+  return mirrorHorizontal(flipVertical(bd));
+}
+
 uint16_t toBase3(uint8_t black, uint8_t white) {
   return base3[black] + 2*base3[white];
 }
