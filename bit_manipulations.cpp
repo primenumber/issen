@@ -70,6 +70,16 @@ board flipDiagA1H8(board bd) {
   return board(delta_swap(data, mask1, 7));
 }
 
+board flipDiagA8H1(board bd) {
+  __m128i mask1 = _mm_set1_epi16(0xaa00);
+  __m128i mask2 = _mm_set1_epi32(0xcccc0000);
+  __m128i mask3 = _mm_set1_epi64(
+      _mm_cvtsi64_m64(UINT64_C(0xf0f0f0f000000000)));
+  __m128i data = delta_swap(bd.data, mask3, 36);
+  data = delta_swap(data, mask2, 18);
+  return board(delta_swap(data, mask1, 9));
+}
+
 uint16_t toBase3(uint8_t black, uint8_t white) {
   return base3[black] + 2*base3[white];
 }
