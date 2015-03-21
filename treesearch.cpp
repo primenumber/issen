@@ -41,32 +41,4 @@ void expand_recursive(node &nd, int depth) {
       });
 }
 
-int dfs(const board &bd, int depth, int alpha, int beta) {
-  if (depth == 0) return value::value(bd);
-  for (const auto &bd : state::next_states(bd)) {
-    alpha = std::max(alpha,
-        -dfs(bd, depth - 1, -beta, -alpha));
-    if (alpha >= beta) return alpha;
-  }
-  return alpha;
-}
-
-int tree_negaalpha(node &nd, int depth, int alpha, int beta) {
-  if (depth == 0) return value::value(nd.bd);
-  if (nd.children.empty()) {
-    return dfs(nd.bd, depth, alpha, beta);
-  } else {
-    for (auto &child : nd.children) {
-      alpha = std::max(alpha,
-          -tree_negaalpha(*child, depth - 1, -beta, -alpha));
-      if (alpha >= beta) return alpha;
-    }
-    return alpha;
-  }
-}
-
-int tree_negamax(node &nd, int depth) {
-  return tree_negaalpha(nd, depth, -value::VALUE_MAX, value::VALUE_MAX);
-}
-
 } // namespace treesearch

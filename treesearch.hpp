@@ -19,6 +19,12 @@ void expand(node &);
 
 void expand_recursive(node &, int);
 
-int tree_negamax(node &, int);
+template <typename Func>
+int tree_negamax(node &nd, int depth, const Func &func) {
+  return tree_negaalpha(nd, depth,
+      -value::VALUE_MAX, value::VALUE_MAX, func);
+}
+
+#include "treesearch_impl.hpp"
 
 } // namespace treesearch
