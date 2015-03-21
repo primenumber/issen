@@ -17,4 +17,6 @@ struct node {
 
 void expand(node &);
 
+void expand_recursive(node &, int);
+
 } // namespace treesearch
