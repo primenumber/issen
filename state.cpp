@@ -103,10 +103,15 @@ board put_black_at(const board & bd, int i, int j) {
 
 std::vector<board> next_states(const board & bd) {
   std::vector<board> res;
+  bool is_pass = true;
   for (int i = 0; i < 8; ++i)
     for (int j = 0; j < 8; ++j)
-      if (puttable_black_at(bd, i, j))
-        res.emplace_back(put_black_at(bd, i, j), reverse_construct_t());
+      if (puttable_black_at(bd, i, j)) {
+        res.emplace_back(put_black_at(bd, i, j),
+            reverse_construct_t());
+        is_pass = false;
+      }
+  if (is_pass) res.emplace_back(bd, reverse_construct_t());
   return res;
 }
 
