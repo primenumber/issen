@@ -19,4 +19,6 @@ void expand(node &);
 
 void expand_recursive(node &, int);
 
+int tree_negamax(node &, int);
+
 } // namespace treesearch
