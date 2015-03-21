@@ -1,3 +1,4 @@
+#pragma once
 #include "board.hpp"
 
 namespace bit_manipulations {
