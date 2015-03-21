@@ -15,6 +15,6 @@ struct node {
   node(const board &bd) : bd(bd) {}
 };
 
-void expand(node &, const board &);
+void expand(node &);
 
 } // namespace treesearch

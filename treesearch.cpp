@@ -4,8 +4,8 @@
 
 namespace treesearch {
 
-void expand(node &nd, const board &bd) {
-  for (auto nx : state::next_states(bd)) {
+void expand(node &nd) {
+  for (auto nx : state::next_states(nd.board)) {
     auto child = std::make_unique<node>(nx);
     child->value.push_back(value::value(nx));
     nd.children.push_back(std::move(child));
