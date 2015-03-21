@@ -5,10 +5,6 @@ namespace value {
 void init() {
 }
 
-int num_value(const board & bd) {
-  return 100 * (_popcnt64(bd.black.data) - _popcnt64(bd.white.data));
-}
-
 int value(const board & bd) {
   if (state::puttable_black(bd) == 0) return num_value(bd);
   std::array<int, 64> ary = {{
@@ -27,6 +23,10 @@ int value(const board & bd) {
     else if (bd.white.get(i)) score -= ary[i];
   }
   return score;
+}
+
+int num_value(const board & bd) {
+  return 100 * (_popcnt64(bd.black.data) - _popcnt64(bd.white.data));
 }
 
 } // namespace value
