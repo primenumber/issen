@@ -103,6 +103,7 @@ board put_black_at(const board & bd, int i, int j) {
 
 std::vector<board> next_states(const board & bd) {
   std::vector<board> res;
+  res.reserve(16);
   bool is_pass = true;
   for (int i = 0; i < 8; ++i)
     for (int j = 0; j < 8; ++j)
