@@ -30,3 +30,11 @@ bool is_puttable_line(const board &bd, int line,
   return is_puttable_line_forward(bd, line, pos, separator) ||
       is_puttable_line_backward(bd, line, pos, separator);
 }
+
+uint8_t puttable_line(const board &bd, int line, int separator) {
+  uint8_t res = 0;
+  for (int i = 0; i < 8; ++i)
+    if (is_puttable_line(bd, line, i, separator))
+      res |= 1 << i;
+  return res;
+}
