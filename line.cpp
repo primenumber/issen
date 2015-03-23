@@ -1,5 +1,7 @@
 #include "line.hpp"
 
+namespace line {
+
 bool is_puttable_line_forward(const board &bd, int line8,
     int pos, int separator) {
   int limit = (pos >= separator) ? 8 : separator;
@@ -40,3 +42,5 @@ uint8_t puttable_line(const board &bd, int line, int separator) {
       res |= 1 << i;
   return res;
 }
+
+} // namespace line;
