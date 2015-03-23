@@ -27,6 +27,7 @@ board pseudoRotate45antiClockwise(board);
 uint64_t pseudoRotate45antiClockwise(uint64_t);
 
 int bit_to_pos(uint64_t);
+uint64_t rotr(uint64_t, int);
 
 uint16_t toBase3(uint8_t, uint8_t);
 
