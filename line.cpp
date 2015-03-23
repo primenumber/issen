@@ -2,8 +2,8 @@
 
 bool is_puttable_line_forward(const board &bd, int line8,
     int pos, int separator) {
-  int limit = (pos > separator) ? 8 : separator;
-  for (int i = pos; i < limit; ++i) {
+  int limit = (pos >= separator) ? 8 : separator;
+  for (int i = pos + 1; i < limit; ++i) {
     if (bd.black.get(line8 + i)) {
       return (i > pos + 1);
     } else if (!bd.white.get(line8 + i))
@@ -14,8 +14,8 @@ bool is_puttable_line_forward(const board &bd, int line8,
 
 bool is_puttable_line_backward(const board &bd, int line8,
     int pos, int separator) {
-  int limit = (pos > separator) ? separator : 0;
-  for (int i = pos; i >= limit; --i) {
+  int limit = (pos >= separator) ? separator : 0;
+  for (int i = pos - 1; i >= limit; --i) {
     if (bd.black.get(line8 + i)) {
       return (i < pos - 1);
     } else if (!bd.white.get(line8 + i))
