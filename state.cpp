@@ -132,9 +132,10 @@ std::vector<board> next_states(const board & bd) {
   std::vector<board> res;
   res.reserve(16);
   bool is_pass = true;
+  uint64_t puttables = puttable_black(bd);
   for (int i = 0; i < 8; ++i)
     for (int j = 0; j < 8; ++j)
-      if (puttable_black_at(bd, i, j)) {
+      if ((puttables >> (i*8+j)) & 1) {
         res.emplace_back(put_black_at(bd, i, j),
             reverse_construct_t());
         is_pass = false;
