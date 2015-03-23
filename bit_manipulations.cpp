@@ -72,7 +72,7 @@ uint64_t mirrorHorizontal(uint64_t bits) {
   bits = ((bits >> 1) & mask1) | ((bits & mask1) << 1);
   bits = ((bits >> 2) & mask2) | ((bits & mask2) << 2);
   bits = ((bits >> 4) & mask3) | ((bits & mask3) << 4);
-  return bd;
+  return bits;
 }
 
 board flipDiagA1H8(board bd) {
