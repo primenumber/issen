@@ -26,8 +26,9 @@ __m128i operator>>(__m128i lhs, int index) {
   return _mm_srli_epi64(lhs, index);
 }
 
-__m128i delta_swap(__m128i bits, __m128i mask, int delta) {
-  __m128i tmp = mask & (bits ^ (bits << delta));
+template <typename T>
+T delta_swap(T bits, T mask, int delta) {
+  T tmp = mask & (bits ^ (bits << delta));
   return bits ^ tmp ^ (tmp >> delta);
 }
 
@@ -46,8 +47,12 @@ void init() {
   }
 }
 
-board flipVertical(const board bd) {
+board flipVertical(board bd) {
   return board(_mm_shuffle_epi8(bd.data, flip_vertical_shuffle_table));
+}
+
+uint64_t flipVertical(uint64_t bits) {
+  return _bswap64(bits);
 }
 
 board mirrorHorizontal(board bd) {
@@ -57,6 +62,16 @@ board mirrorHorizontal(board bd) {
   bd.data = ((bd.data >> 1) & mask1) | ((bd.data & mask1) << 1);
   bd.data = ((bd.data >> 2) & mask2) | ((bd.data & mask2) << 2);
   bd.data = ((bd.data >> 4) & mask3) | ((bd.data & mask3) << 4);
+  return bd;
+}
+
+uint64_t mirrorHorizontal(uint64_t bits) {
+  uint64_t mask1 = UINT64_C(0x5555555555555555);
+  uint64_t mask2 = UINT64_C(0x3333333333333333);
+  uint64_t mask3 = UINT64_C(0x0f0f0f0f0f0f0f0f);
+  bits = ((bits >> 1) & mask1) | ((bits & mask1) << 1);
+  bits = ((bits >> 2) & mask2) | ((bits & mask2) << 2);
+  bits = ((bits >> 4) & mask3) | ((bits & mask3) << 4);
   return bd;
 }
 
@@ -70,6 +85,15 @@ board flipDiagA1H8(board bd) {
   return board(delta_swap(data, mask1, 7));
 }
 
+uint64_t flipDiagA1H8(uint64_t bits) {
+  uint64_t mask1 = UINT64_C(0x5500550055005500);
+  uint64_t mask2 = UINT64_C(0x3333000033330000);
+  uint64_t mask3 = UINT64_C(0x0f0f0f0f00000000);
+  bits = delta_swap(bits, mask3, 28);
+  bits = delta_swap(bits, mask2, 14);
+  return delta_swap(bits, mask1, 7);
+}
+
 board flipDiagA8H1(board bd) {
   __m128i mask1 = _mm_set1_epi16(0xaa00);
   __m128i mask2 = _mm_set1_epi32(0xcccc0000);
@@ -80,22 +104,47 @@ board flipDiagA8H1(board bd) {
   return board(delta_swap(data, mask1, 9));
 }
 
+uint64_t flipDiagA8H1(uint64_t bits) {
+  uint64_t mask1 = UINT64_C(0xaa00aa00aa00aa00);
+  uint64_t mask2 = UINT64_C(0xcccc0000cccc0000);
+  uint64_t mask3 = UINT64_C(0xf0f0f0f000000000);
+  bits = delta_swap(bits, mask3, 36);
+  bits = delta_swap(bits, mask2, 18);
+  return delta_swap(bits, mask1, 9);
+}
+
 board rotate180(board bd) {
   return mirrorHorizontal(flipVertical(bd));
 }
 
+uint64_t rotate180(uint64_t bits) {
+  return mirrorHorizontal(flipVertical(bits));
+};
+
 board rotate90clockwise(board bd) {
   return flipVertical(flipDiagA8H1(bd));
+}
+
+uint64_t rotate90clockwise(uint64_t bits) {
+  return flipVertical(flipDiagA8H1(bits));
 }
 
 board rotate90antiClockwise(board bd) {
   return flipVertical(flipDiagA1H8(bd));
 }
 
+uint64_t rotate90antiClockwise(uint64_t bits) {
+  return flipVertical(flipDiagA1H8(bits));
+}
+
 __m128i rotr(__m128i bits, int index) {
   board bd(bits);
   return board(_lrotr(bd.black.data, index),
       _lrotr(bd.white.data, index)).data;
+}
+
+uint64_t rotr(uint64_t bits, int index) {
+  return _lrotr(bits, index);
 }
 
 board pseudoRotate45clockwise(board bd) {
@@ -107,6 +156,15 @@ board pseudoRotate45clockwise(board bd) {
   return data ^ (mask3 & (data ^ rotr(data, 32)));
 }
 
+uint64_t pseudoRotate45clockwise(uint64_t bits) {
+  uint64_t mask1 = UINT64_C(0x5555555555555555);
+  uint64_t mask2 = UINT64_C(0x3333333333333333);
+  uint64_t mask3 = UINT64_C(0x0f0f0f0f0f0f0f0f);
+  bits = bits ^ (mask1 & (bits ^ rotr(bits, 8)));
+  bits = bits ^ (mask2 & (bits ^ rotr(bits, 16)));
+  return bits ^ (mask3 & (bits ^ rotr(bits, 32)));
+}
+
 board pseudoRotate45antiClockwise(board bd) {
   __m128i mask1 = _mm_set1_epi8(0xaa);
   __m128i mask2 = _mm_set1_epi8(0xcc);
@@ -114,6 +172,15 @@ board pseudoRotate45antiClockwise(board bd) {
   __m128i data = bd.data ^ (mask1 & (bd.data ^ rotr(bd.data, 8)));
   data = data ^ (mask2 & (data ^ rotr(data, 16)));
   return data ^ (mask3 & (data ^ rotr(data, 32)));
+}
+
+uint64_t pseudoRotate45antiClockwise(uint64_t bits) {
+  uint64_t mask1 = UINT64_C(0xaaaaaaaaaaaaaaaa);
+  uint64_t mask2 = UINT64_C(0xcccccccccccccccc);
+  uint64_t mask3 = UINT64_C(0xf0f0f0f0f0f0f0f0);
+  bits = bits ^ (mask1 & (bits ^ rotr(bits, 8)));
+  bits = bits ^ (mask2 & (bits ^ rotr(bits, 16)));
+  return bits ^ (mask3 & (bits ^ rotr(bits, 32)));
 }
 
 int bit_to_pos(uint64_t bit) {
