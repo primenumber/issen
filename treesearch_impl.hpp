@@ -28,3 +28,40 @@ int tree_negaalpha(node &nd, int depth,
     return nd.value[depth] = alpha;
   }
 }
+
+template <typename Func>
+std::pair<int, board> dfs_unlimited(const board &bd,
+    int alpha, int beta, const Func &func) {
+  if (state::puttable_black(bd) == 0 &&
+      state::puttable_black(board::reverse_board(bd)) == 0)
+    return std::make_pair(func(bd), bd);
+  board opt;
+  for (const auto &nx : state::next_states(bd)) {
+    int val = -dfs_unlimited(nx, -beta, -alpha, func).first;
+    if (val > alpha) {
+      alpha = val;
+      opt = nx;
+    }
+    if (alpha >= beta) return std::make_pair(alpha, bd);
+  }
+  return std::make_pair(alpha, opt);
+}
+
+template <typename Func>
+std::pair<int, board> tree_negaalpha_unlimited(node &nd,
+    int alpha, int beta, const Func &func) {
+  if (nd.children.empty()) {
+    return dfs_unlimited(nd.bd, alpha, beta, func);
+  } else {
+    board opt = nd.children.front()->bd;
+    for (auto &child : nd.children) {
+      int val = -tree_negaalpha_unlimited(*child, -beta, -alpha, func).first;
+      if (val > alpha) {
+        alpha = val;
+        opt = child->bd;
+      }
+      if (alpha >= beta) return std::make_pair(alpha, opt);
+    }
+    return std::make_pair(alpha, opt);
+  }
+}

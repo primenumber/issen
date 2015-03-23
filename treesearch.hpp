@@ -25,6 +25,12 @@ int tree_negamax(node &nd, int depth, const Func &func) {
       -value::VALUE_MAX, value::VALUE_MAX, func);
 }
 
+template <typename Func>
+std::pair<int, board> tree_negamax_unlimited(node &nd, const Func &func) {
+  return tree_negaalpha_unlimited(
+      nd, -value::VALUE_MAX, value::VALUE_MAX, func);
+}
+
 #include "treesearch_impl.hpp"
 
 } // namespace treesearch
