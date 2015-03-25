@@ -33,6 +33,10 @@ int tree_negamax_unlimited(node &nd, const Func &func) {
       nd, -value::VALUE_MAX, value::VALUE_MAX, func);
 }
 
+template <typename Func>
+int tree_negaalpha_unlimited(node &nd,
+    int alpha, int beta, const Func &func);
+
 #include "treesearch_impl.hpp"
 
 } // namespace treesearch
