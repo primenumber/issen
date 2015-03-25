@@ -50,6 +50,8 @@ union board {
       black(bd.white), white(bd.black) {}
   board(const uint64_t black, const uint64_t white) : black(black), white(white) {}
   board(__m128i data) : data(data) {}
+  board &operator=(const board &) = default;
+  board &operator=(board &&) = default;
   static board initial_board() {
     return board(UINT64_C(0x0000000810000000), UINT64_C(0x0000001008000000));
   }
@@ -57,3 +59,8 @@ union board {
     return board(bd, reverse_construct_t());
   }
 };
+
+inline bool operator==(const board &lhs, const board &rhs) {
+  return lhs.black.data == rhs.black.data &&
+      lhs.white.data == rhs.white.data;
+}
