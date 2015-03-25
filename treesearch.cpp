@@ -4,17 +4,18 @@
 
 namespace treesearch {
 
+bool operator<(const std::unique_ptr<node> &lhs,
+    const std::unique_ptr<node> &rhs) {
+  return lhs->value.back() < rhs->value.back();
+}
+
 void expand(node &nd) {
   for (auto nx : state::next_states(nd.bd)) {
     auto child = std::make_unique<node>(nx);
     child->value.push_back(value::value(nx));
     nd.children.push_back(std::move(child));
   }
-  std::sort(begin(nd.children), end(nd.children),
-      [](const std::unique_ptr<node> &lhs,
-          const std::unique_ptr<node> &rhs) {
-        return lhs->value.back() < rhs->value.back();
-      });
+  std::sort(begin(nd.children), end(nd.children));
   nd.value.push_back(-nd.children.front()->value.back());
 }
 
@@ -34,11 +35,7 @@ void expand_recursive(node &nd, int depth) {
       nd.value[i] = std::max(nd.value[i], -child->value[i-1]);
     }
   }
-  std::sort(begin(nd.children), end(nd.children),
-      [](const std::unique_ptr<node> &lhs,
-          const std::unique_ptr<node> &rhs) {
-        return lhs->value.back() < rhs->value.back();
-      });
+  std::sort(begin(nd.children), end(nd.children));
 }
 
 } // namespace treesearch
