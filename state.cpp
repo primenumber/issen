@@ -70,28 +70,48 @@ uint64_t puttable_black_naive(const board & bd) {
   return res;
 }
 
-uint64_t puttable_black(const board & bd) {
+// puttable_black
+uint64_t puttable_black_horizontal(const board &bd) {
   uint64_t res = 0;
   for (int i = 0; i < 8; ++i)
     res |= (uint64_t)line::puttable_line(bd, i, 0) << (i * 8);
-  const board fliped_bd = bit_manipulations::flipDiagA1H8(bd);
-  uint64_t fliped_res = 0;
-  for (int i = 0; i < 8; ++i)
-    fliped_res |= (uint64_t)line::puttable_line(fliped_bd, i, 0) << (i * 8);
-  const board prot45_bd = bit_manipulations::pseudoRotate45clockwise(bd);
-  uint64_t prot45_res = 0;
-  for (int i = 0; i < 8; ++i)
-    prot45_res |= (uint64_t)line::puttable_line(prot45_bd, i, i) << (i * 8);
-  const board prot45a_bd = bit_manipulations::pseudoRotate45antiClockwise(bd);
-  uint64_t prot45a_res = 0;
-  for (int i = 0; i < 8; ++i)
-    prot45a_res |= (uint64_t)line::puttable_line(prot45a_bd, i, (8 - i) % 8) << (i * 8);
-  res |= bit_manipulations::flipDiagA1H8(fliped_res) |
-      bit_manipulations::rotr(
-          bit_manipulations::pseudoRotate45antiClockwise(prot45_res), 8) |
-      bit_manipulations::rotr(
-          bit_manipulations::pseudoRotate45clockwise(prot45a_res), 8);
   return res;
+}
+
+uint64_t puttable_black_virtical(const board &bd) {
+  const board fliped_bd = bit_manipulations::flipDiagA1H8(bd);
+  uint64_t res = 0;
+  for (int i = 0; i < 8; ++i)
+    res |= (uint64_t)line::puttable_line(fliped_bd, i, 0) << (i * 8);
+  return bit_manipulations::flipDiagA1H8(res);
+}
+
+uint64_t puttable_black_diag_implA8H1(const board &bd) {
+  const board prot45_bd = bit_manipulations::pseudoRotate45clockwise(bd);
+  uint64_t res = 0;
+  for (int i = 0; i < 8; ++i)
+    res |= (uint64_t)line::puttable_line(prot45_bd, i, i) << (i * 8);
+  return bit_manipulations::pseudoRotate45antiClockwise(res);
+}
+
+uint64_t puttable_black_diag_implA1H8(const board &bd) {
+  const board prot45a_bd = bit_manipulations::pseudoRotate45antiClockwise(bd);
+  uint64_t res = 0;
+  for (int i = 0; i < 8; ++i)
+    res |= (uint64_t)line::puttable_line(prot45a_bd, i, (8 - i) % 8) << (i * 8);
+  return bit_manipulations::pseudoRotate45clockwise(res);
+}
+
+uint64_t puttable_black_diag(const board &bd) {
+  return bit_manipulations::rotr(
+      puttable_black_diag_implA8H1(bd) |
+      puttable_black_diag_implA1H8(bd), 8);
+}
+
+uint64_t puttable_black(const board &bd) {
+  return puttable_black_horizontal(bd) |
+      puttable_black_virtical(bd) |
+      puttable_black_diag(bd);
 }
 
 bool is_gameover(const board &bd) {
