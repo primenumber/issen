@@ -12,7 +12,9 @@ struct node {
   const board bd;
   std::vector<std::unique_ptr<node>> children;
   std::vector<int> value;
-  node(const board &bd) : bd(bd) {}
+  node(const node &) = default;
+  node(node &&) = default;
+  explicit node(const board &bd) : bd(bd) {}
 };
 
 void expand(node &);
@@ -26,7 +28,7 @@ int tree_negamax(node &nd, int depth, const Func &func) {
 }
 
 template <typename Func>
-std::pair<int, board> tree_negamax_unlimited(node &nd, const Func &func) {
+int tree_negamax_unlimited(node &nd, const Func &func) {
   return tree_negaalpha_unlimited(
       nd, -value::VALUE_MAX, value::VALUE_MAX, func);
 }
