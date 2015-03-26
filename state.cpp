@@ -83,7 +83,7 @@ uint64_t puttable_black_horizontal(const board &bd) {
   return res;
 }
 
-uint64_t puttable_black_virtical(const board &bd) {
+uint64_t puttable_black_vertical(const board &bd) {
   const board fliped_bd = bit_manipulations::flipDiagA1H8(bd);
   uint64_t res = 0;
   for (int i = 0; i < 8; ++i)
@@ -115,7 +115,7 @@ uint64_t puttable_black_diag(const board &bd) {
 
 uint64_t puttable_black(const board &bd) {
   return puttable_black_horizontal(bd) |
-      puttable_black_virtical(bd) |
+      puttable_black_vertical(bd) |
       puttable_black_diag(bd);
 }
 
