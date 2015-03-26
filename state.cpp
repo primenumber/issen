@@ -209,4 +209,16 @@ std::vector<board> next_states(const board & bd) {
   return res;
 }
 
+std::vector<board> next_states(const board & bd, uint64_t bits) {
+  std::vector<board> res;
+  res.reserve(16);
+  if (bits == 0) res.emplace_back(bd, reverse_construct_t());
+  for (; bits != 0; bits &= bits - 1) {
+    int pos = bit_manipulations::bit_to_pos(bits & -bits);
+    res.emplace_back(put_black_at(bd, pos / 8, pos % 8),
+        reverse_construct_t());
+  }
+  return res;
+}
+
 } // namespace state

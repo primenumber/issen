@@ -11,5 +11,6 @@ uint64_t puttable_black(const board &);
 bool is_gameover(const board &);
 board put_black_at(const board &, int, int);
 std::vector<board> next_states(const board &);
+std::vector<board> next_states(const board &, uint64_t bits);
 
 } // namespace state
