@@ -121,7 +121,7 @@ uint64_t puttable_black(const board &bd) {
 
 bool is_gameover(const board &bd) {
   return puttable_black(bd) == 0 &&
-      puttable_black(board(bd, reverse_construct_t())) == 0;
+      puttable_black(board::reverse_board(bd)) == 0;
 }
 
 void put_black_at_dir(board &bd, int i, int j, int dir) {
