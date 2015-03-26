@@ -31,15 +31,25 @@ int tree_negaalpha(node &nd, int depth,
 
 template <typename Func>
 int dfs_unlimited(const board &bd,
-    int alpha, int beta, const Func &func) {
-  if (state::is_gameover(bd))
-    return func(bd);
-  for (const auto &nx : state::next_states(bd)) {
-    alpha = std::max(alpha,
-        -dfs_unlimited(nx, -beta, -alpha, func));
-    if (alpha >= beta) return alpha;
+    int alpha, int beta, const Func &func, bool is_pass = false) {
+  uint64_t bits = state::puttable_black(bd);
+  if (bits != 0) {
+    for (const auto &nx : state::next_states(bd, bits)) {
+      alpha = std::max(alpha,
+          -dfs_unlimited(nx, -beta, -alpha, func));
+      if (alpha >= beta) return alpha;
+    }
+    return alpha;
+  } else {
+    if (is_pass) {
+      return func(bd);
+    } else {
+      board rev(bd, reverse_construct_t());
+      return std::max(alpha,
+          -dfs_unlimited(board::reverse_board(bd),
+              -beta, -alpha, func, true));
+    }
   }
-  return alpha;
 }
 
 template <typename Func>
