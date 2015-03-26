@@ -1,4 +1,5 @@
 #include "value.hpp"
+#include "bit_manipulations.hpp"
 
 namespace value {
 
@@ -10,18 +11,22 @@ int puttable_value(const board &bd) {
       _popcnt64(state::puttable_black(board::reverse_board(bd))));
 }
 
+int definite_value(const board &bd) {
+  return num_value(bit_manipulations::definites(bd));
+}
+
 int pos_value(const board &bd) {
+  int score = 0;
   const std::array<int, 64> ary = {{
     100, -50,  15,  15,  15,  15, -50, 100,
     -50, -75, -10, -10, -10, -10, -75, -50,
-     15, -10,   0,  -1,  -1,   0, -10,  15,
-     15, -10,  -1,  -1,  -1,  -1, -10,  15,
-     15, -10,  -1,  -1,  -1,  -1, -10,  15,
-     15, -10,   0,  -1,  -1,   0, -10,  15,
+     15, -10,   0,  -3,  -3,   0, -10,  15,
+     15, -10,  -3,  -3,  -3,  -3, -10,  15,
+     15, -10,  -3,  -3,  -3,  -3, -10,  15,
+     15, -10,   0,  -3,  -3,   0, -10,  15,
     -50, -75, -10, -10, -10, -10, -75, -50,
     100, -50,  15,  15,  15,  15, -50, 100
   }};
-  int score = 0;
   for (int i = 0; i < 64; ++i) {
     if (bd.black.get(i)) score += ary[i];
     else if (bd.white.get(i)) score -= ary[i];
@@ -34,6 +39,7 @@ int value(const board & bd) {
   int score = 0;
   score += puttable_value(bd);
   score += pos_value(bd);
+  //score += definite_value(bd)/2;
   return score;
 }
 
