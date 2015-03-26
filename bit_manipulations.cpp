@@ -183,6 +183,31 @@ uint64_t pseudoRotate45antiClockwise(uint64_t bits) {
   return bits ^ (mask3 & (bits ^ rotr(bits, 32)));
 }
 
+uint64_t tails(uint64_t bits) {
+  ++bits;
+  return (bits & -bits) - 1;
+}
+
+board tails(board bd) {
+  return board(tails(bd.black.data), tails(bd.white.data));
+}
+
+board definites_horizontal_top(board bd) {
+  return board(tails(bd).data |
+      mirrorHorizontal(tails(mirrorHorizontal(bd))).data);
+}
+board definites_horizontal(board bd) {
+  return board(
+      definites_horizontal_top(bd).data |
+      flipVertical(definites_horizontal_top(flipVertical(bd))).data);
+}
+
+board definites(board bd) {
+  return board(
+      definites_horizontal(bd).data |
+      flipDiagA1H8(definites_horizontal(flipDiagA1H8(bd))).data);
+}  
+
 int bit_to_pos(uint64_t bit) {
   return _popcnt64(bit - 1);
 }

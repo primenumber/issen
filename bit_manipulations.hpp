@@ -26,6 +26,8 @@ uint64_t pseudoRotate45clockwise(uint64_t);
 board pseudoRotate45antiClockwise(board);
 uint64_t pseudoRotate45antiClockwise(uint64_t);
 
+board definites(board);
+
 int bit_to_pos(uint64_t);
 uint64_t rotr(uint64_t, int);
 
