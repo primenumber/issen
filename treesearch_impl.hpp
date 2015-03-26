@@ -34,10 +34,28 @@ int dfs_unlimited(const board &bd,
     int alpha, int beta, const Func &func, bool is_pass = false) {
   uint64_t bits = state::puttable_black(bd);
   if (bits != 0) {
-    for (const auto &nx : state::next_states(bd, bits)) {
-      alpha = std::max(alpha,
-          -dfs_unlimited(nx, -beta, -alpha, func));
-      if (alpha >= beta) return alpha;
+    if (_popcnt64(bits) > 3) {
+      std::vector<std::pair<int, board>> v;
+      v.reserve(_popcnt64(bits));
+      for (const auto &nx : state::next_states(bd, bits)) {
+        v.emplace_back(func(nx), nx);
+      }
+      std::sort(std::begin(v), std::end(v),
+          [](const std::pair<int, board> &lhs,
+              const std::pair<int, board> &rhs) {
+            return lhs.first > rhs.first;
+          });
+      for (const auto &nx : v){
+        alpha = std::max(alpha,
+            -dfs_unlimited(nx.second, -beta, -alpha, func));
+        if (alpha >= beta) return alpha;
+      }
+    } else {
+      for (const auto &nx : state::next_states(bd, bits)) {
+        alpha = std::max(alpha,
+            -dfs_unlimited(nx, -beta, -alpha, func));
+        if (alpha >= beta) return alpha;
+      }
     }
     return alpha;
   } else {
