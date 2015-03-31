@@ -31,25 +31,37 @@ int tree_negaalpha(node &nd, int depth,
 
 template <typename Func>
 int dfs_unlimited(const board &bd,
-    int alpha, int beta, const Func &func, bool is_pass = false) {
+    int alpha, int beta, const Func &func, bool is_pass = false);
+
+template <typename Func>
+int dfs_unlimited_impl_sort_search(const board &bd,
+    int alpha, int beta, const Func &func, uint64_t bits) {
+  std::vector<std::pair<int, board>> v;
+  v.reserve(_popcnt64(bits));
+  for (const auto &nx : state::next_states(bd, bits)) {
+    v.emplace_back(func(nx), nx);
+  }
+  std::sort(std::begin(v), std::end(v),
+      [](const std::pair<int, board> &lhs,
+          const std::pair<int, board> &rhs) {
+        return lhs.first > rhs.first;
+      });
+  for (const auto &nx : v){
+    alpha = std::max(alpha,
+        -dfs_unlimited(nx.second, -beta, -alpha, func));
+    if (alpha >= beta) return alpha;
+  }
+  return alpha;
+}
+
+
+template <typename Func>
+int dfs_unlimited(const board &bd,
+    int alpha, int beta, const Func &func, bool is_pass) {
   uint64_t bits = state::puttable_black(bd);
   if (bits != 0) {
     if (_popcnt64(bits) > 3) {
-      std::vector<std::pair<int, board>> v;
-      v.reserve(_popcnt64(bits));
-      for (const auto &nx : state::next_states(bd, bits)) {
-        v.emplace_back(func(nx), nx);
-      }
-      std::sort(std::begin(v), std::end(v),
-          [](const std::pair<int, board> &lhs,
-              const std::pair<int, board> &rhs) {
-            return lhs.first > rhs.first;
-          });
-      for (const auto &nx : v){
-        alpha = std::max(alpha,
-            -dfs_unlimited(nx.second, -beta, -alpha, func));
-        if (alpha >= beta) return alpha;
-      }
+      return dfs_unlimited_impl_sort_search(bd, alpha, beta, func, bits);
     } else {
       for (const auto &nx : state::next_states(bd, bits)) {
         alpha = std::max(alpha,
