@@ -65,12 +65,36 @@ int pos_value(const board &bd) {
   return score;
 }
 
+int edge_value_impl(const board &bd) {
+  int index = bit_manipulations::toBase3(bd.black.data, bd.white.data);
+  switch (index) {
+    case 3279: return  200; // .xxxxxx.
+    case 6558: return -200; // .oooooo.
+    case 3276: return -100; // .xxxxx..
+    case 6552: return  100; // .ooooo..
+    case 1092: return -100; // ..xxxxx.
+    case 2184: return  100; // ..ooooo.
+    case 1089: return  100; // ..xxxx..
+    case 2178: return -100; // ..oooo..
+    default: return 0;
+  }
+}
+
+int edge_value(const board &bd) {
+  using namespace bit_manipulations;
+  return edge_value_impl(bd) +
+      edge_value_impl(flipVertical(bd)) +
+      edge_value_impl(flipDiagA1H8(bd)) +
+      edge_value_impl(flipDiagA8H1(bd));
+}
+
 int value(const board & bd) {
   //if (state::puttable_black(bd) == 0) return num_value(bd);
   int score = 0;
   score += puttable_value(bd);
   //score += pos_value(bd);
   score += definite_value(bd)/4;
+  score += edge_value(bd);
   return score;
 }
 
