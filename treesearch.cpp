@@ -1,41 +1,59 @@
-#include <algorithm>
-
 #include "treesearch.hpp"
+
+#include <cassert>
+#include <algorithm>
+#include <iostream>
 
 namespace treesearch {
 
-bool operator<(const std::unique_ptr<node> &lhs,
-    const std::unique_ptr<node> &rhs) {
-  return lhs->value.back() < rhs->value.back();
-}
+uint64_t nodes;
 
-void expand(node &nd) {
-  for (auto nx : state::next_states(nd.bd)) {
-    auto child = std::make_unique<node>(nx);
-    child->value.push_back(value::value(nx));
-    nd.children.push_back(std::move(child));
+int endgame_dfs(const board &bd, int alpha, int beta, bool is_pass = false) {
+  uint64_t bits = state::puttable_black(bd);
+  ++nodes;
+  if (bits != 0) {
+    for (auto &nx : state::next_states(bd, bits)) {
+      alpha = std::max(alpha,
+          -endgame_dfs(nx, -beta, -alpha));
+      if (alpha >= beta) return alpha;
+    }
+    return alpha;
+  } else if (is_pass) {
+    return value::fixed_diff_num(bd);
+  } else {
+    return -endgame_dfs(board::reverse_board(bd), -beta, -alpha, true);
   }
-  std::sort(begin(nd.children), end(nd.children));
-  nd.value.push_back(-nd.children.front()->value.back());
 }
 
-void expand_recursive(node &nd, int depth) {
-  if (depth == 0) return;
+int endgame_tree_dfs(const tree::node &nd, int alpha, int beta) {
   if (nd.children.empty()) {
-    expand(nd);
+    return endgame_dfs(nd.bd, alpha, beta);
+  } else {
+    ++nodes;
+    for (int i = 0; i < nd.children.size(); ++i) {
+      auto &np = nd.children[i];
+      alpha = std::max(alpha,
+          -endgame_tree_dfs(*np, -beta, -alpha));
+      if (alpha >= beta) return alpha;
+    }
+    return alpha;
   }
-  for (auto &child : nd.children) {
-    expand_recursive(*child, depth - 1);
-  }
-  int old_dep = nd.value.size();
-  int new_dep = nd.children.front()->value.size() + 1;
-  nd.value.resize(new_dep, -value::VALUE_MAX);
-  for (const auto &child : nd.children) {
-    for (int i = old_dep; i < new_dep; ++i) {
-      nd.value[i] = std::max(nd.value[i], -child->value[i-1]);
+}
+
+std::tuple<board, int> endgame_search(tree::node &nd) {
+  int alpha = -value::VALUE_MAX;
+  int beta = value::VALUE_MAX;
+  board bd;
+  nodes = 0;
+  for (auto &np : nd.children) {
+    int val = -endgame_tree_dfs(*np, -beta, -alpha);
+    if (val >= alpha) {
+      alpha = val;
+      bd = np->bd;
     }
   }
-  std::sort(begin(nd.children), end(nd.children));
+  std::cerr << "nodes: " << nodes << std::endl;
+  return std::make_tuple(bd, alpha);
 }
 
 } // namespace treesearch
