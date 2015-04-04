@@ -1,17 +1,39 @@
 #include "treesearch.hpp"
 
-#include <cassert>
 #include <algorithm>
 #include <iostream>
+#include <tuple>
+#include <vector>
 
 namespace treesearch {
 
 uint64_t nodes;
 
-int endgame_dfs(const board &bd, int alpha, int beta, bool is_pass = false) {
+int endgame_dfs(const board &bd, int alpha, int beta, bool is_pass = false);
+
+int endgame_dfs_sort(const board &bd, int alpha, int beta, uint64_t bits) {
+  std::vector<std::tuple<int, board>> nxv;
+  nxv.reserve(_popcnt64(bits));
+  for (auto &nx : state::next_states(bd, bits))
+    nxv.emplace_back(value::value(nx), nx);
+  using tp = std::tuple<int, board>;
+  std::sort(std::begin(nxv), std::end(nxv),
+      [](const tp &lhs, const tp &rhs) {
+        return std::get<0>(lhs) < std::get<0>(rhs);
+      });
+  for (auto &nxp : nxv) {
+    alpha = std::max(alpha,
+        -endgame_dfs(std::get<1>(nxp), -beta, -alpha));
+    if (alpha >= beta) return alpha;
+  }
+  return alpha;
+}
+
+int endgame_dfs(const board &bd, int alpha, int beta, bool is_pass) {
   uint64_t bits = state::puttable_black(bd);
   ++nodes;
   if (bits != 0) {
+    if (_popcnt64(bits) > 4) return endgame_dfs_sort(bd, alpha, beta, bits);
     for (auto &nx : state::next_states(bd, bits)) {
       alpha = std::max(alpha,
           -endgame_dfs(nx, -beta, -alpha));
