@@ -30,8 +30,7 @@ int endgame_tree_dfs(const tree::node &nd, int alpha, int beta) {
     return endgame_dfs(nd.bd, alpha, beta);
   } else {
     ++nodes;
-    for (int i = 0; i < nd.children.size(); ++i) {
-      auto &np = nd.children[i];
+    for (auto &np : nd.children) {
       alpha = std::max(alpha,
           -endgame_tree_dfs(*np, -beta, -alpha));
       if (alpha >= beta) return alpha;
@@ -47,7 +46,7 @@ std::tuple<board, int> endgame_search(tree::node &nd) {
   nodes = 0;
   for (auto &np : nd.children) {
     int val = -endgame_tree_dfs(*np, -beta, -alpha);
-    if (val >= alpha) {
+    if (val > alpha) {
       alpha = val;
       bd = np->bd;
     }
