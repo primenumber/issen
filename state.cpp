@@ -77,18 +77,17 @@ uint64_t puttable_black_naive(const board & bd) {
 
 // puttable_black
 uint64_t puttable_black_horizontal(const board &bd) {
-  uint64_t res = 0;
-  for (int i = 0; i < 8; ++i)
-    res |= (uint64_t)line::puttable_line(bd, i, 0) << (i * 8);
+  uint64_t res = bit_manipulations::puttable_black_forward(bd) |
+    bit_manipulations::mirrorHorizontal(
+        bit_manipulations::puttable_black_forward(
+            bit_manipulations::mirrorHorizontal(bd)));
   return res;
 }
 
 uint64_t puttable_black_vertical(const board &bd) {
-  const board fliped_bd = bit_manipulations::flipDiagA1H8(bd);
-  uint64_t res = 0;
-  for (int i = 0; i < 8; ++i)
-    res |= (uint64_t)line::puttable_line(fliped_bd, i, 0) << (i * 8);
-  return bit_manipulations::flipDiagA1H8(res);
+  return bit_manipulations::flipDiagA1H8(
+      puttable_black_horizontal(
+        bit_manipulations::flipDiagA1H8(bd)));
 }
 
 uint64_t puttable_black_diag_implA8H1(const board &bd) {
