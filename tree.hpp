@@ -18,7 +18,7 @@ struct node {
   explicit node(const board &bd) : bd(bd) {}
 };
 
-void expand_recursive(node &nd, int depth);
+int expand_recursive(node &nd, int depth);
 
 template <typename Func>
 void reorder(node &nd, Func func) {
