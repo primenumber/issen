@@ -19,7 +19,7 @@ int negamax(const board & bd, const int depth, ValueFunc func) {
 template <typename ValueFunc>
 int negaalpha(const board & bd, const int depth, ValueFunc func,
     int alpha, int beta) {
-  if (depth == 0 || state::is_gameover(bd)) {
+  if (depth <= 0 || state::is_gameover(bd)) {
     return func(bd);
   } else if (state::puttable_black(bd) == 0) {
     return -negaalpha(board(bd, reverse_construct_t()), depth - 1, func, -beta, -alpha);

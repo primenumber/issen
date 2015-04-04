@@ -36,4 +36,21 @@ void reorder(node &nd, Func func) {
   }
 }
 
+template <typename Func>
+void reorder_recursive(node &nd, Func func, int depth) {
+  if (nd.children.empty()) {
+    nd.reorder_val = search::negaalpha(
+        nd.bd, depth, func, -value::VALUE_MAX, value::VALUE_MAX);
+  } else {
+    using np = std::unique_ptr<node>;
+    for (auto &cp : nd.children)
+      reorder_recursive(*cp, func, depth - 1);
+    std::sort(std::begin(nd.children), std::end(nd.children),
+        [](const np &lhs, const np &rhs) {
+          return lhs->reorder_val < rhs->reorder_val;
+        });
+    nd.reorder_val = -nd.children.front()->reorder_val;
+  }
+}
+
 }
