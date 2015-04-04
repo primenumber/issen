@@ -217,9 +217,8 @@ uint64_t puttable_black_forward_nomask(board bd) {
     __m128i b = _mm_set1_epi64x(bd.black.data);
     __m128i w = _mm_set1_epi64x(bd.white.data);
     __m128i wpp = _mm_add_epi8(w, posbit);
-    __m128i poyo = _mm_sub_epi8(b & wpp, posbit);
-    __m128i mask = _mm_cmpgt_epi8(poyo, _mm_setzero_si128());
-    pres = pres | (mask & posbit);
+    __m128i poyo = _mm_subs_epu8(b & wpp, posbit);
+    pres = pres | (poyo & posbit);
     posbit = posbit << 2;
   }
   pres = pres | _mm_srli_si128(pres, 8);
