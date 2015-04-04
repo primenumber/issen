@@ -208,6 +208,25 @@ board definites(board bd) {
       flipDiagA1H8(definites_horizontal(flipDiagA1H8(bd))).data);
 }  
 
+uint64_t puttable_black_forward(board bd) {
+  __m128i posbit = _mm_set_epi64x(
+          UINT64_C(0x0404040404040404),
+          UINT64_C(0x0202020202020202));
+  __m128i pres = _mm_setzero_si128();
+  for (int i = 0; i < 3; ++i) {
+    __m128i b = _mm_set1_epi64x(bd.black.data);
+    __m128i w = _mm_set1_epi64x(bd.white.data);
+    __m128i wpp = _mm_add_epi8(w, posbit);
+    __m128i poyo = _mm_sub_epi8(b & wpp, posbit);
+    __m128i mask = _mm_cmpgt_epi8(poyo, _mm_setzero_si128());
+    pres = pres | (mask & posbit);
+    posbit = posbit << 2;
+  }
+  pres = pres | _mm_srli_si128(pres, 8);
+  uint64_t res = _mm_cvtsi128_si64(pres) >> 1;
+  return res & ~(bd.black.data | bd.white.data);
+}
+
 int bit_to_pos(uint64_t bit) {
   return _popcnt64(bit - 1);
 }
