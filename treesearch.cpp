@@ -21,10 +21,18 @@ int endgame_dfs_sort(const board &bd, int alpha, int beta, uint64_t bits) {
       [](const tp &lhs, const tp &rhs) {
         return std::get<0>(lhs) < std::get<0>(rhs);
       });
-  for (auto &nxp : nxv) {
-    alpha = std::max(alpha,
-        -endgame_dfs(std::get<1>(nxp), -beta, -alpha));
-    if (alpha >= beta) return alpha;
+  alpha = std::max(alpha,
+      -endgame_dfs(std::get<1>(nxv.front()), -beta, -alpha));
+  if (alpha >= beta) return alpha;
+  for (int i = 1; i < nxv.size(); ++i) {
+    int v = -endgame_dfs(std::get<1>(nxv[i]), -alpha - 1, -alpha);
+    if (v >= beta) return v;
+    if (v > alpha) {
+      alpha = v;
+      alpha = std::max(alpha,
+          -endgame_dfs(std::get<1>(nxv[i]), -beta, -alpha));
+      if (alpha >= beta) return alpha;
+    }
   }
   return alpha;
 }
