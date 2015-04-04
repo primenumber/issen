@@ -43,7 +43,7 @@ int puttable_value(const board &bd) {
 
 int definite_value(const board &bd) {
   board df = bit_manipulations::definites(bd);
-  return diff_num(df) * 50;
+  return diff_num(df) * 6;
 }
 
 int pos_value(const board &bd) {
@@ -93,7 +93,7 @@ int value(const board & bd) {
   int score = 0;
   score += puttable_value(bd);
   //score += pos_value(bd);
-  score += definite_value(bd)/4;
+  score += definite_value(bd);
   score += edge_value(bd);
   return score;
 }
