@@ -17,28 +17,6 @@ enum class state {
 };
 
 void init() {
-  for (int i = 0; i < 6561; ++i) {
-    std::array<state, 8> ary;
-    int ii = i;
-    for (int j = 0; j < 8; ++j) {
-      switch (ii % 3) {
-       case 1:
-        ary[j] = state::BLACK;
-        break;
-       case 2:
-        ary[j] = state::WHITE;
-        break;
-       default:
-        ary[j] = state::NONE;
-      }
-    }
-    uint8_t res = 0;
-    /*
-    for (int j = 0; j < 8; ++j)
-      if (puttable_black_line(ary, j))
-        res |= 1 << j;
-        */
-  }
 }
 
 
