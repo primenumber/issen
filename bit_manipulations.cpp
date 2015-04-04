@@ -208,7 +208,7 @@ board definites(board bd) {
       flipDiagA1H8(definites_horizontal(flipDiagA1H8(bd))).data);
 }  
 
-uint64_t puttable_black_forward(board bd) {
+uint64_t puttable_black_forward_nomask(board bd) {
   __m128i posbit = _mm_set_epi64x(
           UINT64_C(0x0404040404040404),
           UINT64_C(0x0202020202020202));
@@ -223,8 +223,11 @@ uint64_t puttable_black_forward(board bd) {
     posbit = posbit << 2;
   }
   pres = pres | _mm_srli_si128(pres, 8);
-  uint64_t res = _mm_cvtsi128_si64(pres) >> 1;
-  return res & ~(bd.black.data | bd.white.data);
+  return _mm_cvtsi128_si64(pres) >> 1;
+}
+
+uint64_t puttable_black_forward(board bd) {
+  return puttable_black_forward_nomask(bd) & ~(bd.black.data | bd.white.data);
 }
 
 int bit_to_pos(uint64_t bit) {

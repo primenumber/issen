@@ -29,6 +29,7 @@ uint64_t pseudoRotate45antiClockwise(uint64_t);
 board definites(board);
 
 uint64_t puttable_black_forward(board);
+uint64_t puttable_black_forward_nomask(board);
 
 int bit_to_pos(uint64_t);
 uint64_t rotr(uint64_t, int);
