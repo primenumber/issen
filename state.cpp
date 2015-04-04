@@ -79,7 +79,7 @@ uint64_t puttable_black_naive(const board & bd) {
 uint64_t puttable_black_horizontal(const board &bd) {
   uint64_t res = bit_manipulations::puttable_black_forward(bd) |
     bit_manipulations::mirrorHorizontal(
-        bit_manipulations::puttable_black_forward(
+        bit_manipulations::puttable_black_forward_nomask(
             bit_manipulations::mirrorHorizontal(bd)));
   return res;
 }
@@ -113,9 +113,10 @@ uint64_t puttable_black_diag(const board &bd) {
 }
 
 uint64_t puttable_black(const board &bd) {
-  return puttable_black_horizontal(bd) |
+  return ~(bd.black.data | bd.white.data) &
+      (puttable_black_horizontal(bd) |
       puttable_black_vertical(bd) |
-      puttable_black_diag(bd);
+      puttable_black_diag(bd));
 }
 
 bool is_gameover(const board &bd) {
