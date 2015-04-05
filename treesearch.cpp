@@ -55,14 +55,29 @@ int endgame_dfs(const board &bd, int alpha, int beta, bool is_pass) {
   }
 }
 
-int endgame_tree_dfs(const tree::node &nd, int alpha, int beta) {
+int leaf_table_update(const board &bd, int alpha, int beta,
+    const std::vector<board> &vb, std::vector<std::tuple<int, int>> &vv) {
+  int index = std::lower_bound(std::begin(vb), std::end(vb), bd)
+      - std::begin(vb);
+  int lower, upper;
+  std::tie(lower, upper) = vv[index];
+  if (lower >= beta) return lower;
+  if (upper <= alpha) return upper;
+  int val = endgame_dfs(bd, std::max(lower, alpha), std::min(upper, beta));
+  if (val <= alpha) std::get<1>(vv[index]) = std::max(lower, alpha);
+  else if (val >= beta) std::get<0>(vv[index]) = std::min(upper, beta);
+  else vv[index] = std::make_tuple(val, val);
+  return val;
+}
+int endgame_tree_dfs(const tree::node &nd, int alpha, int beta,
+    const std::vector<board> &vb, std::vector<std::tuple<int, int>> &vv) {
   if (nd.children.empty()) {
-    return endgame_dfs(nd.bd, alpha, beta);
+    return leaf_table_update(nd.bd, alpha, beta, vb, vv);
   } else {
     ++nodes;
     for (auto &np : nd.children) {
       alpha = std::max(alpha,
-          -endgame_tree_dfs(*np, -beta, -alpha));
+          -endgame_tree_dfs(*np, -beta, -alpha, vb, vv));
       if (alpha >= beta) return alpha;
     }
     return alpha;
@@ -72,10 +87,12 @@ int endgame_tree_dfs(const tree::node &nd, int alpha, int beta) {
 std::tuple<board, int> endgame_search(tree::node &nd) {
   int alpha = -value::VALUE_MAX;
   int beta = value::VALUE_MAX;
+  auto vb = tree::unique_leafs(nd);
+  std::vector<std::tuple<int, int>> vv(vb.size(), std::make_tuple(-value::VALUE_MAX, value::VALUE_MAX));
   board bd;
   nodes = 0;
   for (auto &np : nd.children) {
-    int val = -endgame_tree_dfs(*np, -beta, -alpha);
+    int val = -endgame_tree_dfs(*np, -beta, -alpha, vb, vv);
     if (val > alpha) {
       alpha = val;
       bd = np->bd;
