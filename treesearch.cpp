@@ -5,6 +5,8 @@
 #include <tuple>
 #include <vector>
 
+#include "state.hpp"
+
 namespace treesearch {
 
 uint64_t nodes;
@@ -69,6 +71,7 @@ int leaf_table_update(const board &bd, int alpha, int beta,
   else vv[index] = std::make_tuple(val, val);
   return val;
 }
+
 int endgame_tree_dfs(const tree::node &nd, int alpha, int beta,
     const std::vector<board> &vb, std::vector<std::tuple<int, int>> &vv) {
   if (nd.children.empty()) {
@@ -84,7 +87,23 @@ int endgame_tree_dfs(const tree::node &nd, int alpha, int beta,
   }
 }
 
+std::tuple<board, int> endgame_search_fromleaf(const board &bd) {
+  int alpha = -value::VALUE_MAX;
+  int beta = value::VALUE_MAX;
+  board opt;
+  nodes = 0;
+  for (auto &nx : state::next_states(bd)) {
+    int val = -endgame_dfs(nx, -beta, -alpha);
+    if (val > alpha) {
+      alpha = val;
+      opt = nx;
+    }
+  }
+  return std::make_tuple(opt, alpha);
+}
+
 std::tuple<board, int> endgame_search(tree::node &nd) {
+  if (nd.children.empty()) return endgame_search_fromleaf(nd.bd);
   int alpha = -value::VALUE_MAX;
   int beta = value::VALUE_MAX;
   auto vb = tree::unique_leafs(nd);
