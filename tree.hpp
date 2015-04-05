@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "board.hpp"
+#include "search.hpp"
 #include "value.hpp"
 
 namespace tree {

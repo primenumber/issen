@@ -1,6 +1,7 @@
 #pragma once
 #include <algorithm>
 #include "board.hpp"
+#include "state.hpp"
 
 namespace search {
 
