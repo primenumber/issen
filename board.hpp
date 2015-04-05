@@ -64,3 +64,9 @@ inline bool operator==(const board &lhs, const board &rhs) {
   return lhs.black.data == rhs.black.data &&
       lhs.white.data == rhs.white.data;
 }
+
+inline bool operator<(const board &lhs, const board &rhs) {
+  return (lhs.black.data < rhs.black.data) ? true :
+      ((lhs.black.data > rhs.black.data) ? false :
+      (lhs.white.data < rhs.white.data));
+}
