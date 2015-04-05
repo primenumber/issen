@@ -15,4 +15,13 @@ int expand_recursive(node &nd, int depth) {
   return res;
 }
 
+void leafs(const node &nd, std::vector<board> &vb) {
+  if (nd.children.empty()) {
+    vb.push_back(nd.bd);
+  } else {
+    for (auto &np : nd.children)
+      leafs(*np, vb);
+  }
+}
+
 } // tree
