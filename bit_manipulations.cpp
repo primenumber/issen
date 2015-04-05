@@ -229,6 +229,10 @@ uint64_t puttable_black_forward(board bd) {
   return puttable_black_forward_nomask(bd) & ~(bd.black.data | bd.white.data);
 }
 
+int stone_sum(board bd) {
+  return _popcnt64(bd.black.data | bd.white.data);
+}
+
 int bit_to_pos(uint64_t bit) {
   return _popcnt64(bit - 1);
 }
