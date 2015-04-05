@@ -53,6 +53,7 @@ void reorder_recursive(node &nd, Func func, int depth) {
   }
 }
 
-void leafs(const node &, std::vector<board> &);
+std::vector<board> leafs(const node &);
+std::vector<board> unique_leafs(const node &);
 
 }

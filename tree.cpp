@@ -15,13 +15,27 @@ int expand_recursive(node &nd, int depth) {
   return res;
 }
 
-void leafs(const node &nd, std::vector<board> &vb) {
+void leafs_impl(const node &nd, std::vector<board> &vb) {
   if (nd.children.empty()) {
     vb.push_back(nd.bd);
   } else {
     for (auto &np : nd.children)
-      leafs(*np, vb);
+      leafs_impl(*np, vb);
   }
+}
+
+std::vector<board> leafs(const node &nd) {
+  std::vector<board> vb;
+  leafs_impl(nd, vb);
+  return vb;
+}
+
+std::vector<board> unique_leafs(const node &nd) {
+  auto vb = leafs(nd);
+  std::sort(std::begin(vb), std::end(vb));
+  vb.erase(std::unique(std::begin(vb), std::end(vb)),
+      std::end(vb));
+  return vb;
 }
 
 } // tree
