@@ -7,6 +7,7 @@
 
 namespace utils {
 
+void init_all();
 std::string to_s(uint64_t);
 std::string to_s(const board &);
 std::pair<board, bool> input();

@@ -2,7 +2,19 @@
 
 #include <iostream>
 
+#include "value.hpp"
+#include "bit_manipulations.hpp"
+#include "state.hpp"
+#include "line.hpp"
+
 namespace utils {
+
+void init_all() {
+  value::init();
+  bit_manipulations::init();
+  state::init();
+  line::init();
+}
 
 std::string to_s(uint64_t bits) {
   bit_board bb(bits);
