@@ -10,6 +10,7 @@ __m128i operator^(__m128i lhs, __m128i rhs) {
   return _mm_xor_si128(lhs, rhs);
 }
 
+/*
 __m128i operator&(__m128i lhs, __m128i rhs) {
   return _mm_and_si128(lhs, rhs);
 }
@@ -25,11 +26,16 @@ __m128i operator<<(__m128i lhs, int index) {
 __m128i operator>>(__m128i lhs, int index) {
   return _mm_srli_epi64(lhs, index);
 }
+*/
 
-template <typename T>
-T delta_swap(T bits, T mask, int delta) {
-  T tmp = mask & (bits ^ (bits << delta));
+uint64_t delta_swap(uint64_t bits, uint64_t mask, int delta) {
+  uint64_t tmp = mask & (bits ^ (bits << delta));
   return bits ^ tmp ^ (tmp >> delta);
+}
+
+__m128i delta_swap(__m128i bits, __m128i mask, int delta) {
+  __m128i tmp = _mm_and_si128(mask, (bits ^ _mm_slli_epi64(bits, delta)));
+  return bits ^ tmp ^ _mm_srli_epi64(tmp, delta);
 }
 
 alignas(32) __m128i flip_vertical_shuffle_table;
@@ -59,9 +65,12 @@ board mirrorHorizontal(board bd) {
   __m128i mask1 = _mm_set1_epi8(0x55);
   __m128i mask2 = _mm_set1_epi8(0x33);
   __m128i mask3 = _mm_set1_epi8(0x0f);
-  bd.data = ((bd.data >> 1) & mask1) | ((bd.data & mask1) << 1);
-  bd.data = ((bd.data >> 2) & mask2) | ((bd.data & mask2) << 2);
-  bd.data = ((bd.data >> 4) & mask3) | ((bd.data & mask3) << 4);
+  bd.data = _mm_or_si128(_mm_and_si128(_mm_srli_epi64(bd.data, 1), mask1),
+      _mm_slli_epi64(_mm_and_si128(bd.data, mask1), 1));
+  bd.data = _mm_or_si128(_mm_and_si128(_mm_srli_epi64(bd.data, 2), mask2),
+      _mm_slli_epi64(_mm_and_si128(bd.data, mask2), 2));
+  bd.data = _mm_or_si128(_mm_and_si128(_mm_srli_epi64(bd.data, 4), mask3),
+      _mm_slli_epi64(_mm_and_si128(bd.data, mask3), 4));
   return bd;
 }
 
@@ -151,9 +160,9 @@ board pseudoRotate45clockwise(board bd) {
   __m128i mask1 = _mm_set1_epi8(0x55);
   __m128i mask2 = _mm_set1_epi8(0x33);
   __m128i mask3 = _mm_set1_epi8(0x0f);
-  __m128i data = bd.data ^ (mask1 & (bd.data ^ rotr(bd.data, 8)));
-  data = data ^ (mask2 & (data ^ rotr(data, 16)));
-  return data ^ (mask3 & (data ^ rotr(data, 32)));
+  __m128i data = bd.data ^ _mm_and_si128(mask1, (bd.data ^ rotr(bd.data, 8)));
+  data = data ^ _mm_and_si128(mask2, (data ^ rotr(data, 16)));
+  return data ^ _mm_and_si128(mask3, (data ^ rotr(data, 32)));
 }
 
 uint64_t pseudoRotate45clockwise(uint64_t bits) {
@@ -169,9 +178,9 @@ board pseudoRotate45antiClockwise(board bd) {
   __m128i mask1 = _mm_set1_epi8(0xaa);
   __m128i mask2 = _mm_set1_epi8(0xcc);
   __m128i mask3 = _mm_set1_epi8(0xf0);
-  __m128i data = bd.data ^ (mask1 & (bd.data ^ rotr(bd.data, 8)));
-  data = data ^ (mask2 & (data ^ rotr(data, 16)));
-  return data ^ (mask3 & (data ^ rotr(data, 32)));
+  __m128i data = bd.data ^ _mm_and_si128(mask1, (bd.data ^ rotr(bd.data, 8)));
+  data = data ^ _mm_and_si128(mask2, (data ^ rotr(data, 16)));
+  return data ^ _mm_and_si128(mask3, (data ^ rotr(data, 32)));
 }
 
 uint64_t pseudoRotate45antiClockwise(uint64_t bits) {
@@ -193,19 +202,19 @@ board tails(board bd) {
 }
 
 board definites_horizontal_top(board bd) {
-  return board(tails(bd).data |
-      mirrorHorizontal(tails(mirrorHorizontal(bd))).data);
+  return board(_mm_or_si128(tails(bd).data,
+      mirrorHorizontal(tails(mirrorHorizontal(bd))).data));
 }
 board definites_horizontal(board bd) {
-  return board(
-      definites_horizontal_top(bd).data |
-      flipVertical(definites_horizontal_top(flipVertical(bd))).data);
+  return board(_mm_or_si128(
+      definites_horizontal_top(bd).data,
+      flipVertical(definites_horizontal_top(flipVertical(bd))).data));
 }
 
 board definites(board bd) {
-  return board(
-      definites_horizontal(bd).data |
-      flipDiagA1H8(definites_horizontal(flipDiagA1H8(bd))).data);
+  return board(_mm_or_si128(
+      definites_horizontal(bd).data,
+      flipDiagA1H8(definites_horizontal(flipDiagA1H8(bd))).data));
 }  
 
 uint64_t puttable_black_forward_nomask(board bd) {
@@ -217,11 +226,11 @@ uint64_t puttable_black_forward_nomask(board bd) {
     __m128i b = _mm_set1_epi64x(bd.black.data);
     __m128i w = _mm_set1_epi64x(bd.white.data);
     __m128i wpp = _mm_add_epi8(w, posbit);
-    __m128i poyo = _mm_subs_epu8(b & wpp, posbit);
-    pres = pres | (poyo & posbit);
-    posbit = posbit << 2;
+    __m128i poyo = _mm_subs_epu8(_mm_and_si128(b, wpp), posbit);
+    pres = _mm_or_si128(pres, _mm_and_si128(poyo, posbit));
+    posbit = _mm_slli_epi64(posbit, 2);
   }
-  pres = pres | _mm_srli_si128(pres, 8);
+  pres = _mm_or_si128(pres, _mm_srli_si128(pres, 8));
   return _mm_cvtsi128_si64(pres) >> 1;
 }
 
