@@ -10,24 +10,6 @@ __m128i operator^(__m128i lhs, __m128i rhs) {
   return _mm_xor_si128(lhs, rhs);
 }
 
-/*
-__m128i operator&(__m128i lhs, __m128i rhs) {
-  return _mm_and_si128(lhs, rhs);
-}
-
-__m128i operator|(__m128i lhs, __m128i rhs) {
-  return _mm_or_si128(lhs, rhs);
-}
-
-__m128i operator<<(__m128i lhs, int index) {
-  return _mm_slli_epi64(lhs, index);
-}
-
-__m128i operator>>(__m128i lhs, int index) {
-  return _mm_srli_epi64(lhs, index);
-}
-*/
-
 uint64_t delta_swap(uint64_t bits, uint64_t mask, int delta) {
   uint64_t tmp = mask & (bits ^ (bits << delta));
   return bits ^ tmp ^ (tmp >> delta);
@@ -39,9 +21,29 @@ __m128i delta_swap(__m128i bits, __m128i mask, int delta) {
 }
 
 alignas(32) __m128i flip_vertical_shuffle_table;
+alignas(32) __m128i rotr8_shuffle_table[8];
 
 void init() {
   flip_vertical_shuffle_table = _mm_set_epi8(8, 9, 10, 11, 12, 13, 14, 15, 0, 1, 2, 3, 4, 5, 6, 7);
+  for (int i = 0; i < 8; ++i) {
+    rotr8_shuffle_table[i] = _mm_set_epi8(
+        (7 + i) % 8 + 8,
+        (6 + i) % 8 + 8,
+        (5 + i) % 8 + 8,
+        (4 + i) % 8 + 8,
+        (3 + i) % 8 + 8,
+        (2 + i) % 8 + 8,
+        (1 + i) % 8 + 8,
+        (0 + i) % 8 + 8,
+        (7 + i) % 8,
+        (6 + i) % 8,
+        (5 + i) % 8,
+        (4 + i) % 8,
+        (3 + i) % 8,
+        (2 + i) % 8,
+        (1 + i) % 8,
+        (0 + i) % 8);
+  }
   for (int i = 0; i < 256; ++i) {
     int res = 0;
     int pow3 = 1;
@@ -152,6 +154,10 @@ __m128i rotr(__m128i bits, int index) {
       _lrotr(bd.white.data, index)).data;
 }
 
+__m128i rotr8_epi64(__m128i bits, int index) {
+  return _mm_shuffle_epi8(bits, rotr8_shuffle_table[index]);
+}
+
 uint64_t rotr(uint64_t bits, int index) {
   return _lrotr(bits, index);
 }
@@ -160,9 +166,9 @@ board pseudoRotate45clockwise(board bd) {
   __m128i mask1 = _mm_set1_epi8(0x55);
   __m128i mask2 = _mm_set1_epi8(0x33);
   __m128i mask3 = _mm_set1_epi8(0x0f);
-  __m128i data = bd.data ^ _mm_and_si128(mask1, (bd.data ^ rotr(bd.data, 8)));
-  data = data ^ _mm_and_si128(mask2, (data ^ rotr(data, 16)));
-  return data ^ _mm_and_si128(mask3, (data ^ rotr(data, 32)));
+  __m128i data = bd.data ^ _mm_and_si128(mask1, (bd.data ^ rotr8_epi64(bd.data, 1)));
+  data = data ^ _mm_and_si128(mask2, (data ^ rotr8_epi64(data, 2)));
+  return data ^ _mm_and_si128(mask3, (data ^ rotr8_epi64(data, 4)));
 }
 
 uint64_t pseudoRotate45clockwise(uint64_t bits) {
@@ -178,9 +184,9 @@ board pseudoRotate45antiClockwise(board bd) {
   __m128i mask1 = _mm_set1_epi8(0xaa);
   __m128i mask2 = _mm_set1_epi8(0xcc);
   __m128i mask3 = _mm_set1_epi8(0xf0);
-  __m128i data = bd.data ^ _mm_and_si128(mask1, (bd.data ^ rotr(bd.data, 8)));
-  data = data ^ _mm_and_si128(mask2, (data ^ rotr(data, 16)));
-  return data ^ _mm_and_si128(mask3, (data ^ rotr(data, 32)));
+  __m128i data = bd.data ^ _mm_and_si128(mask1, (bd.data ^ rotr8_epi64(bd.data, 1)));
+  data = data ^ _mm_and_si128(mask2, (data ^ rotr8_epi64(data, 2)));
+  return data ^ _mm_and_si128(mask3, (data ^ rotr8_epi64(data, 4)));
 }
 
 uint64_t pseudoRotate45antiClockwise(uint64_t bits) {
