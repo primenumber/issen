@@ -19,7 +19,7 @@ void tree_manager::reorder_tree() {
   int rem_stones = 64 - bit_manipulations::stone_sum(bd);
   if (rem_stones - dep >= 12) {
     boost::timer t;
-    for (dep_rec = dep; t.elapsed() < 1.0 && dep_rec <= dep + 4; ++dep_rec) {
+    for (dep_rec = dep; t.elapsed() < 0.5 && dep_rec <= dep + 4; ++dep_rec) {
       tree::reorder_recursive(*nd_ptr, value::value, dep_rec);
     }
   } else {
