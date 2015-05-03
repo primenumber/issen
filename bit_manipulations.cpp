@@ -24,7 +24,9 @@ alignas(32) __m128i flip_vertical_shuffle_table;
 alignas(32) __m128i rotr8_shuffle_table[8];
 
 void init() {
-  flip_vertical_shuffle_table = _mm_set_epi8(8, 9, 10, 11, 12, 13, 14, 15, 0, 1, 2, 3, 4, 5, 6, 7);
+  flip_vertical_shuffle_table = _mm_set_epi8(
+      8, 9, 10, 11, 12, 13, 14, 15,
+      0, 1, 2, 3, 4, 5, 6, 7);
   for (int i = 0; i < 8; ++i) {
     rotr8_shuffle_table[i] = _mm_set_epi8(
         (7 + i) % 8 + 8,
