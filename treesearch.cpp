@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "state.hpp"
+#include "bit_manipulations.hpp"
 
 namespace treesearch {
 
@@ -44,7 +45,10 @@ int endgame_dfs(const board &bd, int alpha, int beta, bool is_pass) {
   ++nodes;
   if (bits != 0) {
     if (_popcnt64(bits) > 4) return endgame_dfs_sort(bd, alpha, beta, bits);
-    for (auto &nx : state::next_states(bd, bits)) {
+    for (; bits != 0; bits &= bits - 1) {
+      int pos = bit_manipulations::bit_to_pos(bits & -bits);
+      const board nx(state::put_black_at(bd, pos / 8, pos % 8),
+          reverse_construct_t());
       alpha = std::max(alpha,
           -endgame_dfs(nx, -beta, -alpha));
       if (alpha >= beta) return alpha;
