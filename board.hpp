@@ -24,6 +24,8 @@ struct bit_board {
   constexpr bit_board(const bit_board &) = default;
   constexpr bit_board(const uint64_t data) : data(data) {}
   constexpr bit_board(const std::array<uint8_t, 8> lines) : lines(lines) {}
+  operator uint64_t() { return data; }
+  operator uint64_t() const { return data; }
   bit_accessor operator[](const size_t index) {
     return bit_accessor(&data, index);
   }
@@ -50,6 +52,8 @@ union board {
       black(bd.white), white(bd.black) {}
   board(const uint64_t black, const uint64_t white) : black(black), white(white) {}
   board(__m128i data) : data(data) {}
+  operator __m128i() { return data; }
+  operator __m128i() const { return data; }
   board &operator=(const board &) = default;
   board &operator=(board &&) = default;
   static board initial_board() {
@@ -61,12 +65,11 @@ union board {
 };
 
 inline bool operator==(const board &lhs, const board &rhs) {
-  return lhs.black.data == rhs.black.data &&
-      lhs.white.data == rhs.white.data;
+  return lhs.black == rhs.black &&
+      lhs.white == rhs.white;
 }
 
 inline bool operator<(const board &lhs, const board &rhs) {
-  return (lhs.black.data < rhs.black.data) ? true :
-      ((lhs.black.data > rhs.black.data) ? false :
-      (lhs.white.data < rhs.white.data));
+  return (lhs.black == rhs.black) ?
+      (lhs.white < rhs.white) : (lhs.black < rhs.black);
 }

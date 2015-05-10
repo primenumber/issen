@@ -87,8 +87,8 @@ bool is_puttable_line(uint8_t black, uint8_t white,
 }
 
 uint8_t puttable_line(const board &bd, int line, int separator) {
-  uint8_t bb = bd.black.data >> (line * 8);
-  uint8_t wb = bd.white.data >> (line * 8);
+  uint8_t bb = bd.black >> (line * 8);
+  uint8_t wb = bd.white >> (line * 8);
   return puttable_line_table[separator][bit_manipulations::toBase3(bb, wb)];
 }
 
@@ -133,8 +133,8 @@ uint8_t put_line_naive(const board &bd, int line, int pos, int separator) {
 }
 
 uint8_t put_line(const board &bd, int line, int pos, int separator) {
-  uint8_t bb = bd.black.data >> (line * 8);
-  uint8_t wb = bd.white.data >> (line * 8);
+  uint8_t bb = bd.black >> (line * 8);
+  uint8_t wb = bd.white >> (line * 8);
   return put_line_table[separator]
       [bit_manipulations::toBase3(bb, wb)][pos];
 }

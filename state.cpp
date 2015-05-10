@@ -91,7 +91,7 @@ uint64_t puttable_black_diag(const board &bd) {
 }
 
 uint64_t puttable_black(const board &bd) {
-  return ~(bd.black.data | bd.white.data) &
+  return ~(bd.black | bd.white) &
       (puttable_black_horizontal(bd) |
       puttable_black_vertical(bd) |
       puttable_black_diag(bd));
@@ -168,9 +168,9 @@ board put_black_at(const board & bd, int i, int j) {
       put_black_at_vertical(bd, i, j) |
       put_black_at_diag(bd, i, j);
   return board(
-      bd.black.data ^ reverse_bits |
+      bd.black ^ reverse_bits |
           UINT64_C(1) << (i * 8 + j),
-      bd.white.data ^ reverse_bits);
+      bd.white ^ reverse_bits);
 }
 
 std::vector<board> next_states(const board & bd) {

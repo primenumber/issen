@@ -58,7 +58,7 @@ void init() {
 }
 
 board flipVertical(board bd) {
-  return board(_mm_shuffle_epi8(bd.data, flip_vertical_shuffle_table));
+  return board(_mm_shuffle_epi8(bd, flip_vertical_shuffle_table));
 }
 
 uint64_t flipVertical(uint64_t bits) {
@@ -69,12 +69,12 @@ board mirrorHorizontal(board bd) {
   __m128i mask1 = _mm_set1_epi8(0x55);
   __m128i mask2 = _mm_set1_epi8(0x33);
   __m128i mask3 = _mm_set1_epi8(0x0f);
-  bd.data = _mm_or_si128(_mm_and_si128(_mm_srli_epi64(bd.data, 1), mask1),
-      _mm_slli_epi64(_mm_and_si128(bd.data, mask1), 1));
-  bd.data = _mm_or_si128(_mm_and_si128(_mm_srli_epi64(bd.data, 2), mask2),
-      _mm_slli_epi64(_mm_and_si128(bd.data, mask2), 2));
-  bd.data = _mm_or_si128(_mm_and_si128(_mm_srli_epi64(bd.data, 4), mask3),
-      _mm_slli_epi64(_mm_and_si128(bd.data, mask3), 4));
+  bd = _mm_or_si128(_mm_and_si128(_mm_srli_epi64(bd, 1), mask1),
+      _mm_slli_epi64(_mm_and_si128(bd, mask1), 1));
+  bd = _mm_or_si128(_mm_and_si128(_mm_srli_epi64(bd, 2), mask2),
+      _mm_slli_epi64(_mm_and_si128(bd, mask2), 2));
+  bd = _mm_or_si128(_mm_and_si128(_mm_srli_epi64(bd, 4), mask3),
+      _mm_slli_epi64(_mm_and_si128(bd, mask3), 4));
   return bd;
 }
 
@@ -93,7 +93,7 @@ board flipDiagA1H8(board bd) {
   __m128i mask2 = _mm_set1_epi32(0x33330000);
   __m128i mask3 = _mm_set1_epi64(
       _mm_cvtsi64_m64(UINT64_C(0x0f0f0f0f00000000)));
-  __m128i data = delta_swap(bd.data, mask3, 28);
+  __m128i data = delta_swap(bd, mask3, 28);
   data = delta_swap(data, mask2, 14);
   return board(delta_swap(data, mask1, 7));
 }
@@ -112,7 +112,7 @@ board flipDiagA8H1(board bd) {
   __m128i mask2 = _mm_set1_epi32(0xcccc0000);
   __m128i mask3 = _mm_set1_epi64(
       _mm_cvtsi64_m64(UINT64_C(0xf0f0f0f000000000)));
-  __m128i data = delta_swap(bd.data, mask3, 36);
+  __m128i data = delta_swap(bd, mask3, 36);
   data = delta_swap(data, mask2, 18);
   return board(delta_swap(data, mask1, 9));
 }
@@ -152,8 +152,8 @@ uint64_t rotate90antiClockwise(uint64_t bits) {
 
 __m128i rotr(__m128i bits, int index) {
   board bd(bits);
-  return board(_lrotr(bd.black.data, index),
-      _lrotr(bd.white.data, index)).data;
+  return board(_lrotr(bd.black, index),
+      _lrotr(bd.white, index));
 }
 
 __m128i rotr8_epi64(__m128i bits, int index) {
@@ -168,7 +168,7 @@ board pseudoRotate45clockwise(board bd) {
   __m128i mask1 = _mm_set1_epi8(0x55);
   __m128i mask2 = _mm_set1_epi8(0x33);
   __m128i mask3 = _mm_set1_epi8(0x0f);
-  __m128i data = bd.data ^ _mm_and_si128(mask1, (bd.data ^ rotr8_epi64(bd.data, 1)));
+  __m128i data = bd ^ _mm_and_si128(mask1, (bd ^ rotr8_epi64(bd, 1)));
   data = data ^ _mm_and_si128(mask2, (data ^ rotr8_epi64(data, 2)));
   return data ^ _mm_and_si128(mask3, (data ^ rotr8_epi64(data, 4)));
 }
@@ -186,7 +186,7 @@ board pseudoRotate45antiClockwise(board bd) {
   __m128i mask1 = _mm_set1_epi8(0xaa);
   __m128i mask2 = _mm_set1_epi8(0xcc);
   __m128i mask3 = _mm_set1_epi8(0xf0);
-  __m128i data = bd.data ^ _mm_and_si128(mask1, (bd.data ^ rotr8_epi64(bd.data, 1)));
+  __m128i data = bd ^ _mm_and_si128(mask1, (bd ^ rotr8_epi64(bd, 1)));
   data = data ^ _mm_and_si128(mask2, (data ^ rotr8_epi64(data, 2)));
   return data ^ _mm_and_si128(mask3, (data ^ rotr8_epi64(data, 4)));
 }
@@ -206,23 +206,23 @@ uint64_t tails(uint64_t bits) {
 }
 
 board tails(board bd) {
-  return board(tails(bd.black.data), tails(bd.white.data));
+  return board(tails(bd.black), tails(bd.white));
 }
 
 board definites_horizontal_top(board bd) {
-  return board(_mm_or_si128(tails(bd).data,
-      mirrorHorizontal(tails(mirrorHorizontal(bd))).data));
+  return board(_mm_or_si128(tails(bd),
+      mirrorHorizontal(tails(mirrorHorizontal(bd)))));
 }
 board definites_horizontal(board bd) {
   return board(_mm_or_si128(
-      definites_horizontal_top(bd).data,
-      flipVertical(definites_horizontal_top(flipVertical(bd))).data));
+      definites_horizontal_top(bd),
+      flipVertical(definites_horizontal_top(flipVertical(bd)))));
 }
 
 board definites(board bd) {
   return board(_mm_or_si128(
-      definites_horizontal(bd).data,
-      flipDiagA1H8(definites_horizontal(flipDiagA1H8(bd))).data));
+      definites_horizontal(bd),
+      flipDiagA1H8(definites_horizontal(flipDiagA1H8(bd)))));
 }  
 
 uint64_t puttable_black_forward_nomask(board bd) {
@@ -231,8 +231,8 @@ uint64_t puttable_black_forward_nomask(board bd) {
           UINT64_C(0x0202020202020202));
   __m128i pres = _mm_setzero_si128();
   for (int i = 0; i < 3; ++i) {
-    __m128i b = _mm_set1_epi64x(bd.black.data);
-    __m128i w = _mm_set1_epi64x(bd.white.data);
+    __m128i b = _mm_set1_epi64x(bd.black);
+    __m128i w = _mm_set1_epi64x(bd.white);
     __m128i wpp = _mm_add_epi8(w, posbit);
     __m128i poyo = _mm_subs_epu8(_mm_and_si128(b, wpp), posbit);
     pres = _mm_or_si128(pres, _mm_and_si128(poyo, posbit));
@@ -243,11 +243,11 @@ uint64_t puttable_black_forward_nomask(board bd) {
 }
 
 uint64_t puttable_black_forward(board bd) {
-  return puttable_black_forward_nomask(bd) & ~(bd.black.data | bd.white.data);
+  return puttable_black_forward_nomask(bd) & ~(bd.black | bd.white);
 }
 
 int stone_sum(board bd) {
-  return _popcnt64(bd.black.data | bd.white.data);
+  return _popcnt64(bd.black | bd.white);
 }
 
 int bit_to_pos(uint64_t bit) {

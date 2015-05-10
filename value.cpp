@@ -11,14 +11,14 @@ void init() {
 }
 
 int diff_num(const board &bd) {
-  int bn = _popcnt64(bd.black.data);
-  int wn = _popcnt64(bd.white.data);
+  int bn = _popcnt64(bd.black);
+  int wn = _popcnt64(bd.white);
   return bn - wn;
 }
 
 int fixed_diff_num(const board &bd) {
-  int bn = _popcnt64(bd.black.data);
-  int wn = _popcnt64(bd.white.data);
+  int bn = _popcnt64(bd.black);
+  int wn = _popcnt64(bd.white);
   if (bn) {
     if (wn) return bn - wn;
     else return 64;
@@ -66,7 +66,7 @@ int pos_value(const board &bd) {
 }
 
 int edge_value_impl(const board &bd) {
-  int index = bit_manipulations::toBase3(bd.black.data, bd.white.data);
+  int index = bit_manipulations::toBase3(bd.black, bd.white);
   switch (index) {
     case 3279: return  200; // .xxxxxx.
     case 6558: return -200; // .oooooo.
