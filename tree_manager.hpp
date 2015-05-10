@@ -4,6 +4,7 @@
 
 #include "board.hpp"
 #include "hand.hpp"
+#include "state.hpp"
 #include "tree.hpp"
 #include "treesearch.hpp"
 
@@ -16,15 +17,29 @@ class tree_manager {
       dep(0), dep_rec(0) {
   }
   //std::tuple<board, hand, int> normal_search() {}
-  std::tuple<board, hand, int> endgame_search() {
-    expand_tree();
-    reorder_tree();
-    board nx;
-    int num;
-    std::tie(nx, num) = treesearch::endgame_search(*nd_ptr);
-    hand h = hand_from_diff(bd, nx);
-    play(nx);
-    return std::make_tuple(nx, h, num);
+  std::tuple<std::vector<std::tuple<board, hand>>, int> endgame_search() {
+    std::vector<std::tuple<board, hand>> ary;
+    bool fliped = false;
+    while (!state::is_gameover(bd)) {
+      expand_tree();
+      reorder_tree();
+      board nx;
+      int num;
+      std::tie(nx, num) = treesearch::endgame_search(*nd_ptr);
+      hand h = hand_from_diff(bd, nx);
+      ary.emplace_back(nx, h);
+      play(nx);
+      fliped = !fliped;
+      while (!nd_ptr->children.empty()) {
+        nx = nd_ptr->children[nd_ptr->cut_pos]->bd;
+        hand h = hand_from_diff(bd, nx);
+        ary.emplace_back(nx, h);
+        play(nx);
+        fliped = !fliped;
+      }
+    }
+    return std::make_tuple(ary,
+        value::fixed_diff_num(std::get<0>(ary.back())) * (fliped ? -1 : 1));
   }
   void play(const board &nx) {
     update_tree(nx);

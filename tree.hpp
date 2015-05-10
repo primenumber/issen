@@ -14,6 +14,7 @@ struct node {
   const board bd;
   std::vector<std::unique_ptr<node>> children;
   int reorder_val;
+  int cut_pos = -1;
   node(const node &) = default;
   node(node &&) = default;
   explicit node(const board &bd) : bd(bd) {}

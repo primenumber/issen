@@ -14,12 +14,10 @@ void ffotest() {
   std::tie(bd, is_black) = utils::input_ffo();
   std::cout << utils::to_s(bd);
   tree_manager::tree_manager tm(bd, is_black);
-  while (!state::is_gameover(bd)) {
-    auto tp = tm.endgame_search();
-    std::cout << utils::to_s(std::get<0>(tp));
-    std::cout << "num: " << std::get<2>(tp) << std::endl;
-    bd = std::get<0>(tp);
-  }
+  auto tp = tm.endgame_search();
+  for (auto p : std::get<0>(tp))
+    std::cout << utils::to_s(std::get<0>(p));
+  std::cout << "num: " << std::get<1>(tp) << std::endl;
 }
 
 int main(int argc, char **argv) {
