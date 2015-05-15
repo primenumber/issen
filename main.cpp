@@ -1,6 +1,9 @@
 #include <iostream>
+#include <string>
 #include <tuple>
 #include <vector>
+
+#include "picojson/picojson.h"
 
 #include "board.hpp"
 #include "state.hpp"
@@ -20,6 +23,40 @@ void ffotest() {
   std::cout << "num: " << std::get<1>(tp) << std::endl;
 }
 
+void play() {
+  using picojson::object;
+  bool is_black = true;
+  bool my_color;
+  tree_manager::tree_manager tm(board::initial_board(), is_black);
+  std::string color;
+  std::getline(std::cin, color);
+  my_color = (color == "Black");
+  std::cerr << utils::to_s(tm.get_board()) << std::endl;
+  while (true) {
+    board nx;
+    if (my_color == is_black) {
+      hand h;
+      std::tie(nx, h, std::ignore) = tm.normal_search();
+      std::cout << "{\"hand\":\"" << to_s(h) << "\"}" << std::endl;
+      tm.play(nx);
+    } else {
+      std::string line;
+      std::getline(std::cin, line);
+      picojson::value v;
+      picojson::parse(v, line);
+      std::string hand_str = v.get<object>()["hand"].get<std::string>();
+      hand h = to_hand(hand_str);
+      nx = board::reverse_board(
+          (h != PASS) ?
+            state::put_black_at(tm.get_board(), h/8, h%8) :
+            tm.get_board());
+      tm.play(board::reverse_board(nx));
+    }
+    std::cerr << utils::to_s(tm.get_board()) << std::endl;
+    is_black = !is_black;
+  }
+}
+
 int main(int argc, char **argv) {
   utils::init_all();
   std::vector<std::string> args(argc);
@@ -27,5 +64,7 @@ int main(int argc, char **argv) {
     args[i] = argv[i];
   if (std::count(std::begin(args), std::end(args), "--ffotest"))
     ffotest();
+  else
+    play();
   return 0;
 }
