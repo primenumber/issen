@@ -35,13 +35,16 @@ void play() {
   while (true) {
     board nx;
     if (my_color == is_black) {
+      std::cerr << "me" << std::endl;
       hand h;
       std::tie(nx, h, std::ignore) = tm.normal_search();
       std::cout << "{\"hand\":\"" << to_s(h) << "\"}" << std::endl;
       tm.play(nx);
     } else {
+      std::cerr << "opponent" << std::endl;
       std::string line;
       std::getline(std::cin, line);
+      std::cerr << line << std::endl;
       picojson::value v;
       picojson::parse(v, line);
       std::string hand_str = v.get<object>()["hand"].get<std::string>();
@@ -50,7 +53,7 @@ void play() {
           (h != PASS) ?
             state::put_black_at(tm.get_board(), h/8, h%8) :
             tm.get_board());
-      tm.play(board::reverse_board(nx));
+      tm.play(nx);
     }
     std::cerr << utils::to_s(tm.get_board()) << std::endl;
     is_black = !is_black;
