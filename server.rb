@@ -29,7 +29,7 @@ $scc.onerror do |m|
   puts m
 end
 
-def valid?
+def valid?(message)
   true
 end
 
