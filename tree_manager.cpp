@@ -40,6 +40,7 @@ std::tuple<board, hand, int> tree_manager::normal_search() {
 }
 
 void tree_manager::update_tree(const board &nx) {
+  if (nd_ptr->children.empty()) expand_tree();
   for (auto &child : nd_ptr->children) {
     if (child->bd == nx) {
       nd_ptr.reset(child.release());
