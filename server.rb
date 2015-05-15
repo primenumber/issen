@@ -1,8 +1,9 @@
 require 'open3'
+require 'yaml'
 require_relative 'simple_chat/simple_chat'
 
 prog_path = "./issen"
-id = "92ee48b55dccff4fbd55c272cf45783cbbf7acbfda61d0822bd7e5663be09da50e45e13f171cddc65348d1c8919aaa383bf116fb4c42cf3864f11895ba07fde8"
+$config = YAML.load_file('config.yml')
 $scc = SimpleChatClient.new('ws://localhost:14141')
 
 $name = nil
@@ -11,7 +12,7 @@ $white = nil
 
 $scc.onconnect do
   puts "connected"
-  $scc.init(id)
+  $scc.init($config['id'])
 end
 
 $scc.onlogin do |user|
