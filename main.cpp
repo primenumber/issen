@@ -32,7 +32,7 @@ void play() {
   std::getline(std::cin, color);
   my_color = (color == "Black");
   std::cerr << utils::to_s(tm.get_board()) << std::endl;
-  while (true) {
+  while (!state::is_gameover(tm.get_board())) {
     board nx;
     if (my_color == is_black) {
       std::cerr << "me" << std::endl;
