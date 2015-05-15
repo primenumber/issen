@@ -40,7 +40,7 @@ $scc.onmessage do |name, message, type, tags|
     if (name == $black || name == $white) && name != $name then
       $pstdin.puts message if valid?(message)
       puts "play~~"
-      data = $pstdout.gets
+      data = $pstdout.gets.chomp
       $scc.send_message(data, ["othello"])
     elsif name == "othello" then
       obj = JSON.parse(message)
@@ -53,8 +53,7 @@ $scc.onmessage do |name, message, type, tags|
           $white = obj['white']
           if $black == $name then
             $pstdin.puts "Black"
-            data = $pstdout.gets
-            puts data
+            data = $pstdout.gets.chomp
             $scc.send_message(data, ["othello"])
           else
             $pstdin.puts "White"
