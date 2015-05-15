@@ -38,7 +38,7 @@ void play() {
       std::cerr << "me" << std::endl;
       hand h;
       std::tie(nx, h, std::ignore) = tm.normal_search();
-      std::cout << "{\"hand\":\"" << to_s(h) << "\"}" << std::endl;
+      std::cout << "{\"type\":\"play\",\"hand\":\"" << to_s(h) << "\"}" << std::endl;
       tm.play(nx);
     } else {
       std::cerr << "opponent" << std::endl;
