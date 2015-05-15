@@ -63,7 +63,7 @@ void tree_manager::reorder_tree() {
 
 void tree_manager::expand_tree() {
   int rem_stones = 64 - bit_manipulations::stone_sum(bd);
-  while (dep <= rem_stones / 2) {
+  while (dep <= std::max(1, rem_stones / 2)) {
     int ts = tree::expand_recursive(*nd_ptr, dep);
     if (ts > 1000000) break;
     ++dep;
