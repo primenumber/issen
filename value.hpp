@@ -1,6 +1,5 @@
 #pragma once
 #include "board.hpp"
-#include "state.hpp"
 
 namespace value {
 

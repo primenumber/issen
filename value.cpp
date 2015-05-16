@@ -3,6 +3,7 @@
 #include <iostream>
 
 #include "bit_manipulations.hpp"
+#include "state.hpp"
 #include "utils.hpp"
 
 namespace value {
