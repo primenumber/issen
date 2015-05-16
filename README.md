@@ -28,11 +28,11 @@ $ ./configure
 
 ### 実行
 
-- オセロサーバーに接続してプレイする
+オセロサーバーに接続してプレイする
 
     $ bundle exec ruby server.rb
 
-- [ffotest](http://www.radagast.se/othello/ffotest.html)
+[ffotest](http://www.radagast.se/othello/ffotest.html)
 
     $ ./issen --ffotest < input.pos
 
