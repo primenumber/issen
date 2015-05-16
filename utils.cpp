@@ -6,6 +6,7 @@
 #include "bit_manipulations.hpp"
 #include "state.hpp"
 #include "line.hpp"
+#include "generate.hpp"
 
 namespace utils {
 
@@ -14,6 +15,7 @@ void init_all() {
   bit_manipulations::init();
   state::init();
   line::init();
+  generator::init();
 }
 
 std::string to_s(uint64_t bits) {
