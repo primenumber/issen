@@ -58,6 +58,7 @@ void play() {
     std::cerr << utils::to_s(tm.get_board()) << std::endl;
     is_black = !is_black;
   }
+  std::cout << "{\"type\":\"gameset\"}" << std::endl;
 }
 
 int main(int argc, char **argv) {
