@@ -24,11 +24,12 @@ void ffotest() {
 }
 
 void play() {
+  using std::string;
   using picojson::object;
   bool is_black = true;
   bool my_color;
   tree_manager::tree_manager tm(board::initial_board(), is_black);
-  std::string color;
+  string color;
   std::getline(std::cin, color);
   my_color = (color == "Black");
   std::cerr << utils::to_s(tm.get_board()) << std::endl;
@@ -42,18 +43,23 @@ void play() {
       tm.play(nx);
     } else {
       std::cerr << "opponent" << std::endl;
-      std::string line;
+      string line;
       std::getline(std::cin, line);
       std::cerr << line << std::endl;
       picojson::value v;
       picojson::parse(v, line);
-      std::string hand_str = v.get<object>()["hand"].get<std::string>();
-      hand h = to_hand(hand_str);
-      nx = board::reverse_board(
-          (h != PASS) ?
-            state::put_black_at(tm.get_board(), h/8, h%8) :
-            tm.get_board());
-      tm.play(nx);
+      string type = v.get<object>()["type"].get<string>();
+      if (type == "play") {
+        string hand_str = v.get<object>()["hand"].get<string>();
+        hand h = to_hand(hand_str);
+        nx = board::reverse_board(
+            (h != PASS) ?
+              state::put_black_at(tm.get_board(), h/8, h%8) :
+              tm.get_board());
+        tm.play(nx);
+      } else {
+        break;
+      }
     }
     std::cerr << utils::to_s(tm.get_board()) << std::endl;
     is_black = !is_black;
