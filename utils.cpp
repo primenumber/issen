@@ -38,9 +38,9 @@ std::string to_s(const board &bd) {
     res +=(char)('1' + i);
     res += '|';
     for (int j = 0; j < 8; ++j) {
-      if (bd.black.get(i*8+j)) {
+      if (bd.black().get(i*8+j)) {
         res += 'x';
-      } else if (bd.white.get(i*8+j)) {
+      } else if (bd.white().get(i*8+j)) {
         res += 'o';
       } else {
         res += '.';
@@ -62,16 +62,16 @@ std::pair<board, bool> input() {
     for (int j = 0; j < 8; ++j) {
       switch(line[j]) {
        case 'x':
-        bd.black.set(i*8+j);
-        bd.white.reset(i*8+j);
+        bd.black().set(i*8+j);
+        bd.white().reset(i*8+j);
         break;
        case 'o':
-        bd.black.reset(i*8+j);
-        bd.white.set(i*8+j);
+        bd.black().reset(i*8+j);
+        bd.white().set(i*8+j);
         break;
        default:
-        bd.black.reset(i*8+j);
-        bd.white.reset(i*8+j);
+        bd.black().reset(i*8+j);
+        bd.white().reset(i*8+j);
         break;
       }
     }
@@ -90,16 +90,16 @@ std::pair<board, bool> input_ffo() {
   for (int i = 0; i < 64; ++i) {
     switch(line[i]) {
      case 'X':
-      bd.black.set(i);
-      bd.white.reset(i);
+      bd.black().set(i);
+      bd.white().reset(i);
       break;
      case 'O':
-      bd.black.reset(i);
-      bd.white.set(i);
+      bd.black().reset(i);
+      bd.white().set(i);
       break;
      default:
-      bd.black.reset(i);
-      bd.white.reset(i);
+      bd.black().reset(i);
+      bd.white().reset(i);
       break;
     }
   }

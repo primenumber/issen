@@ -1,14 +1,17 @@
 #include "bit_manipulations.hpp"
 
-#include <immintrin.h>
+#include <x86intrin.h>
+#include "gcc_intrinsics.hpp"
 
 namespace bit_manipulations {
 
 alignas(32) uint16_t base3[256];
 
+#ifdef __INTEL_COMPILER
 __m128i operator^(__m128i lhs, __m128i rhs) {
   return _mm_xor_si128(lhs, rhs);
 }
+#endif
 
 uint64_t delta_swap(uint64_t bits, uint64_t mask, int delta) {
   uint64_t tmp = mask & (bits ^ (bits << delta));
@@ -152,8 +155,8 @@ uint64_t rotate90antiClockwise(uint64_t bits) {
 
 __m128i rotr(__m128i bits, int index) {
   board bd(bits);
-  return board(_lrotr(bd.black, index),
-      _lrotr(bd.white, index));
+  return board(_lrotr(bd.black(), index),
+      _lrotr(bd.white(), index));
 }
 
 __m128i rotr8_epi64(__m128i bits, int index) {
@@ -168,7 +171,7 @@ board pseudoRotate45clockwise(board bd) {
   __m128i mask1 = _mm_set1_epi8(0x55);
   __m128i mask2 = _mm_set1_epi8(0x33);
   __m128i mask3 = _mm_set1_epi8(0x0f);
-  __m128i data = bd ^ _mm_and_si128(mask1, (bd ^ rotr8_epi64(bd, 1)));
+  __m128i data = __m128i(bd) ^ _mm_and_si128(mask1, (__m128i(bd) ^ rotr8_epi64(bd, 1)));
   data = data ^ _mm_and_si128(mask2, (data ^ rotr8_epi64(data, 2)));
   return data ^ _mm_and_si128(mask3, (data ^ rotr8_epi64(data, 4)));
 }
@@ -186,7 +189,7 @@ board pseudoRotate45antiClockwise(board bd) {
   __m128i mask1 = _mm_set1_epi8(0xaa);
   __m128i mask2 = _mm_set1_epi8(0xcc);
   __m128i mask3 = _mm_set1_epi8(0xf0);
-  __m128i data = bd ^ _mm_and_si128(mask1, (bd ^ rotr8_epi64(bd, 1)));
+  __m128i data = __m128i(bd) ^ _mm_and_si128(mask1, (__m128i(bd) ^ rotr8_epi64(bd, 1)));
   data = data ^ _mm_and_si128(mask2, (data ^ rotr8_epi64(data, 2)));
   return data ^ _mm_and_si128(mask3, (data ^ rotr8_epi64(data, 4)));
 }
@@ -206,7 +209,7 @@ uint64_t tails(uint64_t bits) {
 }
 
 board tails(board bd) {
-  return board(tails(bd.black), tails(bd.white));
+  return board(tails(bd.black()), tails(bd.white()));
 }
 
 board definites_horizontal_top(board bd) {
@@ -231,8 +234,8 @@ uint64_t puttable_black_forward_nomask(board bd) {
           UINT64_C(0x0202020202020202));
   __m128i pres = _mm_setzero_si128();
   for (int i = 0; i < 3; ++i) {
-    __m128i b = _mm_set1_epi64x(bd.black);
-    __m128i w = _mm_set1_epi64x(bd.white);
+    __m128i b = _mm_set1_epi64x(bd.black());
+    __m128i w = _mm_set1_epi64x(bd.white());
     __m128i wpp = _mm_add_epi8(w, posbit);
     __m128i poyo = _mm_subs_epu8(_mm_and_si128(b, wpp), posbit);
     pres = _mm_or_si128(pres, _mm_and_si128(poyo, posbit));
@@ -243,11 +246,11 @@ uint64_t puttable_black_forward_nomask(board bd) {
 }
 
 uint64_t puttable_black_forward(board bd) {
-  return puttable_black_forward_nomask(bd) & ~(bd.black | bd.white);
+  return puttable_black_forward_nomask(bd) & ~(bd.black() | bd.white());
 }
 
 int stone_sum(board bd) {
-  return _popcnt64(bd.black | bd.white);
+  return _popcnt64(bd.black() | bd.white());
 }
 
 int bit_to_pos(uint64_t bit) {

@@ -39,9 +39,9 @@ bool is_puttable_line_forward(const board &bd, int line8,
     int pos, int separator) {
   int limit = (pos >= separator) ? 8 : separator;
   for (int i = pos + 1; i < limit; ++i) {
-    if (bd.black.get(line8 + i)) {
+    if (bd.black().get(line8 + i)) {
       return (i > pos + 1);
-    } else if (!bd.white.get(line8 + i))
+    } else if (!bd.white().get(line8 + i))
       return false;
   }
   return false;
@@ -51,9 +51,9 @@ bool is_puttable_line_backward(const board &bd, int line8,
     int pos, int separator) {
   int limit = (pos >= separator) ? separator : 0;
   for (int i = pos - 1; i >= limit; --i) {
-    if (bd.black.get(line8 + i)) {
+    if (bd.black().get(line8 + i)) {
       return (i < pos - 1);
-    } else if (!bd.white.get(line8 + i))
+    } else if (!bd.white().get(line8 + i))
       return false;
   }
   return false;
@@ -62,7 +62,7 @@ bool is_puttable_line_backward(const board &bd, int line8,
 bool is_puttable_line_naive(const board &bd, int line,
     int pos, int separator) {
   line *= 8;
-  if (bd.black.get(line + pos) || bd.white.get(line + pos))
+  if (bd.black().get(line + pos) || bd.white().get(line + pos))
     return false;
   return is_puttable_line_forward(bd, line, pos, separator) ||
       is_puttable_line_backward(bd, line, pos, separator);
@@ -87,8 +87,8 @@ bool is_puttable_line(uint8_t black, uint8_t white,
 }
 
 uint8_t puttable_line(const board &bd, int line, int separator) {
-  uint8_t bb = bd.black >> (line * 8);
-  uint8_t wb = bd.white >> (line * 8);
+  uint8_t bb = bd.black() >> (line * 8);
+  uint8_t wb = bd.white() >> (line * 8);
   return puttable_line_table[separator][bit_manipulations::toBase3(bb, wb)];
 }
 
@@ -101,9 +101,9 @@ uint8_t put_line_forward(const board &bd, int line8, int pos, int separator) {
   int limit = (pos >= separator) ? 8 : separator;
   uint8_t res = 0;
   for (int i = pos + 1; i < limit; ++i) {
-    if (bd.white.get(line8 + i)) {
+    if (bd.white().get(line8 + i)) {
       res |= 1 << i;
-    } else if (bd.black.get(line8 + i)) {
+    } else if (bd.black().get(line8 + i)) {
       return res;
     } else {
       return 0;
@@ -116,9 +116,9 @@ uint8_t put_line_backward(const board &bd, int line8, int pos, int separator) {
   int limit = (pos >= separator) ? separator : 0;
   uint8_t res = 0;
   for (int i = pos - 1; i >= limit; --i) {
-    if (bd.white.get(line8 + i)) {
+    if (bd.white().get(line8 + i)) {
       res |= 1 << i;
-    } else if (bd.black.get(line8 + i)) {
+    } else if (bd.black().get(line8 + i)) {
       return res;
     } else {
       return 0;
@@ -133,8 +133,8 @@ uint8_t put_line_naive(const board &bd, int line, int pos, int separator) {
 }
 
 uint8_t put_line(const board &bd, int line, int pos, int separator) {
-  uint8_t bb = bd.black >> (line * 8);
-  uint8_t wb = bd.white >> (line * 8);
+  uint8_t bb = bd.black() >> (line * 8);
+  uint8_t wb = bd.white() >> (line * 8);
   return put_line_table[separator]
       [bit_manipulations::toBase3(bb, wb)][pos];
 }
