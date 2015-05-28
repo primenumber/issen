@@ -5,7 +5,9 @@
 
 namespace bit_manipulations {
 
-alignas(32) uint16_t base3[256];
+constexpr int base3_bits = 10;
+constexpr int base3_size = 1 << base3_bits;
+alignas(32) uint16_t base3[base3_size];
 
 #ifdef __INTEL_COMPILER
 __m128i operator^(__m128i lhs, __m128i rhs) {
@@ -49,10 +51,10 @@ void init() {
         (1 + i) % 8,
         (0 + i) % 8);
   }
-  for (int i = 0; i < 256; ++i) {
+  for (int i = 0; i < base3_size; ++i) {
     int res = 0;
     int pow3 = 1;
-    for (int j = 0; j < 8; ++j) {
+    for (int j = 0; j < base3_bits; ++j) {
       res += ((i >> j) & 1) * pow3;
       pow3 *= 3;
     }
