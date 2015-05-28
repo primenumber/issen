@@ -1,8 +1,13 @@
 #include "generate.hpp"
 
+#include <cstdio>
+
 #include <random>
 
 #include "state.hpp"
+#include "hand.hpp"
+#include "utils.hpp"
+#include "value.hpp"
 
 namespace generator {
 
@@ -13,7 +18,7 @@ void init() {
   mt.seed(rd());
 }
 
-std::vector<board> genarate(const board &bd) {
+std::vector<board> generate(const board &bd) {
   std::vector<board> ary;
   ary.push_back(bd);
   board tmp = bd;
@@ -24,6 +29,19 @@ std::vector<board> genarate(const board &bd) {
     ary.push_back(tmp);
   }
   return ary;
+}
+
+void generate_record(const board &bd, size_t n) {
+  std::printf("%s", utils::to_s(bd).c_str());
+  std::printf("%zd\n", n);
+  for (int i = 0; i < n; ++i) {
+    auto board_record = generate(bd);
+    for (int j = 0; j < board_record.size() - 1; ++j) {
+      hand h = hand_from_diff(board_record[j], board_record[j+1]);
+      std::printf("%s", to_s(h).c_str());
+    }
+    std::printf("\n%d\n", value::fixed_diff_num(board_record.back()));
+  }
 }
 
 } // namespace generator

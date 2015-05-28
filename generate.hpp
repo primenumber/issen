@@ -6,6 +6,7 @@
 namespace generator {
 
 void init();
-std::vector<board> genarate(const board &);
+std::vector<board> generate(const board &);
+void generate_record(const board &, size_t);
 
 } // namespace generator
