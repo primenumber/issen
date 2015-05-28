@@ -259,7 +259,7 @@ int bit_to_pos(uint64_t bit) {
   return _popcnt64(bit - 1);
 }
 
-uint16_t toBase3(uint8_t black, uint8_t white) {
+uint16_t toBase3(uint16_t black, uint16_t white) {
   return base3[black] + 2*base3[white];
 }
 
