@@ -10,6 +10,7 @@
 #include "hand.hpp"
 #include "utils.hpp"
 #include "tree_manager.hpp"
+#include "generate.hpp"
 
 void ffotest() {
   board bd;
@@ -21,6 +22,12 @@ void ffotest() {
   for (auto p : std::get<0>(tp))
     std::cout << utils::to_s(std::get<0>(p));
   std::cout << "num: " << std::get<1>(tp) << std::endl;
+}
+
+void generate_record() {
+  int n;
+  std::cin >> n;
+  generator::generate_record(board::initial_board(), n);
 }
 
 void play() {
@@ -74,6 +81,8 @@ int main(int argc, char **argv) {
     args[i] = argv[i];
   if (std::count(std::begin(args), std::end(args), "--ffotest"))
     ffotest();
+  else if (std::count(std::begin(args), std::end(args), "--gen-record"))
+    generate_record();
   else
     play();
   return 0;
