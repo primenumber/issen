@@ -6,7 +6,6 @@ issen
 ## ビルドと実行
 
 - C++14に対応したコンパイラと、 Boost C++ Librariesが必要
-- Intel C++ Compiler以外でコンパイルできるかどうかは未確認
 - SSE\*とpopcountに対応したCPUでないと動作しません
 
 ### 初期化
@@ -15,10 +14,7 @@ issen
 $ git submodule init
 $ git submodule update
 $ bundle install --path=vendor/bundle
-$ autoheader
-$ aclocal
-$ automake --add-missing --copy
-$ autoconf
+$ autoreconf
 $ ./configure
 ```
 
