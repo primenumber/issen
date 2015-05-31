@@ -97,8 +97,8 @@ int get_index_diagonal_A1H8(const board &bd, int index) {
     black_bit = rtbd.black().lines[index] & (0xFF >> index);
     white_bit = rtbd.white().lines[index] & (0xFF >> index);
   } else {
-    black_bit = rtbd.black().lines[8+index] & (0xFF << -index);
-    white_bit = rtbd.white().lines[8+index] & (0xFF << -index);
+    black_bit = rtbd.black().lines[8+index] >> (8+index);
+    white_bit = rtbd.white().lines[8+index] >> (8+index);
   }
   return index_begin[3 + std::abs(index)] +
       to_index(black_bit, white_bit, 8-std::abs(index));
