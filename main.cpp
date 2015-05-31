@@ -11,6 +11,7 @@
 #include "utils.hpp"
 #include "tree_manager.hpp"
 #include "generate.hpp"
+#include "statistic_value_generator.hpp"
 
 void ffotest() {
   board bd;
@@ -28,6 +29,10 @@ void generate_record() {
   int n;
   std::cin >> n;
   generator::generate_record(board::initial_board(), n);
+}
+
+void generate_lsprob() {
+  sv_gen::generate_lsprob_input(10);
 }
 
 void play() {
@@ -83,6 +88,8 @@ int main(int argc, char **argv) {
     ffotest();
   else if (std::count(std::begin(args), std::end(args), "--gen-record"))
     generate_record();
+  else if (std::count(std::begin(args), std::end(args), "--gen-lsprob"))
+    generate_lsprob();
   else
     play();
   return 0;
