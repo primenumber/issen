@@ -7,6 +7,7 @@
 #include "state.hpp"
 #include "line.hpp"
 #include "generate.hpp"
+#include "subboard.hpp"
 
 namespace utils {
 
@@ -16,6 +17,7 @@ void init_all() {
   state::init();
   line::init();
   generator::init();
+  subboard::init();
 }
 
 std::string to_s(uint64_t bits) {

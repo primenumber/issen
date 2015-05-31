@@ -12,6 +12,7 @@
 #include "hand.hpp"
 #include "utils.hpp"
 #include "state.hpp"
+#include "subboard.hpp"
 
 namespace sv_gen {
 
@@ -152,9 +153,9 @@ int output_one_record(board bd, int turn_number, int row) {
     else
       bd = board::reverse_board(bd);
   }
-  std::vector<int> cols = get_cols(bd);
+  std::vector<int> cols = subboard::serialize(bd);
   std::sort(std::begin(cols), std::end(cols));
-  assert(cols.size() == 39);
+  assert(cols.size() == 46);
   for (int col : cols) {
     std::cout << row << ' ' << col << " 1\n";
   }
@@ -170,7 +171,7 @@ void generate_lsprob_input(int turn_number) {
   std::tie(bd, is_black) = utils::input_ffo();
   int n;
   cin >> n;
-  cout << 39*n << endl;
+  cout << 46*n << endl;
   std::vector<int> scores(n);
   for (int i = 0; i < n; ++i)
     scores[i] = output_one_record(bd, turn_number, i);
