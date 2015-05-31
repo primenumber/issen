@@ -51,6 +51,23 @@ std::string to_s(const board &bd) {
   return res;
 }
 
+std::string to_s_ffo(const board &bd) {
+  std::string res;
+  for (int i = 0; i < 8; ++i) {
+    for (int j = 0; j < 8; ++j) {
+      if (bd.black().get(i*8+j)) {
+        res += 'X';
+      } else if (bd.white().get(i*8+j)) {
+        res += 'O';
+      } else {
+        res += '-';
+      }
+    }
+  }
+  res += '\n';
+  return res;
+}
+
 std::pair<board, bool> input() {
   std::string hs;
   std::cin >> hs;
