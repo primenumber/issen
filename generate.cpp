@@ -32,7 +32,8 @@ std::vector<board> generate(const board &bd) {
 }
 
 void generate_record(const board &bd, size_t n) {
-  std::printf("%s", utils::to_s(bd).c_str());
+  std::printf("%s", utils::to_s_ffo(bd).c_str());
+  std::printf("Black\n");
   std::printf("%zd\n", n);
   for (int i = 0; i < n; ++i) {
     auto board_record = generate(bd);
