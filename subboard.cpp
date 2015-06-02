@@ -62,6 +62,7 @@ void init() {
       nums.push_back(std::min(j, rev_num(j, i)));
     }
     std::sort(begin(nums), end(nums));
+    nums.erase(std::unique(begin(nums), end(nums)), end(nums));
     index_size[i] = nums.size();
     for (int j = 0; j < pow3(i); ++j) {
       int k = std::min(j, rev_num(j, i));
