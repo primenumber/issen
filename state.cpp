@@ -173,14 +173,23 @@ board put_black_at(const board & bd, int i, int j) {
       bd.white() ^ reverse_bits);
 }
 
+board put_black_at_rev(const board & bd, int i, int j) {
+  uint64_t reverse_bits = put_black_at_horizontal(bd, i, j) |
+      put_black_at_vertical(bd, i, j) |
+      put_black_at_diag(bd, i, j);
+  return board(
+      bd.white() ^ reverse_bits,
+      bd.black() ^ reverse_bits |
+          UINT64_C(1) << (i * 8 + j));
+}
+
 std::vector<board> next_states(const board & bd) {
   std::vector<board> res;
   res.reserve(16);
   bool is_pass = true;
   for (uint64_t bits = puttable_black(bd); bits != 0; bits &= bits - 1) {
     int pos = bit_manipulations::bit_to_pos(bits & -bits);
-    res.emplace_back(put_black_at(bd, pos / 8, pos % 8),
-        reverse_construct_t());
+    res.emplace_back(put_black_at_rev(bd, pos / 8, pos % 8));
     is_pass = false;
   }
   if (is_pass) res.emplace_back(bd, reverse_construct_t());
@@ -193,8 +202,7 @@ std::vector<board> next_states(const board & bd, uint64_t bits) {
   if (bits == 0) res.emplace_back(bd, reverse_construct_t());
   for (; bits != 0; bits &= bits - 1) {
     int pos = bit_manipulations::bit_to_pos(bits & -bits);
-    res.emplace_back(put_black_at(bd, pos / 8, pos % 8),
-        reverse_construct_t());
+    res.emplace_back(put_black_at_rev(bd, pos / 8, pos % 8));
   }
   return res;
 }
