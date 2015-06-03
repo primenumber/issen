@@ -63,9 +63,11 @@ uint64_t puttable_black_horizontal(const board &bd) {
 }
 
 uint64_t puttable_black_vertical(const board &bd) {
-  return bit_manipulations::flipDiagA1H8(
-      puttable_black_horizontal(
-        bit_manipulations::flipDiagA1H8(bd)));
+  using bit_manipulations::flipDiagA1H8;
+  using bit_manipulations::flipDiagA8H1;
+  using bit_manipulations::puttable_black_forward_nomask;
+  return flipDiagA1H8(puttable_black_forward_nomask(flipDiagA1H8(bd))) |
+      flipDiagA8H1(puttable_black_forward_nomask(flipDiagA8H1(bd)));
 }
 
 uint64_t puttable_black_diag_implA8H1(const board &bd) {
@@ -80,7 +82,7 @@ uint64_t puttable_black_diag_implA1H8(const board &bd) {
   const board prot45a_bd = bit_manipulations::pseudoRotate45antiClockwise(bd);
   uint64_t res = 0;
   for (int i = 0; i < 8; ++i)
-    res |= (uint64_t)line::puttable_line(prot45a_bd, i, (8 - i) % 8) << (i * 8);
+    res |= (uint64_t)line::puttable_line(prot45a_bd, i, (-i) & 7) << (i * 8);
   return bit_manipulations::pseudoRotate45clockwise(res);
 }
 
@@ -146,7 +148,7 @@ uint64_t put_black_at_diag_implA8H1(const board &bd, int i, int j) {
       bit_manipulations::pseudoRotate45clockwise(bd);
   return bit_manipulations::pseudoRotate45antiClockwise(
       ((uint64_t)line::put_line(prot45_bd,
-          (i + j + 1) % 8, j, (i + j + 1) % 8)) << (((i + j + 1) % 8) * 8));
+          (i + j + 1) & 7, j, (i + j + 1) & 7)) << (((i + j + 1) & 7) * 8));
 }
 
 uint64_t put_black_at_diag_implA1H8(const board &bd, int i, int j) {
@@ -154,7 +156,7 @@ uint64_t put_black_at_diag_implA1H8(const board &bd, int i, int j) {
       bit_manipulations::pseudoRotate45antiClockwise(bd);
   return bit_manipulations::pseudoRotate45clockwise(
       ((uint64_t)line::put_line(prot45a_bd,
-          (i + 8 - j) % 8, j, (8 - i + j) % 8)) << (((i + 8 - j) % 8) * 8));
+          (i - j) & 7, j, (- i + j) & 7)) << (((i - j) & 7) * 8));
 }
 
 uint64_t put_black_at_diag(const board &bd, int i, int j) {
