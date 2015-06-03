@@ -21,7 +21,8 @@ void ffotest() {
   tree_manager::tree_manager tm(bd, is_black);
   auto tp = tm.endgame_search();
   for (auto p : std::get<0>(tp))
-    std::cout << utils::to_s(std::get<0>(p));
+    std::cout << to_s(std::get<1>(p));
+  std::cout << std::endl;
   std::cout << "num: " << std::get<1>(tp) << std::endl;
 }
 
