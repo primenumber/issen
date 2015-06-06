@@ -22,7 +22,7 @@ int endgame_dfs_sort(const board &bd, int alpha, int beta, uint64_t bits, int &n
   std::vector<std::tuple<int, board>> nxv;
   nxv.reserve(_popcnt64(bits));
   for (auto &nx : state::next_states(bd, bits))
-    nxv.emplace_back(value::value(nx), nx);
+    nxv.emplace_back(value::puttable_value(nx), nx);
   using tp = std::tuple<int, board>;
   std::sort(std::begin(nxv), std::end(nxv),
       [](const tp &lhs, const tp &rhs) {
@@ -48,7 +48,7 @@ int endgame_dfs(const board &bd, int alpha, int beta, int &nodes, bool is_pass) 
   uint64_t bits = state::puttable_black(bd);
   ++nodes;
   if (bits != 0) {
-    if (_popcnt64(bits) > 4) return endgame_dfs_sort(bd, alpha, beta, bits, nodes);
+    if (_popcnt64(bits) > 3) return endgame_dfs_sort(bd, alpha, beta, bits, nodes);
     for (; bits != 0; bits &= bits - 1) {
       int pos = bit_manipulations::bit_to_pos(bits & -bits);
       const board nx(state::put_black_at(bd, pos / 8, pos % 8),
