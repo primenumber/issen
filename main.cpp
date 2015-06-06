@@ -18,6 +18,7 @@ void ffotest() {
   bool is_black;
   std::tie(bd, is_black) = utils::input_ffo();
   std::cout << utils::to_s(bd);
+  std::cout << value::statistic_value(bd) << std::endl;
   tree_manager::tree_manager tm(bd, is_black);
   auto tp = tm.endgame_search();
   for (auto p : std::get<0>(tp))
@@ -32,8 +33,9 @@ void generate_record() {
   generator::generate_record(board::initial_board(), n);
 }
 
-void generate_lsprob() {
-  sv_gen::generate_lsprob_input(10);
+void generate_lsprob(const std::vector<std::string> &args) {
+  int n = std::stoi(args[2]);
+  sv_gen::generate_lsprob_input(n);
 }
 
 void play() {
@@ -90,7 +92,7 @@ int main(int argc, char **argv) {
   else if (std::count(std::begin(args), std::end(args), "--gen-record"))
     generate_record();
   else if (std::count(std::begin(args), std::end(args), "--gen-lsprob"))
-    generate_lsprob();
+    generate_lsprob(args);
   else
     play();
   return 0;
