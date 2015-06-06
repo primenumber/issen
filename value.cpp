@@ -1,14 +1,28 @@
 #include "value.hpp"
 
+#include <cassert>
+
 #include <iostream>
+#include <fstream>
+#include <string>
 
 #include "bit_manipulations.hpp"
 #include "state.hpp"
 #include "utils.hpp"
+#include "subboard.hpp"
 
 namespace value {
 
+std::string value_file_name = "lsa300k_12";
+std::vector<double> vals;
+
 void init() {
+  std::ifstream ifs(value_file_name);
+  for (int i = 0; i <= subboard::index_max; ++i) {
+    double v;
+    ifs >> v;
+    vals.push_back(v);
+  }
 }
 
 int diff_num(const board &bd) {
@@ -96,11 +110,22 @@ int value(const board & bd) {
   //score += pos_value(bd);
   score += definite_value(bd);
   score += edge_value(bd);
+  //score += statistic_value(bd);
   return score;
 }
 
 int num_value(const board & bd) {
   return 100 * fixed_diff_num(bd);
+}
+
+int statistic_value (const board &bd) {
+  std::vector<int> indeces = subboard::serialize(bd);
+  double res = 0;
+  assert(indeces.size() == 46);
+  for (int i : indeces) {
+    res += vals[i];
+  }
+  return res * 100;
 }
 
 } // namespace value
