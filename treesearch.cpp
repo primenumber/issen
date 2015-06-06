@@ -89,15 +89,26 @@ int endgame_tree_dfs(tree::node &nd, int alpha, int beta,
   } else {
     ++nodes;
     nd.cut_pos = 0;
-    for (int i = 0; i < nd.children.size(); ++i) {
+    tree::node &bd_first = *nd.children.front();
+    alpha = std::max(alpha,
+        -endgame_tree_dfs(bd_first, -beta, -alpha, vb, vv, nodes));
+    if (alpha >= beta) return alpha;
+    for (int i = 1; i < nd.children.size(); ++i) {
       auto &nx = *(nd.children[i]);
-      int value = -endgame_tree_dfs(nx, -beta, -alpha, vb, vv, nodes);
-      if (value > alpha) {
-        alpha = value;
+      int nws_v = -endgame_tree_dfs(nx, -alpha - 1, -alpha, vb, vv, nodes);
+      if (nws_v >= beta) {
         nd.cut_pos = i;
+        return nws_v;
       }
-      if (alpha >= beta) {
-        return alpha;
+      if (nws_v > alpha) {
+        int value = -endgame_tree_dfs(nx, -beta, -alpha, vb, vv, nodes);
+        if (value > alpha) {
+          alpha = value;
+          nd.cut_pos = i;
+        }
+        if (alpha >= beta) {
+          return alpha;
+        }
       }
     }
     return alpha;
