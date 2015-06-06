@@ -12,12 +12,12 @@
 namespace utils {
 
 void init_all() {
-  value::init();
   bit_manipulations::init();
   state::init();
   line::init();
   generator::init();
   subboard::init();
+  value::init();
 }
 
 std::string to_s(uint64_t bits) {
