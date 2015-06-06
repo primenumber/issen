@@ -55,7 +55,7 @@ uint64_t puttable_black_naive(const board & bd) {
 
 // puttable_black
 uint64_t puttable_black_horizontal(const board &bd) {
-  uint64_t res = bit_manipulations::puttable_black_forward(bd) |
+  uint64_t res = bit_manipulations::puttable_black_forward_nomask(bd) |
     bit_manipulations::mirrorHorizontal(
         bit_manipulations::puttable_black_forward_nomask(
             bit_manipulations::mirrorHorizontal(bd)));
