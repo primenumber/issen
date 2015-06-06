@@ -24,7 +24,7 @@ int output_one_record(board bd, int turn_number, int row) {
     if (64 - bit_manipulations::stone_sum(bd) <= turn_number) break;
     hand h = to_hand(line.substr(i*2, 2));
     if (h != PASS)
-      bd = board::reverse_board(state::put_black_at(bd, h/8, h%8));
+      bd = state::put_black_at_rev(bd, h/8, h%8);
     else
       bd = board::reverse_board(bd);
   }
