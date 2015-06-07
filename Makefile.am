@@ -1,6 +1,6 @@
 bin_PROGRAMS=issen
 
-AM_CXXFLAGS=-std=c++14 -O3 -flto -g -Wall -Wextra -mtune=native -march=native
+AM_CXXFLAGS=-std=c++14 -O3 -flto -g -Wall -Wextra -mtune=native -march=native -lpthread
 issen_SOURCES=bit_manipulations.cpp bit_manipulations.hpp \
 							board.hpp \
 							generate.cpp generate.hpp \
@@ -8,6 +8,7 @@ issen_SOURCES=bit_manipulations.cpp bit_manipulations.hpp \
 							hand.cpp hand.hpp \
 							line.cpp line.hpp \
 							main.cpp \
+							play.cpp play.hpp \
 							state.cpp state.hpp \
 							statistic_value_generator.cpp statistic_value_generator.hpp \
 							subboard.cpp subboard.hpp \

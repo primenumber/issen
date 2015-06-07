@@ -12,6 +12,7 @@
 #include "tree_manager.hpp"
 #include "generate.hpp"
 #include "statistic_value_generator.hpp"
+#include "play.hpp"
 
 void ffotest() {
   board bd;
@@ -36,50 +37,6 @@ void generate_record() {
 void generate_lsprob(const std::vector<std::string> &args) {
   int n = std::stoi(args[2]);
   sv_gen::generate_lsprob_input(n);
-}
-
-void play() {
-  using std::string;
-  using picojson::object;
-  bool is_black = true;
-  bool my_color;
-  tree_manager::tree_manager tm(board::initial_board(), is_black);
-  string color;
-  std::getline(std::cin, color);
-  my_color = (color == "Black");
-  std::cerr << utils::to_s(tm.get_board()) << std::endl;
-  while (!state::is_gameover(tm.get_board())) {
-    board nx;
-    if (my_color == is_black) {
-      std::cerr << "me" << std::endl;
-      hand h;
-      std::tie(nx, h, std::ignore) = tm.normal_search();
-      std::cout << "{\"type\":\"play\",\"hand\":\"" << to_s(h) << "\"}" << std::endl;
-      tm.play(nx);
-    } else {
-      std::cerr << "opponent" << std::endl;
-      string line;
-      std::getline(std::cin, line);
-      std::cerr << line << std::endl;
-      picojson::value v;
-      picojson::parse(v, line);
-      string type = v.get<object>()["type"].get<string>();
-      if (type == "play") {
-        string hand_str = v.get<object>()["hand"].get<string>();
-        hand h = to_hand(hand_str);
-        nx = board::reverse_board(
-            (h != PASS) ?
-              state::put_black_at(tm.get_board(), h/8, h%8) :
-              tm.get_board());
-        tm.play(nx);
-      } else {
-        break;
-      }
-    }
-    std::cerr << utils::to_s(tm.get_board()) << std::endl;
-    is_black = !is_black;
-  }
-  std::cout << "{\"type\":\"gameset\"}" << std::endl;
 }
 
 int main(int argc, char **argv) {
