@@ -1,0 +1,173 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Issen by primenumber</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/github-light.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>Issen</h1>
+        <p>オセロAIの高速な実装</p>
+
+        <p class="view"><a href="https://github.com/primenumber/issen">View the Project on GitHub <small>primenumber/issen</small></a></p>
+
+
+        <ul>
+          <li><a href="https://github.com/primenumber/issen/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/primenumber/issen/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/primenumber/issen">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <h1>
+<a id="issen" class="anchor" href="#issen" aria-hidden="true"><span class="octicon octicon-link"></span></a>issen</h1>
+
+<p>高速なOthelloAIの実装</p>
+
+<h2>
+<a id="ビルドと実行" class="anchor" href="#%E3%83%93%E3%83%AB%E3%83%89%E3%81%A8%E5%AE%9F%E8%A1%8C" aria-hidden="true"><span class="octicon octicon-link"></span></a>ビルドと実行</h2>
+
+<ul>
+<li>C++14に対応したコンパイラと、 Boost C++ Librariesが必要</li>
+<li>SSE*とpopcountに対応したCPUでないと動作しません</li>
+</ul>
+
+<h3>
+<a id="初期化" class="anchor" href="#%E5%88%9D%E6%9C%9F%E5%8C%96" aria-hidden="true"><span class="octicon octicon-link"></span></a>初期化</h3>
+
+<pre><code>$ git submodule init
+$ git submodule update
+$ bundle install --path=vendor/bundle
+$ autoreconf
+$ ./configure
+</code></pre>
+
+<h3>
+<a id="コンパイル" class="anchor" href="#%E3%82%B3%E3%83%B3%E3%83%91%E3%82%A4%E3%83%AB" aria-hidden="true"><span class="octicon octicon-link"></span></a>コンパイル</h3>
+
+<pre><code>$ make
+</code></pre>
+
+<h3>
+<a id="実行" class="anchor" href="#%E5%AE%9F%E8%A1%8C" aria-hidden="true"><span class="octicon octicon-link"></span></a>実行</h3>
+
+<p>オセロサーバーに接続してプレイする</p>
+
+<pre><code>$ bundle exec ruby server.rb
+</code></pre>
+
+<p><a href="http://www.radagast.se/othello/ffotest.html">ffotest</a></p>
+
+<pre><code>$ ./issen --ffotest &lt; input.pos
+</code></pre>
+
+<h2>
+<a id="todo" class="anchor" href="#todo" aria-hidden="true"><span class="octicon octicon-link"></span></a>TODO</h2>
+
+<ul>
+<li>実際に対戦ができるようにする</li>
+<li>評価関数をまともなものに変更する</li>
+<li>AVXに移行する</li>
+</ul>
+
+<h1>
+<a id="ffo-benchmark-test" class="anchor" href="#ffo-benchmark-test" aria-hidden="true"><span class="octicon octicon-link"></span></a><a href="http://www.radagast.se/othello/ffotest.html">FFO Benchmark Test</a>
+</h1>
+
+<ul>
+<li>CPU: Intel Core i7-3770</li>
+<li>Memory: 8GB</li>
+<li>OS: Arch Linux</li>
+<li>C++ Compiler: GCC 5.1.0</li>
+</ul>
+
+<p>Last Updated: 2015/06/07</p>
+
+<table>
+<thead>
+<tr>
+<th>No.</th>
+<th>Score</th>
+<th>Time</th>
+<th>Nodes</th>
+<th>Line</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>#40</td>
+<td>+38</td>
+<td>7.1s</td>
+<td>49.3M</td>
+<td>a2b1c1</td>
+</tr>
+<tr>
+<td>#41</td>
+<td>0</td>
+<td>28s</td>
+<td>170M</td>
+<td>h4a3a2</td>
+</tr>
+<tr>
+<td>#42</td>
+<td>+6</td>
+<td>45s</td>
+<td>389M</td>
+<td>g2h1c2</td>
+</tr>
+<tr>
+<td>#43</td>
+<td>-12</td>
+<td>126s</td>
+<td>857M</td>
+<td>c7h4h5</td>
+</tr>
+<tr>
+<td>#44</td>
+<td>-14</td>
+<td>44s</td>
+<td>286M</td>
+<td>d2g5b8</td>
+</tr>
+<tr>
+<td>#45</td>
+<td>+6</td>
+<td>436s</td>
+<td>3.3G</td>
+<td>b2c1g5</td>
+</tr>
+<tr>
+<td>#46</td>
+<td>-8</td>
+<td>149s</td>
+<td>1.1G</td>
+<td>b3c1b1</td>
+</tr>
+<tr>
+<td>#47</td>
+<td>+4</td>
+<td>145s</td>
+<td>1.1G</td>
+<td>g2b8b7</td>
+</tr>
+</tbody>
+</table>
+      </section>
+      <footer>
+        <p>This project is maintained by <a href="https://github.com/primenumber">primenumber</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+      </footer>
+    </div>
+    <script src="javascripts/scale.fix.js"></script>
+    
+  </body>
+</html>
