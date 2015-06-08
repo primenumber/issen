@@ -170,7 +170,7 @@ board put_black_at(const board & bd, int i, int j) {
       put_black_at_vertical(bd, i, j) |
       put_black_at_diag(bd, i, j);
   return board(
-      bd.black() ^ reverse_bits |
+      (bd.black() ^ reverse_bits) |
           UINT64_C(1) << (i * 8 + j),
       bd.white() ^ reverse_bits);
 }
@@ -181,7 +181,7 @@ board put_black_at_rev(const board & bd, int i, int j) {
       put_black_at_diag(bd, i, j);
   return board(
       bd.white() ^ reverse_bits,
-      bd.black() ^ reverse_bits |
+      (bd.black() ^ reverse_bits) |
           UINT64_C(1) << (i * 8 + j));
 }
 
