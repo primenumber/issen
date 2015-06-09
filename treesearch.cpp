@@ -74,6 +74,7 @@ int leaf_table_update(const board &bd, int alpha, int beta,
   std::tie(lower, upper) = vv[index];
   if (lower >= beta) return lower;
   if (upper <= alpha) return upper;
+  if (lower == upper) return lower;
   int val = endgame_dfs(bd, std::max(lower, alpha), std::min(upper, beta), nodes);
   if (val <= alpha) std::get<1>(vv[index]) = std::max(lower, alpha);
   else if (val >= beta) std::get<0>(vv[index]) = std::min(upper, beta);
