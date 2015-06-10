@@ -4,7 +4,7 @@
 AC_PREREQ([2.69])
 AC_INIT([issen], [20150504], [prime@kmc.gr.jp])
 AM_INIT_AUTOMAKE([foreign])
-AC_CONFIG_SRCDIR([main.cpp])
+AC_CONFIG_SRCDIR([src/main.cpp])
 AC_CONFIG_HEADERS([config.h])
 
 : ${CXXFLAGS=""}
@@ -34,5 +34,6 @@ AC_FUNC_REALLOC
 AC_FUNC_STRTOD
 AC_CHECK_FUNCS([localeconv modf setlocale])
 
-AC_CONFIG_FILES([Makefile])
+AC_CONFIG_FILES([Makefile
+                 src/Makefile])
 AC_OUTPUT
