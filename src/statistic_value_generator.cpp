@@ -7,34 +7,43 @@
 #include <vector>
 #include <tuple>
 
+#include <boost/optional.hpp>
+
 #include "board.hpp"
 #include "bit_manipulations.hpp"
 #include "hand.hpp"
 #include "utils.hpp"
 #include "state.hpp"
 #include "subboard.hpp"
+#include "record.hpp"
 
 namespace sv_gen {
 
-int output_one_record(board bd, int turn_number, int row) {
+using record_and_indeces = std::tuple<record::game_record, std::vector<int>>;
+
+boost::optional<record_and_indeces> get_one_record(board bd, int turn_number) {
   std::string line;
   int score;
   std::cin >> line >> score;
+  bool is_valid = false;
+  board snap;
+  record::game_record gr;
+  gr.result = score;
   for (int i = 0; i < (int)line.size() / 2; ++i) {
-    if (64 - bit_manipulations::stone_sum(bd) <= turn_number) break;
+    if (64 - bit_manipulations::stone_sum(bd) == turn_number && !is_valid) {
+      is_valid = true;
+      snap = bd;
+    }
     hand h = to_hand(line.substr(i*2, 2));
+    gr.hands.push_back(h);
     if (h != PASS)
       bd = state::put_black_at_rev(bd, h/8, h%8);
     else
       bd = board::reverse_board(bd);
   }
-  std::vector<int> cols = subboard::serialize(bd);
-  std::sort(std::begin(cols), std::end(cols));
-  assert(cols.size() == 46);
-  for (int col : cols) {
-    std::cout << row << ' ' << col << " 1\n";
-  }
-  return score;
+  if (!is_valid) return boost::none;
+  return boost::optional<record_and_indeces>(std::make_tuple(gr,
+      subboard::serialize(snap)));
 }
 
 void generate_lsprob_input(int turn_number) {
@@ -46,14 +55,26 @@ void generate_lsprob_input(int turn_number) {
   std::tie(bd, is_black) = utils::input_ffo();
   int n;
   cin >> n;
+  std::cerr<<n<<endl;
+  std::vector<record_and_indeces> vri;
+  for (int i = 0; i < n; ++i) {
+    boost::optional<record_and_indeces> ri_opt =
+        get_one_record(bd, turn_number);
+    if (ri_opt) vri.push_back(*ri_opt);
+  }
+  n = vri.size();
   cout << 46*n << endl;
-  std::vector<int> scores(n);
-  for (int i = 0; i < n; ++i)
-    scores[i] = output_one_record(bd, turn_number, i);
+  for (int i = 0; i < n; ++i) {
+    std::vector<int> s = std::get<1>(vri[i]);
+    std::sort(std::begin(s), std::end(s));
+    for (int j = 0; j < 46; ++j) {
+      std::cout << i << ' ' << s[j] << ' ' << 1 << std::endl;
+    }
+  }
   cout << n << endl;
   for (int i = 0; i < n; ++i) {
     if (i) cout << ' ';
-    cout << scores[i];
+    cout << std::get<0>(vri[i]).result;
   }
   cout << endl;
 }
