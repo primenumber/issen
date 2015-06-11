@@ -14,6 +14,7 @@ autoscan.log
 compile
 config.h
 config.h.in
+configure
 depcomp
 install-sh
 missing
