@@ -6,6 +6,7 @@ issen_SOURCES=bit_manipulations.cpp bit_manipulations.hpp \
 							record.hpp \
 							generate.cpp generate.hpp \
 							gcc_intrinsics.cpp gcc_intrinsics.hpp \
+							ggs_archive_parser.cpp ggs_archive_parser.hpp \
 							hand.cpp hand.hpp \
 							line.cpp line.hpp \
 							main.cpp \
