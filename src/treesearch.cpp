@@ -16,9 +16,9 @@
 
 namespace treesearch {
 
-int endgame_dfs(const board &bd, int alpha, int beta, uint64_t &nodes, bool is_pass = false);
+int endgame_dfs(const board &bd, int alpha, int beta, uint64_t &nodes, int stones, bool is_pass = false);
 
-int endgame_dfs_sort(const board &bd, int alpha, int beta, uint64_t bits, uint64_t &nodes) {
+int endgame_dfs_sort(const board &bd, int alpha, int beta, uint64_t bits, uint64_t &nodes, int stones) {
   std::vector<std::tuple<int, board>> nxv;
   nxv.reserve(_popcnt64(bits));
   for (auto &nx : state::next_states(bd, bits))
@@ -29,39 +29,57 @@ int endgame_dfs_sort(const board &bd, int alpha, int beta, uint64_t bits, uint64
         return std::get<0>(lhs) < std::get<0>(rhs);
       });
   alpha = std::max(alpha,
-      -endgame_dfs(std::get<1>(nxv.front()), -beta, -alpha, nodes));
+      -endgame_dfs(std::get<1>(nxv.front()), -beta, -alpha, nodes, stones+1));
   if (alpha >= beta) return alpha;
   for (int i = 1; i < nxv.size(); ++i) {
-    int v = -endgame_dfs(std::get<1>(nxv[i]), -alpha - 1, -alpha, nodes);
+    int v = -endgame_dfs(std::get<1>(nxv[i]), -alpha - 1, -alpha, nodes, stones+1);
     if (v >= beta) return v;
     if (v > alpha) {
       alpha = v;
       alpha = std::max(alpha,
-          -endgame_dfs(std::get<1>(nxv[i]), -beta, -v+1, nodes));
+          -endgame_dfs(std::get<1>(nxv[i]), -beta, -v+1, nodes, stones+1));
       if (alpha >= beta) return alpha;
     }
   }
   return alpha;
 }
 
-int endgame_dfs(const board &bd, int alpha, int beta, uint64_t &nodes, bool is_pass) {
+int endgame_dfs_leaf(const board &bd, uint64_t &nodes, int alpha, int beta) {
+  ++nodes;
+  uint64_t pos_bit = ~(bd.black() | bd.white());
+  int pos = bit_manipulations::bit_to_pos(pos_bit);
+  const board nx(state::put_black_at(bd, pos / 8, pos & 7));
+  if (nx.white() == bd.white()) {
+    const board nx2(state::put_black_at(board::reverse_board(bd), pos / 8, pos & 7));
+    if (nx2.white() == bd.black()) {
+      return std::max(alpha, value::fixed_diff_num(bd));
+    } else {
+      return -std::max(-beta, value::fixed_diff_num(nx2));
+    }
+  } else {
+    return std::max(alpha, value::fixed_diff_num(nx));
+  }
+}
+
+int endgame_dfs(const board &bd, int alpha, int beta, uint64_t &nodes, int stones, bool is_pass) {
+  if (stones == 63) return endgame_dfs_leaf(bd, nodes, alpha, beta);
   uint64_t bits = state::puttable_black(bd);
   ++nodes;
   if (bits != 0) {
-    if (_popcnt64(bits) > 3) return endgame_dfs_sort(bd, alpha, beta, bits, nodes);
+    if (_popcnt64(bits) > 3) return endgame_dfs_sort(bd, alpha, beta, bits, nodes, stones);
     for (; bits != 0; bits &= bits - 1) {
       int pos = bit_manipulations::bit_to_pos(bits & -bits);
-      const board nx(state::put_black_at(bd, pos / 8, pos % 8),
+      const board nx(state::put_black_at(bd, pos / 8, pos & 7),
           reverse_construct_t());
       alpha = std::max(alpha,
-          -endgame_dfs(nx, -beta, -alpha, nodes));
+          -endgame_dfs(nx, -beta, -alpha, nodes, stones+1));
       if (alpha >= beta) return alpha;
     }
     return alpha;
   } else if (is_pass) {
     return value::fixed_diff_num(bd);
   } else {
-    return -endgame_dfs(board::reverse_board(bd), -beta, -alpha, nodes, true);
+    return -endgame_dfs(board::reverse_board(bd), -beta, -alpha, nodes, stones, true);
   }
 }
 
@@ -75,7 +93,10 @@ int leaf_table_update(const board &bd, int alpha, int beta,
   if (lower >= beta) return lower;
   if (upper <= alpha) return upper;
   if (lower == upper) return lower;
-  int val = endgame_dfs(bd, std::max(lower, alpha), std::min(upper, beta), nodes);
+  int val = endgame_dfs(bd,
+      std::max(lower, alpha),
+      std::min(upper, beta),
+      nodes, bit_manipulations::stone_sum(bd));
   if (val <= alpha) std::get<1>(vv[index]) = std::max(lower, alpha);
   else if (val >= beta) std::get<0>(vv[index]) = std::min(upper, beta);
   else vv[index] = std::make_tuple(val, val);
@@ -122,7 +143,8 @@ std::tuple<board, int> endgame_search_fromleaf(const board &bd, uint64_t &nodes)
   board opt;
   nodes = 0;
   for (auto &nx : state::next_states(bd)) {
-    int val = -endgame_dfs(nx, -beta, -alpha, nodes);
+    int val = -endgame_dfs(nx, -beta, -alpha, nodes,
+        bit_manipulations::stone_sum(nx));
     if (val > alpha) {
       alpha = val;
       opt = nx;

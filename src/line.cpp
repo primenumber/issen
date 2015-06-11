@@ -28,6 +28,8 @@ void init() {
           if ((puttable_line_table[k][index] >> l) & 1) {
             put_line_table[k][index][l] = put_line_naive(bd, 0, l, k);
             assert(put_line_table[k][index][l] != 0);
+          } else {
+            put_line_table[k][index][l] = 0;
           }
         }
       }
