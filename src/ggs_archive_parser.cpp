@@ -13,7 +13,7 @@
 
 std::tuple<int, int> number(const std::string &s, int i) {
   int n = 0;
-  while (std::isdigit(s[i])) {
+  while (i < s.size() && std::isdigit(s[i])) {
     n *= 10;
     n += s[i] - '0';
     ++i;
@@ -48,12 +48,13 @@ std::tuple<std::string, std::string, int> elem(const std::string &s, int i) {
   return std::make_tuple(type, body, i);
 }
 
-std::string fix_hand_str(std::string ggs_str) {
+std::string fix_hand_str(const std::string &ggs_str) {
   std::string res;
-  for (auto &c : ggs_str) {
+  for (auto c : ggs_str) {
     c = std::tolower(c);
-    if (isalnum(c)) res += c;
+    if (std::isalpha(c) || ('1' <= c && c <= '8')) res += c;
   }
+  assert(res.size() >= 2);
   if (res[1] == 'a') res[1] = 's';
   return res.substr(0, 2);
 }
@@ -64,27 +65,31 @@ std::tuple<boost::optional<record::game_record>, int> game(const std::string &s,
   record::game_record gr;
   bool is_black = true;
   bool is_valid = true;
-  while(s[i] != ';') {
+  while(isupper(s[i])) {
     std::string type, body;
     std::tie(type, body, i) = elem(s, i);
-    if (type == "TY") {
+    if (type == "BO") {
       int sz = std::get<0>(number(body, 0));
       if (sz != 8) is_valid = false;
     } else if (is_valid && (type == "B" || type == "W")) {
       hand h = to_hand(fix_hand_str(body));
       gr.hands.push_back(h);
-      bd = state::put_black_at_rev(bd, h / 8, h % 8);
+      if (h != PASS)
+        bd = state::put_black_at_rev(bd, h / 8, h % 8);
+      else
+        bd = board::reverse_board(bd);
       is_black = !is_black;
     }
   }
+  while(s[i] != ';') ++i;
   i += 2;
-  if (is_valid) {
+  if (is_valid && state::is_gameover(bd)) {
     int num = value::fixed_diff_num(bd);
     if (!is_black) num *= -1;
     gr.result = num;
     return std::make_tuple(boost::optional<record::game_record>(gr), i);
   } else {
-    return std::make_tuple(boost::optional<record::game_record>(), i);
+    return std::make_tuple(boost::none, i);
   }
 }
 
@@ -96,7 +101,9 @@ std::vector<record::game_record> parse_line(const std::string &line) {
   for (int cnt = 0; cnt < n; ++cnt) {
     boost::optional<record::game_record> gr_opt;
     std::tie(gr_opt, i) = game(line, i);
-    if (gr_opt) grv.push_back(std::move(*gr_opt));
+    if (gr_opt) {
+      grv.push_back(std::move(*gr_opt));
+    }
   }
   return grv;
 }
