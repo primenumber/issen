@@ -12,6 +12,8 @@ hand hand_from_diff(const board &old_b, const board &new_b) {
 hand to_hand(const std::string &hand_str) {
   if (hand_str == "ps") return PASS;
   if (hand_str.size() != 2) throw "invalid hand_str";
+  if (hand_str[0] < 'a' || 'h' < hand_str[0]) throw "invalid hand_str";
+  if (hand_str[1] < '1' || '8' < hand_str[1]) throw "invalid hand_str";
   int i = hand_str[1] - '1';
   int j = hand_str[0] - 'a';
   if (std::min(i, j) < 0 || std::max(i, j) >= 8) throw "invalid hand_str";
