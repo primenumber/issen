@@ -13,6 +13,7 @@
 #include "generate.hpp"
 #include "statistic_value_generator.hpp"
 #include "play.hpp"
+#include "ggs_archive_parser.hpp"
 
 void ffotest() {
   board bd;
@@ -50,6 +51,8 @@ int main(int argc, char **argv) {
     generate_record();
   else if (std::count(std::begin(args), std::end(args), "--gen-lsprob"))
     generate_lsprob(args);
+  else if (std::count(std::begin(args), std::end(args), "--ggs-parse"))
+    ggs_archive_parser();
   else
     play();
   return 0;
