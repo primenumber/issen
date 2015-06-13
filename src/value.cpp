@@ -13,15 +13,28 @@
 
 namespace value {
 
-std::string value_file_name = "lsa300k_12";
-std::vector<double> vals;
+std::string files[4] = {"lsa1m12", "lsa1m14", "lsa1m16", "lsa1m18"};
+std::vector<std::vector<double>> vals;
+int val_indeces[60] = {
+  0,0,0,0,0,0,0,0,0,0,
+  0,0,0,1,1,2,2,3,3,3,
+  3,3,3,3,3,3,3,3,3,3,
+  3,3,3,3,3,3,3,3,3,3,
+  3,3,3,3,3,3,3,3,3,3,
+  3,3,3,3,3,3,3,3,3,3};
+
+void load16() {
+}
 
 void init() {
-  std::ifstream ifs(value_file_name);
-  for (int i = 0; i <= subboard::index_max; ++i) {
-    double v;
-    ifs >> v;
-    vals.push_back(v);
+  vals.resize(4);
+  for (int cnt = 0; cnt < 4; ++cnt) {
+    std::ifstream ifs(files[cnt]);
+    for (int i = 0; i <= subboard::index_max; ++i) {
+      double v;
+      ifs >> v;
+      vals[cnt].push_back(v);
+    }
   }
 }
 
@@ -119,11 +132,12 @@ int num_value(const board & bd) {
 }
 
 int statistic_value (const board &bd) {
+  int index = val_indeces[64 - bit_manipulations::stone_sum(bd)];
   std::vector<int> indeces = subboard::serialize(bd);
   double res = 0;
   assert(indeces.size() == 46);
   for (int i : indeces) {
-    res += vals[i];
+    res += vals[index][i];
   }
   return res * 100;
 }
