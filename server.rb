@@ -2,7 +2,7 @@ require 'open3'
 require 'yaml'
 require_relative 'simple_chat/simple_chat'
 
-prog_path = "./issen"
+prog_path = "src/issen"
 $config = YAML.load_file('config.yml')
 $scc = SimpleChatClient.new('ws://localhost:14141')
 
