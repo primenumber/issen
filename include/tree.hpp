@@ -17,7 +17,7 @@ struct node {
   int cut_pos = -1;
   node(const node &) = default;
   node(node &&) = default;
-  explicit node(const board &bd) : bd(bd) {}
+  explicit node(const board &bd) : bd(bd), children(), reorder_val() {}
 };
 
 int expand_recursive(node &nd, int depth);
