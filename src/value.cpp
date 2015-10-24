@@ -94,7 +94,7 @@ int pos_value(const board &bd) {
 }
 
 int edge_value_impl(const board &bd) {
-  int index = bit_manipulations::toBase3(bd.black(), bd.white());
+  int index = bit_manipulations::toBase3_8(bd.black(), bd.white());
   switch (index) {
     case 3279: return  200; // .xxxxxx.
     case 6558: return -200; // .oooooo.
