@@ -26,6 +26,7 @@ void ffotest() {
   for (auto p : std::get<0>(tp))
     std::cout << to_s(std::get<1>(p));
   std::cout << std::endl;
+  std::cout << utils::to_s(std::get<0>(std::get<0>(tp).back()));
   std::cout << "num: " << std::get<1>(tp) << std::endl;
 }
 

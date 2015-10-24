@@ -51,8 +51,13 @@ void play() {
         break;
       }
     }
-    std::cerr << utils::to_s(tm.get_board()) << std::endl;
     is_black = !is_black;
+    if (is_black) {
+      std::cerr << utils::to_s(tm.get_board()) << std::endl;
+    } else {
+      std::cerr << utils::to_s(board::reverse_board(tm.get_board())) << std::endl;
+    }
   }
+  std::cerr << "gameset" << std::endl;
   std::cout << "{\"type\":\"gameset\"}" << std::endl;
 }
