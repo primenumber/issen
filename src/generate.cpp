@@ -54,10 +54,10 @@ void generate_record(const board &bd, size_t n) {
   std::printf("%s", utils::to_s_ffo(bd).c_str());
   std::printf("Black\n");
   std::printf("%zd\n", n);
-  for (int i = 0; i < n; ++i) {
-    if ((i % 1000) == 0) fprintf(stderr, "%d\n", i);
+  for (std::size_t i = 0; i < n; ++i) {
+    if ((i % 1000) == 0) fprintf(stderr, "%zd\n", i);
     auto board_record = generate(bd);
-    for (int j = 0; j < board_record.size() - 1; ++j) {
+    for (std::size_t j = 0; j < board_record.size() - 1; ++j) {
       hand h = hand_from_diff(board_record[j], board_record[j+1]);
       std::printf("%s", to_s(h).c_str());
     }

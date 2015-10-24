@@ -31,7 +31,7 @@ int endgame_dfs_sort(const board &bd, int alpha, int beta, uint64_t bits, uint64
   alpha = std::max(alpha,
       -endgame_dfs(std::get<1>(nxv.front()), -beta, -alpha, nodes, stones+1));
   if (alpha >= beta) return alpha;
-  for (int i = 1; i < nxv.size(); ++i) {
+  for (std::size_t i = 1; i < nxv.size(); ++i) {
     int v = -endgame_dfs(std::get<1>(nxv[i]), -alpha - 1, -alpha, nodes, stones+1);
     if (v >= beta) return v;
     if (v > alpha) {
@@ -115,7 +115,7 @@ int endgame_tree_dfs(tree::node &nd, int alpha, int beta,
     alpha = std::max(alpha,
         -endgame_tree_dfs(bd_first, -beta, -alpha, vb, vv, nodes));
     if (alpha >= beta) return alpha;
-    for (int i = 1; i < nd.children.size(); ++i) {
+    for (std::size_t i = 1; i < nd.children.size(); ++i) {
       auto &nx = *(nd.children[i]);
       int nws_v = -endgame_tree_dfs(nx, -alpha - 1, -alpha, vb, vv, nodes);
       if (nws_v >= beta) {
@@ -161,7 +161,7 @@ std::tuple<board, int> endgame_search(tree::node &nd) {
   int alpha = -endgame_tree_dfs(*nd.children.front(), -value::VALUE_MAX, value::VALUE_MAX, vb, vv, nodes);
   int beta = value::VALUE_MAX;
   board bd = nd.children.front()->bd;
-  for (int i = 1; i < nd.children.size(); ++i) {
+  for (std::size_t i = 1; i < nd.children.size(); ++i) {
     auto &nx = *(nd.children[i]);
     int nws_v = -endgame_tree_dfs(nx, -alpha-1, -alpha, vb, vv, nodes);
     if (nws_v > alpha) {

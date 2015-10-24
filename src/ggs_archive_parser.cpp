@@ -13,7 +13,7 @@
 
 std::tuple<int, int> number(const std::string &s, int i) {
   int n = 0;
-  while (i < s.size() && std::isdigit(s[i])) {
+  while (i < (int)s.size() && std::isdigit(s[i])) {
     n *= 10;
     n += s[i] - '0';
     ++i;
