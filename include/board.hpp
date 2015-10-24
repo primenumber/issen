@@ -8,10 +8,10 @@ struct bit_board {
    public:
     constexpr bit_accessor(uint64_t * const d64p, const size_t index) : d64p(d64p), index(index) {}
     constexpr operator bool() const { return _bittest64(d64p, index); }
-    bool operator=(const bool bit) {
+    bit_accessor &operator=(const bool bit) {
       if (bit) _bittestandset64(d64p, index);
       else _bittestandreset64(d64p, index);
-      return bit;
+      return *this;
     }
    private:
     uint64_t * const d64p;
