@@ -1,5 +1,5 @@
 [submodule "picojson"]
-	path = picojson
+	path = include/picojson
 	url = https://github.com/kazuho/picojson.git
 [submodule "simple_chat"]
 	path = simple_chat
