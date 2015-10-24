@@ -263,4 +263,8 @@ uint16_t toBase3(uint16_t black, uint16_t white) {
   return base3[black] + 2*base3[white];
 }
 
+uint16_t toBase3_8(uint8_t black, uint8_t white) {
+  return base3[black] + 2*base3[white];
+}
+
 } // namespace bit_manipulations

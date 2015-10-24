@@ -215,5 +215,6 @@ int bit_to_pos(uint64_t);
 uint64_t rotr(uint64_t, int);
 
 uint16_t toBase3(uint16_t, uint16_t);
+uint16_t toBase3_8(uint8_t, uint8_t);
 
 } // namespace bit_manipulations
