@@ -13,7 +13,7 @@
 
 namespace value {
 
-std::string files[4] = {"lsa1m12", "lsa1m14", "lsa1m16", "lsa1m18"};
+std::string files[4] = {"data/lsa1m12", "data/lsa1m14", "data/lsa1m16", "data/lsa1m18"};
 std::vector<std::vector<double>> vals;
 int val_indeces[60] = {
   0,0,0,0,0,0,0,0,0,0,
