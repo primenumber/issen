@@ -96,14 +96,14 @@ int pos_value(const board &bd) {
 int edge_value_impl(const board &bd) {
   int index = bit_manipulations::toBase3_8(bd.black(), bd.white());
   switch (index) {
-    case 3279: return  200; // .xxxxxx.
-    case 6558: return -200; // .oooooo.
-    case 3276: return -100; // .xxxxx..
-    case 6552: return  100; // .ooooo..
-    case 1092: return -100; // ..xxxxx.
-    case 2184: return  100; // ..ooooo.
-    case 1089: return  100; // ..xxxx..
-    case 2178: return -100; // ..oooo..
+    case 1092: return  10; // .xxxxxx.
+    case 2184: return -10; // .oooooo.
+    case 1089: return -10; // .xxxxx..
+    case 2178: return  10; // .ooooo..
+    case  363: return -10; // ..xxxxx.
+    case  726: return  10; // ..ooooo.
+    case  360: return  10; // ..xxxx..
+    case  720: return -10; // ..oooo..
     default: return 0;
   }
 }
@@ -122,7 +122,7 @@ int value(const board & bd) {
   score += puttable_value(bd);
   //score += pos_value(bd);
   score += definite_value(bd);
-  score += edge_value(bd);
+  //score += edge_value(bd);
   //score += statistic_value(bd);
   return score;
 }
