@@ -79,12 +79,12 @@ void init() {
 }
 
 int to_index(uint64_t black, uint64_t white, int size) {
-  return base3_to_index[size][bit_manipulations::toBase3(black, white)];
+  return base3_to_index[size][bit_manipulations::toBase3_8(black, white)];
 }
 
 int get_index_horizontal(const board &bd, int index) {
   return index_begin[index-1] +
-      to_index(bd.black().lines[index], bd.white().lines[index], 8);
+      to_index(bd.black() >> (index*8), bd.white() >> (index*8), 8);
 }
 
 int get_index_vertical(const board &bd, int index) {
@@ -95,11 +95,11 @@ int get_index_diagonal_A1H8(const board &bd, int index) {
   board rtbd = bit_manipulations::pseudoRotate45clockwise(bd);
   uint8_t black_bit, white_bit;
   if (index >= 0) {
-    black_bit = rtbd.black().lines[index] & (0xFF >> index);
-    white_bit = rtbd.white().lines[index] & (0xFF >> index);
+    black_bit = (rtbd.black() >> (index*8)) & (0xFF >> index);
+    white_bit = (rtbd.white() >> (index*8)) & (0xFF >> index);
   } else {
-    black_bit = rtbd.black().lines[8+index] >> (8+index);
-    white_bit = rtbd.white().lines[8+index] >> (8+index);
+    black_bit = ((rtbd.black() >> ((8+index)*8))  & 0xFF) >> (8+index);
+    white_bit = ((rtbd.white() >> ((8+index)*8)) & 0xFF) >> (8+index);
   }
   return index_begin[3 + std::abs(index)] +
       to_index(black_bit, white_bit, 8-std::abs(index));
@@ -115,8 +115,8 @@ uint8_t get_xbit(uint8_t line) {
 }
 
 uint16_t get_edge_bits(const bit_board &bbd) {
-  uint16_t bit = bbd.lines[0];
-  return bit | (uint16_t)get_xbit(bbd.lines[1]) << 8;
+  uint16_t bit = bbd & 0xFF;
+  return bit | (uint16_t)get_xbit(bbd >> 8) << 8;
 }
 
 int get_index_edge(const board &bd) {
@@ -127,7 +127,7 @@ int get_index_edge(const board &bd) {
 uint16_t get_corner_3x3_bits(const bit_board &bbd) {
   uint16_t bit = 0;
   for (int i = 0; i < 3; ++i)
-    bit |= (uint16_t)(bbd.lines[i] & 0b111) << (3 * i);
+    bit |= (uint16_t)((bbd >> (i*8)) & 0b111) << (3 * i);
   return bit;
 }
 
@@ -139,7 +139,7 @@ int get_index_corner_3x3(const board &bd) {
 uint16_t get_corner_2x5_bits(const bit_board &bbd) {
   uint16_t bit = 0;
   for (int i = 0; i < 2; ++i)
-    bit |= (uint16_t)(bbd.lines[i] & 0b11111) << (5 * i);
+    bit |= (uint16_t)((bbd >> (i*8)) & 0b11111) << (5 * i);
   return bit;
 }
 

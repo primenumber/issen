@@ -4,15 +4,11 @@
 #include "gcc_intrinsics.hpp"
 
 struct bit_board {
-  union {
-    uint64_t data;
-    std::array<uint8_t, 8> lines;
-  };
+  uint64_t data;
   bit_board() = default;
   constexpr bit_board(const bit_board &) = default;
   constexpr bit_board(bit_board &&) = default;
   constexpr bit_board(const uint64_t data) : data(data) {}
-  constexpr bit_board(const std::array<uint8_t, 8> lines) : lines(lines) {}
   bit_board &operator=(const bit_board &) = default;
   bit_board &operator=(bit_board &&) = default;
   operator uint64_t() { return data; }
