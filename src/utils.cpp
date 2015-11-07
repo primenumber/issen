@@ -25,7 +25,7 @@ std::string to_s(uint64_t bits) {
   std::string res;
   for (int i = 0; i < 8; ++i) {
     for (int j = 0; j < 8; ++j) {
-      res += bb[i*8+j] ? 'x' : '.';
+      res += bb.get(i*8+j) ? 'x' : '.';
     }
     res += '\n';
   }
