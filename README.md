@@ -14,8 +14,7 @@ issen
 $ git submodule init
 $ git submodule update
 $ bundle install --path=vendor/bundle
-$ autoreconf
-$ ./configure
+$ cmake .
 ```
 
 ### コンパイル
