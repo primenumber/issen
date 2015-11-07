@@ -1,7 +1,6 @@
 #include "bit_manipulations.hpp"
 
 #include <x86intrin.h>
-#include "gcc_intrinsics.hpp"
 
 namespace bit_manipulations {
 
