@@ -50,7 +50,7 @@ uint64_t flipVertical(uint64_t);
 board mirrorHorizontal(board);
 uint64_t mirrorHorizontal(uint64_t);
 
-// flipDialA1H8
+// flipDiagA1H8
 //   0  1  2  3  4  5  6  7
 //   8  9 10 11 12 13 14 15
 //  16 17 18 19 20 21 22 23
