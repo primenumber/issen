@@ -8,6 +8,8 @@
 #include "bit_manipulations.hpp"
 #include "line.hpp"
 
+namespace bm = bit_manipulations;
+
 namespace state {
 
 enum class state {
@@ -55,39 +57,39 @@ uint64_t puttable_black_naive(const board & bd) {
 
 // puttable_black
 uint64_t puttable_black_horizontal(const board &bd) {
-  uint64_t res = bit_manipulations::puttable_black_forward_nomask(bd) |
-    bit_manipulations::mirrorHorizontal(
-        bit_manipulations::puttable_black_forward_nomask(
-            bit_manipulations::mirrorHorizontal(bd)));
+  uint64_t res = bm::puttable_black_forward_nomask(bd) |
+    bm::mirrorHorizontal(
+        bm::puttable_black_forward_nomask(
+            bm::mirrorHorizontal(bd)));
   return res;
 }
 
 uint64_t puttable_black_vertical(const board &bd) {
-  using bit_manipulations::flipDiagA1H8;
-  using bit_manipulations::flipDiagA8H1;
-  using bit_manipulations::puttable_black_forward_nomask;
+  using bm::flipDiagA1H8;
+  using bm::flipDiagA8H1;
+  using bm::puttable_black_forward_nomask;
   return flipDiagA1H8(puttable_black_forward_nomask(flipDiagA1H8(bd))) |
       flipDiagA8H1(puttable_black_forward_nomask(flipDiagA8H1(bd)));
 }
 
 uint64_t puttable_black_diag_implA8H1(const board &bd) {
-  const board prot45_bd = bit_manipulations::pseudoRotate45clockwise(bd);
+  const board prot45_bd = bm::pseudoRotate45clockwise(bd);
   uint64_t res = 0;
   for (int i = 0; i < 8; ++i)
     res |= (uint64_t)line::puttable_line(prot45_bd, i, i) << (i * 8);
-  return bit_manipulations::pseudoRotate45antiClockwise(res);
+  return bm::pseudoRotate45antiClockwise(res);
 }
 
 uint64_t puttable_black_diag_implA1H8(const board &bd) {
-  const board prot45a_bd = bit_manipulations::pseudoRotate45antiClockwise(bd);
+  const board prot45a_bd = bm::pseudoRotate45antiClockwise(bd);
   uint64_t res = 0;
   for (int i = 0; i < 8; ++i)
     res |= (uint64_t)line::puttable_line(prot45a_bd, i, (-i) & 7) << (i * 8);
-  return bit_manipulations::pseudoRotate45clockwise(res);
+  return bm::pseudoRotate45clockwise(res);
 }
 
 uint64_t puttable_black_diag(const board &bd) {
-  return bit_manipulations::rotr(
+  return bm::rotr(
       puttable_black_diag_implA8H1(bd) |
       puttable_black_diag_implA1H8(bd), 8);
 }
@@ -138,29 +140,29 @@ uint64_t put_black_at_horizontal(const board &bd, int i, int j) {
 }
 
 uint64_t put_black_at_vertical(const board &bd, int i, int j) {
-  return bit_manipulations::flipDiagA1H8(
+  return bm::flipDiagA1H8(
       ((uint64_t)line::put_line(
-          bit_manipulations::flipDiagA1H8(bd), j, i, 0)) << (j * 8));
+          bm::flipDiagA1H8(bd), j, i, 0)) << (j * 8));
 }
 
 uint64_t put_black_at_diag_implA8H1(const board &bd, int i, int j) {
   board prot45_bd = 
-      bit_manipulations::pseudoRotate45clockwise(bd);
-  return bit_manipulations::pseudoRotate45antiClockwise(
+      bm::pseudoRotate45clockwise(bd);
+  return bm::pseudoRotate45antiClockwise(
       ((uint64_t)line::put_line(prot45_bd,
           (i + j + 1) & 7, j, (i + j + 1) & 7)) << (((i + j + 1) & 7) * 8));
 }
 
 uint64_t put_black_at_diag_implA1H8(const board &bd, int i, int j) {
   board prot45a_bd = 
-      bit_manipulations::pseudoRotate45antiClockwise(bd);
-  return bit_manipulations::pseudoRotate45clockwise(
+      bm::pseudoRotate45antiClockwise(bd);
+  return bm::pseudoRotate45clockwise(
       ((uint64_t)line::put_line(prot45a_bd,
           (i - j) & 7, j, (- i + j) & 7)) << (((i - j) & 7) * 8));
 }
 
 uint64_t put_black_at_diag(const board &bd, int i, int j) {
-  return bit_manipulations::rotr(
+  return bm::rotr(
       put_black_at_diag_implA1H8(bd, i, j) |
       put_black_at_diag_implA8H1(bd, i, j), 8);
 }
@@ -190,7 +192,7 @@ std::vector<board> next_states(const board & bd) {
   res.reserve(16);
   bool is_pass = true;
   for (uint64_t bits = puttable_black(bd); bits != 0; bits &= bits - 1) {
-    int pos = bit_manipulations::bit_to_pos(bits & -bits);
+    int pos = bm::bit_to_pos(bits & -bits);
     res.emplace_back(put_black_at_rev(bd, pos / 8, pos % 8));
     is_pass = false;
   }
@@ -203,7 +205,7 @@ std::vector<board> next_states(const board & bd, uint64_t bits) {
   res.reserve(16);
   if (bits == 0) res.emplace_back(bd, reverse_construct_t());
   for (; bits != 0; bits &= bits - 1) {
-    int pos = bit_manipulations::bit_to_pos(bits & -bits);
+    int pos = bm::bit_to_pos(bits & -bits);
     res.emplace_back(put_black_at_rev(bd, pos / 8, pos % 8));
   }
   return res;
