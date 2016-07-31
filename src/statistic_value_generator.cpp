@@ -28,11 +28,12 @@ boost::optional<record_and_indeces> get_one_record(board bd, int turn_number) {
   bool is_valid = false;
   board snap;
   record::game_record gr;
-  gr.result = score;
+  bool is_black = true;
   for (int i = 0; i < (int)line.size() / 2; ++i) {
     if (64 - bit_manipulations::stone_sum(bd) == turn_number && !is_valid) {
       is_valid = true;
       snap = bd;
+      is_black = i % 2 == 0;
     }
     hand h = to_hand(line.substr(i*2, 2));
     gr.hands.push_back(h);
@@ -41,6 +42,7 @@ boost::optional<record_and_indeces> get_one_record(board bd, int turn_number) {
     else
       bd = board::reverse_board(bd);
   }
+  gr.result = is_black ? score : -score;
   if (!is_valid) return boost::none;
   return boost::optional<record_and_indeces>(std::make_tuple(gr,
       subboard::serialize(snap)));
