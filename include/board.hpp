@@ -57,3 +57,15 @@ inline bool operator<(const board &lhs, const board &rhs) {
   return (lhs.black() == rhs.black()) ?
       (lhs.white() < rhs.white()) : (lhs.black() < rhs.black());
 }
+
+namespace std {
+
+template<>
+struct hash<board> {
+ public:
+  size_t operator()(const board &bd) const {
+    return bd.black() + bd.white() * 17;
+  }
+};
+
+} // namespace std
