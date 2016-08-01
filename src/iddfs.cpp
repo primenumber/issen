@@ -35,13 +35,13 @@ int GameSolver::iddfs(const board &bd) {
   for (max_depth = 6; max_depth < 12; ++max_depth) {
     table[0].clear();
     std::cerr << "depth: " << max_depth << std::endl;
-    dfs(bd, max_depth, -100000, 100000);
+    dfs(bd, max_depth, -value::VALUE_MAX, value::VALUE_MAX);
     std::swap(table[0], table[1]);
   }
   std::cerr << "depth: inf" << std::endl;
   max_depth = 120;
   table[0].clear();
-  int res = dfs(bd, max_depth, -100000, 100000);
+  int res = dfs(bd, max_depth, -value::VALUE_MAX, value::VALUE_MAX);
   std::cerr << "hash update: " << cnt << std::endl;
   std::cerr << "nodes total: " << nodes << std::endl;
   return res;
