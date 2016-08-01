@@ -47,6 +47,11 @@ int GameSolver::iddfs(const board &bd) {
   return res;
 }
 
+bool order_first(const std::pair<int, board> &lhs,
+    const std::pair<int, board> &rhs) {
+  return lhs.first < rhs.first;
+}
+
 int GameSolver::dfs_ordering(
     const board &bd, int depth, int alpha, int beta) {
   uint64_t puttable_bits = state::puttable_black(bd);
@@ -64,7 +69,7 @@ int GameSolver::dfs_ordering(
     }
   }
   int result = -value::VALUE_MAX; // fail soft
-  std::sort(std::begin(in_hash), std::end(in_hash));
+  std::sort(std::begin(in_hash), std::end(in_hash), order_first);
   for (const auto &next : in_hash) {
     result = std::max(result,
         -dfs(next.second, depth-1, -beta, -alpha));
@@ -73,7 +78,7 @@ int GameSolver::dfs_ordering(
     }
     alpha = std::max(alpha, result);
   }
-  std::sort(std::begin(out_hash), std::end(out_hash));
+  std::sort(std::begin(out_hash), std::end(out_hash), order_first);
   for (const auto &next : out_hash) {
     result = std::max(result,
         -dfs(next.second, depth-1, -beta, -alpha));
