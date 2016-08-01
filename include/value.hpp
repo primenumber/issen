@@ -3,7 +3,7 @@
 
 namespace value {
 
-constexpr int VALUE_MAX = 100000;
+constexpr int VALUE_MAX = 6400;
 
 void init();
 int value(const board &);
