@@ -41,12 +41,15 @@ void obftest() {
   for (int i = 0; i < 1000; ++i) {
     std::cout << "line: " << (i+1) << std::endl;
     board bd;
+    int num;
     bool is_black;
-    std::tie(bd, is_black) = utils::input_obf();
-    std::cout << utils::to_s(bd);
+    std::tie(bd, num, is_black) = utils::input_obf();
     GameSolver egs(10000001);
     int pt = egs.iddfs(bd);
-    std::cout << pt << std::endl;
+    if (pt != num*100) {
+      std::cerr << utils::to_s(bd);
+      std::cerr << pt << ' ' << num << std::endl;
+    }
   }
 }
 

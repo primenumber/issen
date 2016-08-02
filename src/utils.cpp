@@ -131,7 +131,7 @@ std::pair<board, bool> input_ffo() {
   }
 }
 
-std::pair<board, bool> input_obf() {
+std::tuple<board, int, bool> input_obf() {
   std::string line;
   std::cin >> line;
   board bd;
@@ -154,12 +154,14 @@ std::pair<board, bool> input_obf() {
   std::string hand;
   std::cin >> hand;
   std::string tmp;
+  std::getline(std::cin, tmp, ':');
+  int num;
+  std::cin >> num;
   std::getline(std::cin, tmp);
-  std::cout << tmp << std::endl;
   if (hand[0] == 'X') {
-    return std::make_pair(bd, true);
+    return std::make_tuple(bd, num, true);
   } else {
-    return std::make_pair(board::reverse_board(bd), false);
+    return std::make_tuple(board::reverse_board(bd), -num, false);
   }
 }
 
