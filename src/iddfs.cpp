@@ -71,8 +71,18 @@ int GameSolver::dfs_ordering(
     }
   }
   int result = -value::VALUE_MAX; // fail soft
+  bool first = true;
   std::sort(std::begin(in_hash), std::end(in_hash), order_first);
   for (const auto &next : in_hash) {
+    if (!first) {
+      result = std::max(result,
+          -dfs(next.second, depth-1, -alpha-1, -alpha));
+      if (result >= beta) return result;
+      if (result <= alpha) continue;
+      alpha = result;
+    } else {
+      first = false;
+    }
     result = std::max(result,
         -dfs(next.second, depth-1, -beta, -alpha));
     if (result >= beta) {
@@ -82,6 +92,15 @@ int GameSolver::dfs_ordering(
   }
   std::sort(std::begin(out_hash), std::end(out_hash), order_first);
   for (const auto &next : out_hash) {
+    if (!first) {
+      result = std::max(result,
+          -dfs(next.second, depth-1, -alpha-1, -alpha));
+      if (result >= beta) return result;
+      if (result <= alpha) continue;
+      alpha = result;
+    } else {
+      first = false;
+    }
     result = std::max(result,
         -dfs(next.second, depth-1, -beta, -alpha));
     if (result >= beta) {
