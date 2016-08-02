@@ -188,7 +188,7 @@ int GameSolver::dfs(const board &bd, int depth,
         return cache.val_min;
       } else {
         Range new_ab = cache && Range(alpha, beta);
-        if (new_ab) {
+        if (new_ab.val_min < new_ab.val_max) {
           alpha = new_ab.val_min;
           beta = new_ab.val_max;
           auto res = dfs_impl(bd, depth, alpha, beta);
