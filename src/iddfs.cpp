@@ -59,7 +59,7 @@ int GameSolver::dfs_ordering(
   uint64_t puttable_bits = state::puttable_black(bd);
   bool pass = (puttable_bits == 0);
   std::vector<std::pair<int, board>> in_hash, out_hash;
-  if (state::is_gameover(bd)) {
+  if (pass && state::puttable_black(board::reverse_board(bd))) {
     return value::num_value(bd);
   }
   const auto nexts = state::next_states(bd, puttable_bits);
