@@ -1,12 +1,12 @@
-#include "board.hpp"
-
 #include <iostream>
 #include <vector>
 #include <functional>
 #include <utility>
 #include <boost/optional.hpp>
 
+#include "board.hpp"
 #include "value.hpp"
+#include "bit_manipulations.hpp"
 
 struct Range {
  public:

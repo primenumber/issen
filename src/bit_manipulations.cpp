@@ -61,6 +61,11 @@ void init() {
   }
 }
 
+bool equal(board lhs, board rhs) {
+  __m128i tmp = _mm_xor_si128(lhs.data, rhs.data);
+  return _mm_test_all_zeros(tmp, tmp);
+}
+
 board flipVertical(board bd) {
   return board(_mm_shuffle_epi8(bd, flip_vertical_shuffle_table));
 }

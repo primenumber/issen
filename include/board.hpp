@@ -48,16 +48,6 @@ union board {
   }
 };
 
-inline bool operator==(const board &lhs, const board &rhs) {
-  return lhs.black() == rhs.black() &&
-      lhs.white() == rhs.white();
-}
-
-inline bool operator<(const board &lhs, const board &rhs) {
-  return (lhs.black() == rhs.black()) ?
-      (lhs.white() < rhs.white()) : (lhs.black() < rhs.black());
-}
-
 namespace std {
 
 template<>

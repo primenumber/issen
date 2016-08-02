@@ -6,6 +6,8 @@ namespace bit_manipulations {
 
 void init();
 
+bool equal(board, board);
+
 // flipVertical
 //   0  1  2  3  4  5  6  7
 //   8  9 10 11 12 13 14 15
@@ -218,3 +220,12 @@ uint16_t toBase3(uint16_t, uint16_t);
 uint16_t toBase3_8(uint8_t, uint8_t);
 
 } // namespace bit_manipulations
+
+inline bool operator==(const board &lhs, const board &rhs) {
+  return bit_manipulations::equal(lhs, rhs);
+}
+
+inline bool operator<(const board &lhs, const board &rhs) {
+  return (lhs.black() == rhs.black()) ?
+      (lhs.white() < rhs.white()) : (lhs.black() < rhs.black());
+}

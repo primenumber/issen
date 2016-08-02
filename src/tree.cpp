@@ -1,6 +1,7 @@
 #include "tree.hpp"
 
 #include "state.hpp"
+#include "bit_manipulations.hpp"
 
 namespace tree {
 
