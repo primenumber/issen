@@ -131,4 +131,36 @@ std::pair<board, bool> input_ffo() {
   }
 }
 
+std::pair<board, bool> input_obf() {
+  std::string line;
+  std::cin >> line;
+  board bd;
+  for (int i = 0; i < 64; ++i) {
+    switch(line[i]) {
+     case 'X':
+      bd.black().set(i);
+      bd.white().reset(i);
+      break;
+     case 'O':
+      bd.black().reset(i);
+      bd.white().set(i);
+      break;
+     default:
+      bd.black().reset(i);
+      bd.white().reset(i);
+      break;
+    }
+  }
+  std::string hand;
+  std::cin >> hand;
+  std::string tmp;
+  std::getline(std::cin, tmp);
+  std::cout << tmp << std::endl;
+  if (hand[0] == 'X') {
+    return std::make_pair(bd, true);
+  } else {
+    return std::make_pair(board::reverse_board(bd), false);
+  }
+}
+
 } // namespace utils

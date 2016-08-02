@@ -13,5 +13,6 @@ std::string to_s(const board &);
 std::string to_s_ffo(const board &);
 std::pair<board, bool> input();
 std::pair<board, bool> input_ffo();
+std::pair<board, bool> input_obf();
 
 } // namespace utils
