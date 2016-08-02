@@ -14,12 +14,15 @@
 #include "statistic_value_generator.hpp"
 #include "play.hpp"
 #include "ggs_archive_parser.hpp"
+#include "iddfs.hpp"
+#include "bit_manipulations.hpp"
 
 void ffotest() {
   board bd;
   bool is_black;
   std::tie(bd, is_black) = utils::input_ffo();
   std::cout << utils::to_s(bd);
+  /*
   std::cout << value::statistic_value(bd) << std::endl;
   tree_manager::tree_manager tm(bd, is_black);
   auto tp = tm.endgame_search();
@@ -28,6 +31,23 @@ void ffotest() {
   std::cout << std::endl;
   std::cout << utils::to_s(std::get<0>(std::get<0>(tp).back()));
   std::cout << "num: " << std::get<1>(tp) << std::endl;
+  */
+  GameSolver egs(10000001);
+  int pt = egs.iddfs(bd);
+  std::cout << pt << std::endl;
+}
+
+void obftest() {
+  for (int i = 0; i < 1000; ++i) {
+    std::cout << "line: " << (i+1) << std::endl;
+    board bd;
+    bool is_black;
+    std::tie(bd, is_black) = utils::input_obf();
+    std::cout << utils::to_s(bd);
+    GameSolver egs(10000001);
+    int pt = egs.iddfs(bd);
+    std::cout << pt << std::endl;
+  }
 }
 
 void generate_record() {
@@ -48,6 +68,8 @@ int main(int argc, char **argv) {
     args[i] = argv[i];
   if (std::count(std::begin(args), std::end(args), "--ffotest"))
     ffotest();
+  else if (std::count(std::begin(args), std::end(args), "--obftest"))
+    obftest();
   else if (std::count(std::begin(args), std::end(args), "--gen-record"))
     generate_record();
   else if (std::count(std::begin(args), std::end(args), "--gen-lsprob"))
