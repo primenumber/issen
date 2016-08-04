@@ -96,11 +96,11 @@ int get_index_diagonal_A1H8(const board &bd, int index) {
   board rtbd = bit_manipulations::pseudoRotate45clockwise(bd);
   uint8_t black_bit, white_bit;
   if (index >= 0) {
-    black_bit = (rtbd.black() >> (index*8)) & (0xFF >> index);
-    white_bit = (rtbd.white() >> (index*8)) & (0xFF >> index);
+    black_bit = (rtbd.black() >> (index*9)) & (0xFF >> index);
+    white_bit = (rtbd.white() >> (index*9)) & (0xFF >> index);
   } else {
-    black_bit = ((rtbd.black() >> ((8+index)*8))  & 0xFF) >> (8+index);
-    white_bit = ((rtbd.white() >> ((8+index)*8)) & 0xFF) >> (8+index);
+    black_bit = (rtbd.black() >> ((8+index)*8)) & (0xFF >> -index);
+    white_bit = (rtbd.white() >> ((8+index)*8)) & (0xFF >> -index);
   }
   return index_begin[3 + std::abs(index)] +
       to_index(black_bit, white_bit, 8-std::abs(index));
