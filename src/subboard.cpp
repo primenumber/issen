@@ -83,7 +83,8 @@ int to_index(uint64_t black, uint64_t white, int size) {
 }
 
 int get_index_horizontal(const board &bd, int index) {
-  return index_begin[index-1] +
+  int hi = std::min(index, 7-index);
+  return index_begin[hi-1] +
       to_index(bd.black() >> (index*8), bd.white() >> (index*8), 8);
 }
 
@@ -151,9 +152,8 @@ int get_index_corner_2x5(const board &bd) {
 std::vector<int> serialize(const board &bd) {
   std::vector<int> cols;
   for (int i = 1; i < 7; ++i) {
-    int hi = std::min(i, 7-i);
-    cols.push_back(get_index_horizontal(bd, hi));
-    cols.push_back(get_index_vertical(bd, hi));
+    cols.push_back(get_index_horizontal(bd, i));
+    cols.push_back(get_index_vertical(bd, i));
   }
   for (int i = -4; i <= 4; ++i) {
     cols.push_back(get_index_diagonal_A1H8(bd, i));
