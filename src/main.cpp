@@ -55,9 +55,10 @@ void obftest() {
 }
 
 void generate_record() {
+  board bd = utils::input_ffo().first;
   int n;
   std::cin >> n;
-  generator::generate_record(board::initial_board(), n);
+  generator::generate_record(bd, n);
 }
 
 void generate_lsprob(const std::vector<std::string> &args) {
