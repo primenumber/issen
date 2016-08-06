@@ -16,10 +16,16 @@
 #include "state.hpp"
 #include "subboard.hpp"
 #include "record.hpp"
+#include "value.hpp"
 
 namespace sv_gen {
 
-using record_and_indeces = std::tuple<record::game_record, std::vector<int>>;
+struct record_and_indeces {
+  record::game_record record;
+  std::vector<int> indeces;
+  int puttable;
+  int puttable_op;
+};
 
 boost::optional<record_and_indeces> get_one_record(board bd, int turn_number) {
   std::string line;
@@ -30,13 +36,13 @@ boost::optional<record_and_indeces> get_one_record(board bd, int turn_number) {
   record::game_record gr;
   bool is_black = true;
   for (int i = 0; i < (int)line.size() / 2; ++i) {
-    if (64 - bit_manipulations::stone_sum(bd) == turn_number && !is_valid) {
+    hand h = to_hand(line.substr(i*2, 2));
+    gr.hands.push_back(h);
+    if (64 - bit_manipulations::stone_sum(bd) == turn_number && h != PASS) {
       is_valid = true;
       snap = bd;
       is_black = i % 2 == 0;
     }
-    hand h = to_hand(line.substr(i*2, 2));
-    gr.hands.push_back(h);
     if (h != PASS)
       bd = state::put_black_at_rev(bd, h/8, h%8);
     else
@@ -44,8 +50,10 @@ boost::optional<record_and_indeces> get_one_record(board bd, int turn_number) {
   }
   gr.result = is_black ? score : -score;
   if (!is_valid) return boost::none;
-  return boost::optional<record_and_indeces>(std::make_tuple(gr,
-      subboard::serialize(snap)));
+  return boost::optional<record_and_indeces>(record_and_indeces{gr,
+      subboard::serialize(snap),
+      value::puttable_black_count(snap),
+      value::puttable_black_count(board::reverse_board(snap))});
 }
 
 void generate_lsprob_input(int turn_number) {
@@ -65,18 +73,22 @@ void generate_lsprob_input(int turn_number) {
     if (ri_opt) vri.push_back(*ri_opt);
   }
   n = vri.size();
-  cout << 46*n << endl;
+  cout << 49*n << endl;
   for (int i = 0; i < n; ++i) {
-    std::vector<int> s = std::get<1>(vri[i]);
+    std::vector<int> s = vri[i].indeces;
     std::sort(std::begin(s), std::end(s));
     for (int j = 0; j < 46; ++j) {
-      std::cout << i << ' ' << s[j] << ' ' << 1 << std::endl;
+      std::cout << i << ' ' << s[j] << ' ' << 1 << '\n';
     }
+    int offset = subboard::index_max;
+    std::cout << i << ' ' << offset << ' ' << vri[i].puttable << '\n';
+    std::cout << i << ' ' << (offset+1) << ' ' << vri[i].puttable_op << '\n';
+    std::cout << i << ' ' << (offset+2) << ' ' << 1 << '\n';
   }
   cout << n << endl;
   for (int i = 0; i < n; ++i) {
     if (i) cout << ' ';
-    cout << std::get<0>(vri[i]).result;
+    cout << vri[i].record.result;
   }
   cout << endl;
 }
