@@ -34,18 +34,20 @@ void Table::update(
 int GameSolver::iddfs(const board &bd) {
   cnt = 0;
   nodes = 0;
-  for (max_depth = 6; max_depth < 12; ++max_depth) {
+  rem_stones = 64 - bit_manipulations::stone_sum(bd);
+  int old_rems = rem_stones;
+  for (rem_stones -= 6; old_rems - rem_stones <= 10; --rem_stones) {
     table[0].clear();
-    //std::cerr << "depth: " << max_depth << std::endl;
-    dfs(bd, max_depth, -value::VALUE_MAX, value::VALUE_MAX);
+    std::cerr << "rem: " << rem_stones << std::endl;
+    dfs(bd, -value::VALUE_MAX, value::VALUE_MAX);
     std::swap(table[0], table[1]);
   }
-  //std::cerr << "depth: inf" << std::endl;
-  max_depth = 120;
+  std::cerr << "full search" << std::endl;
+  rem_stones = -1;
   table[0].clear();
-  int res = dfs(bd, max_depth, -value::VALUE_MAX, value::VALUE_MAX);
-  //std::cerr << "hash update: " << cnt << std::endl;
-  //std::cerr << "nodes total: " << nodes << std::endl;
+  int res = dfs(bd, -value::VALUE_MAX, value::VALUE_MAX);
+  std::cerr << "hash update: " << cnt << std::endl;
+  std::cerr << "nodes total: " << nodes << std::endl;
   return res;
 }
 
@@ -54,8 +56,7 @@ bool order_first(const std::pair<int, board> &lhs,
   return lhs.first < rhs.first;
 }
 
-int GameSolver::dfs_ordering(
-    const board &bd, int depth, int alpha, int beta) {
+int GameSolver::dfs_ordering(const board &bd, int alpha, int beta) {
   uint64_t puttable_bits = state::puttable_black(bd);
   bool pass = (puttable_bits == 0);
   std::vector<std::pair<int, board>> in_hash, out_hash;
@@ -76,7 +77,7 @@ int GameSolver::dfs_ordering(
   for (const auto &next : in_hash) {
     if (!first) {
       result = std::max(result,
-          -dfs(next.second, depth-1, -alpha-1, -alpha));
+          -dfs(next.second, -alpha-1, -alpha));
       if (result >= beta) return result;
       if (result <= alpha) continue;
       alpha = result;
@@ -84,7 +85,7 @@ int GameSolver::dfs_ordering(
       first = false;
     }
     result = std::max(result,
-        -dfs(next.second, depth-1, -beta, -alpha));
+        -dfs(next.second, -beta, -alpha));
     if (result >= beta) {
       return result;
     }
@@ -94,7 +95,7 @@ int GameSolver::dfs_ordering(
   for (const auto &next : out_hash) {
     if (!first) {
       result = std::max(result,
-          -dfs(next.second, depth-1, -alpha-1, -alpha));
+          -dfs(next.second, -alpha-1, -alpha));
       if (result >= beta) return result;
       if (result <= alpha) continue;
       alpha = result;
@@ -102,7 +103,7 @@ int GameSolver::dfs_ordering(
       first = false;
     }
     result = std::max(result,
-        -dfs(next.second, depth-1, -beta, -alpha));
+        -dfs(next.second, -beta, -alpha));
     if (result >= beta) {
       return result;
     }
@@ -111,8 +112,7 @@ int GameSolver::dfs_ordering(
   return result;
 }
 
-int GameSolver::dfs_noordering(
-    const board &bd, int depth, int alpha, int beta) {
+int GameSolver::dfs_noordering(const board &bd, int alpha, int beta) {
   uint64_t puttable_bits = state::puttable_black(bd);
   bool pass = (puttable_bits == 0);
   if (pass) {
@@ -120,7 +120,7 @@ int GameSolver::dfs_noordering(
     if (state::puttable_black(rev_bd) == 0) {
       return value::num_value(bd);
     } else {
-      return -dfs(rev_bd, depth-1, -beta, -alpha);
+      return -dfs(rev_bd, -beta, -alpha);
     }
   }
   int result = -value::VALUE_MAX; // fail soft
@@ -128,7 +128,7 @@ int GameSolver::dfs_noordering(
     const uint64_t bit = puttable_bits & -puttable_bits;
     const uint8_t pos = bit_manipulations::bit_to_pos(bit);
     const board next = state::put_black_at_rev(bd, pos / 8, pos & 7);
-    result = std::max(result, -dfs(next, depth-1, -beta, -alpha));
+    result = std::max(result, -dfs(next, -beta, -alpha));
     if (result >= beta) {
       return result;
     }
@@ -137,8 +137,7 @@ int GameSolver::dfs_noordering(
   return result;
 }
 
-int GameSolver::dfs_noordering2(
-    const board &bd, int depth, int alpha, int beta) {
+int GameSolver::dfs_noordering2(const board &bd, int alpha, int beta) {
   bool pass = true;
   int result = -value::VALUE_MAX; // fail soft
   uint64_t puttable_bits = ~(bd.black() | bd.white());
@@ -148,7 +147,7 @@ int GameSolver::dfs_noordering2(
     const board next = state::put_black_at_rev(bd, pos / 8, pos & 7);
     if (next.black() == bd.white()) continue;
     pass = false;
-    result = std::max(result, -dfs(next, depth-1, -beta, -alpha));
+    result = std::max(result, -dfs(next, -beta, -alpha));
     if (result >= beta) {
       return result;
     }
@@ -159,7 +158,7 @@ int GameSolver::dfs_noordering2(
     if (state::puttable_black(rev_bd) == 0) {
       return value::num_value(bd);
     } else {
-      return -dfs(rev_bd, depth-1, -beta, -alpha);
+      return -dfs(rev_bd, -beta, -alpha);
     }
   }
   return result;
@@ -181,27 +180,25 @@ int GameSolver::dfs_leaf(const board &bd) {
   }
 }
 
-int GameSolver::dfs_impl(
-    const board &bd, int depth, int alpha, int beta) {
+int GameSolver::dfs_impl(const board &bd, int alpha, int beta) {
   int stones = _popcnt64(bd.black() | bd.white());
   if (stones <= 56) {
-    return dfs_ordering(bd, depth, alpha, beta);
+    return dfs_ordering(bd, alpha, beta);
   //} else if (stones <= 59) {
-    //return dfs_noordering(bd, depth, alpha, beta);
+    //return dfs_noordering(bd, alpha, beta);
   } else if (stones <= 62) {
-    return dfs_noordering2(bd, depth, alpha, beta);
+    return dfs_noordering2(bd, alpha, beta);
   } else {
     return dfs_leaf(bd);
   }
 }
 
-int GameSolver::dfs(const board &bd, int depth,
-    int alpha, int beta) {
+int GameSolver::dfs(const board &bd, int alpha, int beta) {
   ++nodes;
-  if (depth == 0) {
-    return value::value(bd);
-  }
   int stones = _popcnt64(bd.black() | bd.white());
+  if (64 - stones <= rem_stones) {
+    return value::statistic_value(bd);
+  }
   if (stones <= 56) {
     if (const auto cache_opt = table[0][bd]) {
       const auto & cache = *cache_opt;
@@ -212,18 +209,18 @@ int GameSolver::dfs(const board &bd, int depth,
         if (new_ab.val_min < new_ab.val_max) {
           alpha = new_ab.val_min;
           beta = new_ab.val_max;
-          auto res = dfs_impl(bd, depth, alpha, beta);
+          auto res = dfs_impl(bd, alpha, beta);
           table[0].update(bd, new_ab, res);
           return res;
         }
         return cache.val_max;
       } 
     } else {
-      auto res = dfs_impl(bd, depth, alpha, beta);
+      auto res = dfs_impl(bd, alpha, beta);
       table[0].update(bd, Range(alpha, beta), res);
       return res;
     }
   } else {
-    return dfs_impl(bd, depth, alpha, beta);
+    return dfs_impl(bd, alpha, beta);
   }
 }

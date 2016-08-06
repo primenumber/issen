@@ -75,11 +75,11 @@ class GameSolver {
   int iddfs(const board &);
  private:
   Table table[2];
-  int dfs(const board &bd, int depth, int alpha, int beta);
-  int dfs_impl(const board &bd, int depth, int alpha, int beta);
-  int dfs_ordering(const board &bd, int depth, int alpha, int beta);
-  int dfs_noordering(const board &bd, int depth, int alpha, int beta);
-  int dfs_noordering2(const board &bd, int depth, int alpha, int beta);
+  int dfs(const board &bd, int alpha, int beta);
+  int dfs_impl(const board &bd, int alpha, int beta);
+  int dfs_ordering(const board &bd, int alpha, int beta);
+  int dfs_noordering(const board &bd, int alpha, int beta);
+  int dfs_noordering2(const board &bd, int alpha, int beta);
   int dfs_leaf(const board &bd);
-  int max_depth;
+  int rem_stones;
 };
