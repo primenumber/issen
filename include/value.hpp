@@ -10,6 +10,8 @@ int value(const board &);
 int diff_num(const board &);
 int fixed_diff_num(const board &);
 int puttable_value(const board &);
+int puttable_diff(const board &);
+int puttable_black_count(const board &);
 int num_value(const board &);
 int statistic_value(const board &);
 

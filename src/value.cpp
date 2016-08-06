@@ -13,28 +13,36 @@
 
 namespace value {
 
-std::string files[4] = {"data/lsa1m12", "data/lsa1m14", "data/lsa1m16", "data/lsa1m18"};
+std::string files[] = {"lsval10"};
 std::vector<std::vector<double>> vals;
+std::vector<double> puttable_coeff;
+std::vector<double> puttable_op_coeff;
+std::vector<double> const_offset;
+
 int val_indeces[60] = {
   0,0,0,0,0,0,0,0,0,0,
-  0,0,0,1,1,2,2,3,3,3,
-  3,3,3,3,3,3,3,3,3,3,
-  3,3,3,3,3,3,3,3,3,3,
-  3,3,3,3,3,3,3,3,3,3,
-  3,3,3,3,3,3,3,3,3,3};
+  0,0,0,0,0,0,0,0,0,0,
+  0,0,0,0,0,0,0,0,0,0,
+  0,0,0,0,0,0,0,0,0,0,
+  0,0,0,0,0,0,0,0,0,0,
+  0,0,0,0,0,0,0,0,0,0};
 
 void load16() {
 }
 
 void init() {
-  vals.resize(4);
-  for (int cnt = 0; cnt < 4; ++cnt) {
+  vals.resize(1);
+  const_offset.resize(1);
+  puttable_coeff.resize(1);
+  puttable_op_coeff.resize(1);
+  for (int cnt = 0; cnt < 1; ++cnt) {
     std::ifstream ifs(files[cnt]);
     for (int i = 0; i <= subboard::index_max; ++i) {
-      double v;
+      double v = 0;
       ifs >> v;
       vals[cnt].push_back(v);
     }
+    ifs >> puttable_coeff[cnt] >> puttable_op_coeff[cnt] >> const_offset[cnt];
   }
 }
 
@@ -67,6 +75,16 @@ int puttable_value(const board &bd) {
   } else {
     return -10 * 64;
   }
+}
+
+int puttable_diff(const board &bd) {
+  int b = _popcnt64(state::puttable_black(bd));
+  int w = _popcnt64(state::puttable_black(board::reverse_board(bd)));
+  return b - w;
+}
+
+int puttable_black_count(const board &bd) {
+  return _popcnt64(state::puttable_black(bd));
 }
 
 int definite_value(const board &bd) {
@@ -134,12 +152,14 @@ int num_value(const board & bd) {
 int statistic_value (const board &bd) {
   int index = val_indeces[64 - bit_manipulations::stone_sum(bd)];
   std::vector<int> indeces = subboard::serialize(bd);
-  double res = 0;
+  double res = const_offset[index];
   assert(indeces.size() == 46);
   for (int i : indeces) {
     res += vals[index][i];
   }
-  return res * 100;
+  res += puttable_black_count(bd) * puttable_coeff[index];
+  res += puttable_black_count(board::reverse_board(bd)) * puttable_op_coeff[index];
+  return std::max(-63999, std::min(63999, int(res * 100)));
 }
 
 } // namespace value
