@@ -65,6 +65,28 @@ void generate_lsprob(const std::vector<std::string> &args) {
   sv_gen::generate_lsprob_input(n);
 }
 
+void record_view() {
+  board bd = board::initial_board();
+  std::string record;
+  std::cin >> record;
+  int n = record.size()/2;
+  for (int i = 0; i < n; ++i) {
+    if (_popcnt64(bd.black()|bd.white()) == 54) {
+      std::cout << value::statistic_value(bd) << std::endl;
+    }
+    hand h = to_hand(record.substr(i*2, 2));
+    if (h != PASS)
+      bd = state::put_black_at_rev(bd, h/8, h%8);
+    else
+      bd = board::reverse_board(bd);
+  }
+  if ((n % 2) == 0) {
+    std::cout << utils::to_s(bd);
+  } else {
+    std::cout << utils::to_s(board::reverse_board(bd));
+  }
+}
+
 int main(int argc, char **argv) {
   utils::init_all();
   std::vector<std::string> args(argc);
@@ -80,6 +102,8 @@ int main(int argc, char **argv) {
     generate_lsprob(args);
   else if (std::count(std::begin(args), std::end(args), "--ggs-parse"))
     ggs_archive_parser();
+  else if (std::count(std::begin(args), std::end(args), "--record-view"))
+    record_view();
   else
     play();
   return 0;
