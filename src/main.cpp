@@ -44,6 +44,7 @@ void obftest() {
     int num;
     bool is_black;
     std::tie(bd, num, is_black) = utils::input_obf();
+    std::cerr << "num: " << num << ", sscore: " << value::statistic_value(bd) << std::endl;
     GameSolver egs(10000001);
     int pt = egs.iddfs(bd);
     if (pt != num*100) {
