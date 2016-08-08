@@ -82,6 +82,10 @@ int to_index(uint64_t black, uint64_t white, int size) {
   return base3_to_index[size][bit_manipulations::toBase3_8(black, white)];
 }
 
+int to_index_asymmetry(uint64_t black, uint64_t white, int size) {
+  return bit_manipulations::toBase3_8(black, white);
+}
+
 int get_index_horizontal(const board &bd, int index) {
   int hi = std::min(index, 7-index);
   return index_begin[hi-1] +
@@ -122,7 +126,7 @@ uint16_t get_edge_bits(const bit_board &bbd) {
 
 int get_index_edge(const board &bd) {
   return index_begin[8] +
-      to_index( get_edge_bits(bd.black()), get_edge_bits(bd.white()), 10);
+      to_index_asymmetry(get_edge_bits(bd.black()), get_edge_bits(bd.white()), 10);
 }
 
 uint16_t get_corner_3x3_bits(const bit_board &bbd) {
@@ -133,7 +137,7 @@ uint16_t get_corner_3x3_bits(const bit_board &bbd) {
 }
 
 int get_index_corner_3x3(const board &bd) {
-  return index_begin[9] + to_index(get_corner_3x3_bits(bd.black()),
+  return index_begin[9] + to_index_asymmetry(get_corner_3x3_bits(bd.black()),
       get_corner_3x3_bits(bd.white()), 9);
 }
 
@@ -145,7 +149,8 @@ uint16_t get_corner_2x5_bits(const bit_board &bbd) {
 }
 
 int get_index_corner_2x5(const board &bd) {
-  return index_begin[10] + to_index(get_corner_2x5_bits(bd.black()),
+  return index_begin[10] + to_index_asymmetry(
+      get_corner_2x5_bits(bd.black()),
       get_corner_2x5_bits(bd.white()), 10);
 }
 
