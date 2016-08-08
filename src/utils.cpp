@@ -102,7 +102,7 @@ std::pair<board, bool> input() {
   }
 }
 
-std::pair<board, bool> input_ffo() {
+board input_bd() {
   std::string line;
   std::cin >> line;
   board bd;
@@ -122,6 +122,11 @@ std::pair<board, bool> input_ffo() {
       break;
     }
   }
+  return bd;
+}
+
+std::pair<board, bool> input_ffo() {
+  board bd = input_bd();
   std::string hand;
   std::cin >> hand;
   if (hand == "Black") {
@@ -132,25 +137,7 @@ std::pair<board, bool> input_ffo() {
 }
 
 std::tuple<board, int, bool> input_obf() {
-  std::string line;
-  std::cin >> line;
-  board bd;
-  for (int i = 0; i < 64; ++i) {
-    switch(line[i]) {
-     case 'X':
-      bd.black().set(i);
-      bd.white().reset(i);
-      break;
-     case 'O':
-      bd.black().reset(i);
-      bd.white().set(i);
-      break;
-     default:
-      bd.black().reset(i);
-      bd.white().reset(i);
-      break;
-    }
-  }
+  board bd = input_bd();
   std::string hand;
   std::cin >> hand;
   std::string tmp;
