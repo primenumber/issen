@@ -15,7 +15,6 @@ void init_all() {
   bit_manipulations::init();
   state::init();
   line::init();
-  generator::init();
   subboard::init();
   value::init();
 }
