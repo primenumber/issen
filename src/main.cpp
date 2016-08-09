@@ -9,7 +9,6 @@
 #include "state.hpp"
 #include "hand.hpp"
 #include "utils.hpp"
-#include "tree_manager.hpp"
 #include "generate.hpp"
 #include "statistic_value_generator.hpp"
 #include "play.hpp"
@@ -22,16 +21,6 @@ void ffotest() {
   bool is_black;
   std::tie(bd, is_black) = utils::input_ffo();
   std::cout << utils::to_s(bd);
-  /*
-  std::cout << value::statistic_value(bd) << std::endl;
-  tree_manager::tree_manager tm(bd, is_black);
-  auto tp = tm.endgame_search();
-  for (auto p : std::get<0>(tp))
-    std::cout << to_s(std::get<1>(p));
-  std::cout << std::endl;
-  std::cout << utils::to_s(std::get<0>(std::get<0>(tp).back()));
-  std::cout << "num: " << std::get<1>(tp) << std::endl;
-  */
   GameSolver egs(10000001);
   int pt = egs.iddfs(bd);
   std::cout << pt << std::endl;
