@@ -43,18 +43,6 @@ void obftest() {
   }
 }
 
-void generate_record() {
-  board bd = utils::input_ffo().first;
-  int n;
-  std::cin >> n;
-  generator::generate_record(bd, n);
-}
-
-void generate_lsprob(const std::vector<std::string> &args) {
-  int n = std::stoi(args[2]);
-  sv_gen::generate_lsprob_input(n);
-}
-
 void record_view() {
   board bd = board::initial_board();
   std::string record;
@@ -77,6 +65,11 @@ void record_view() {
   }
 }
 
+void generate_score(const std::vector<std::string> &args) {
+  int n = std::stoi(args[2]);
+  generator::generate_score(n);
+}
+
 int main(int argc, char **argv) {
   utils::init_all();
   std::vector<std::string> args(argc);
@@ -86,10 +79,10 @@ int main(int argc, char **argv) {
     ffotest();
   else if (std::count(std::begin(args), std::end(args), "--obftest"))
     obftest();
-  else if (std::count(std::begin(args), std::end(args), "--gen-record"))
-    generate_record();
+  else if (std::count(std::begin(args), std::end(args), "--gen-score"))
+    generate_score(args);
   else if (std::count(std::begin(args), std::end(args), "--gen-lsprob"))
-    generate_lsprob(args);
+    sv_gen::generate_lsprob();
   else if (std::count(std::begin(args), std::end(args), "--ggs-parse"))
     ggs_archive_parser();
   else if (std::count(std::begin(args), std::end(args), "--record-view"))
