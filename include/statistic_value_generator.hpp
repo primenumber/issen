@@ -2,6 +2,6 @@
 
 namespace sv_gen {
 
-void generate_lsprob_input(int n);
+void generate_lsprob();
 
 } // namespace sv_gen
