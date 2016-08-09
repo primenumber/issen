@@ -11,7 +11,6 @@
 #include "utils.hpp"
 #include "generate.hpp"
 #include "statistic_value_generator.hpp"
-#include "play.hpp"
 #include "ggs_archive_parser.hpp"
 #include "iddfs.hpp"
 #include "bit_manipulations.hpp"
@@ -87,7 +86,5 @@ int main(int argc, char **argv) {
     ggs_archive_parser();
   else if (std::count(std::begin(args), std::end(args), "--record-view"))
     record_view();
-  else
-    play();
   return 0;
 }
