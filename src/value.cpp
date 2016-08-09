@@ -13,7 +13,7 @@
 
 namespace value {
 
-std::string files[] = {"lsval10"};
+std::string files[] = {"lsval10", "lsval15"};
 std::vector<std::vector<double>> vals;
 std::vector<double> puttable_coeff;
 std::vector<double> puttable_op_coeff;
@@ -21,21 +21,22 @@ std::vector<double> const_offset;
 
 int val_indeces[60] = {
   0,0,0,0,0,0,0,0,0,0,
-  0,0,0,0,0,0,0,0,0,0,
-  0,0,0,0,0,0,0,0,0,0,
-  0,0,0,0,0,0,0,0,0,0,
-  0,0,0,0,0,0,0,0,0,0,
-  0,0,0,0,0,0,0,0,0,0};
+  0,0,0,1,1,1,1,1,1,1,
+  1,1,1,1,1,1,1,1,1,1,
+  1,1,1,1,1,1,1,1,1,1,
+  1,1,1,1,1,1,1,1,1,1,
+  1,1,1,1,1,1,1,1,1,1};
 
 void load16() {
 }
 
 void init() {
-  vals.resize(1);
-  const_offset.resize(1);
-  puttable_coeff.resize(1);
-  puttable_op_coeff.resize(1);
-  for (int cnt = 0; cnt < 1; ++cnt) {
+  int n = 2;
+  vals.resize(n);
+  const_offset.resize(n);
+  puttable_coeff.resize(n);
+  puttable_op_coeff.resize(n);
+  for (int cnt = 0; cnt < n; ++cnt) {
     std::ifstream ifs(files[cnt]);
     for (int i = 0; i <= subboard::index_max; ++i) {
       double v = 0;
