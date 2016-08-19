@@ -211,6 +211,7 @@ board definites(board);
 uint64_t puttable_black_forward(board);
 uint64_t puttable_black_forward_nomask(board);
 
+uint64_t stones(board);
 int stone_sum(board);
 
 int bit_to_pos(uint64_t);

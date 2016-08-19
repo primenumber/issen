@@ -255,8 +255,12 @@ uint64_t puttable_black_forward(board bd) {
   return puttable_black_forward_nomask(bd) & ~(bd.black() | bd.white());
 }
 
+uint64_t stones(board bd) {
+  return _mm_cvtsi128_si64(_mm_or_si128(_mm_alignr_epi8(bd, bd, 8), bd));
+}
+
 int stone_sum(board bd) {
-  return _popcnt64(bd.black() | bd.white());
+  return _popcnt64(stones(bd));
 }
 
 int bit_to_pos(uint64_t bit) {
