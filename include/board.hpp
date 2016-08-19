@@ -23,23 +23,23 @@ struct bit_board {
 
 struct reverse_construct_t {};
 
-union board {
+struct board {
   __m128i data;
-  std::array<bit_board, 2> ary;
   board() = default;
   board(const board &) = default;
-  board(const board & bd, const reverse_construct_t) :
-      ary{bd.ary[1], bd.ary[0]} {}
-  board(const uint64_t black, const uint64_t white) : ary{black, white} {}
+  board(const board & bd, const reverse_construct_t)
+    : data(_mm_alignr_epi8(bd.data, bd.data, 8)) {}
+  board(const uint64_t black, const uint64_t white)
+    : data(_mm_set_epi64x(white, black)) {}
   board(__m128i data) : data(data) {}
   operator __m128i() { return data; }
   operator __m128i() const { return data; }
   board &operator=(const board &) = default;
   board &operator=(board &&) = default;
-  bit_board &black() { return ary[0]; }
-  const bit_board &black() const { return ary[0]; }
-  bit_board &white() { return ary[1]; }
-  const bit_board &white() const { return ary[1]; }
+  const bit_board black() const { return _mm_cvtsi128_si64(data); }
+  const bit_board white() const {
+    return _mm_extract_epi64(data, 1);
+  }
   static board initial_board() {
     return board(UINT64_C(0x0000000810000000), UINT64_C(0x0000001008000000));
   }
