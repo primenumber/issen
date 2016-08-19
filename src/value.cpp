@@ -56,11 +56,12 @@ int diff_num(const board &bd) {
 int fixed_diff_num(const board &bd) {
   int bn = _popcnt64(bd.black());
   int wn = _popcnt64(bd.white());
-  if (bn) {
-    if (wn) return bn - wn;
-    else return 64;
+  if (bn > wn) {
+    return 64 - 2*wn;
+  } else if (wn > bn) {
+    return -(64 - 2*bn);
   } else {
-    return -64;
+    return 0;
   }
 }
 
