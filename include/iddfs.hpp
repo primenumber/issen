@@ -1,4 +1,5 @@
 #include <iostream>
+#include <algorithm>
 #include <vector>
 #include <functional>
 #include <utility>
@@ -58,9 +59,8 @@ class Table {
   }
   void update(const board &bd, const Range range, const int32_t value);
   void clear() {
-    for (auto &p : table) {
-      p = std::make_pair(board::initial_board(), Range());
-    }
+    std::fill(std::begin(table), std::end(table),
+        std::make_pair(board::initial_board(), Range()));
   }
  private:
   std::vector<std::pair<board, Range>> table;
