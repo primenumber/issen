@@ -22,7 +22,7 @@ std::queue<board> que;
 std::mutex mtx1, mtx2;
 
 void worker() {
-  GameSolver gs(1000);
+  GameSolver gs(65537);
   while (true) {
     std::unique_lock<std::mutex> ul(mtx1);
     if (que.empty()) return;
