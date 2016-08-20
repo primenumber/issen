@@ -66,7 +66,7 @@ int GameSolver::dfs_ordering(const board &bd, int alpha, int beta) {
   const auto nexts = state::next_states(bd, puttable_bits);
   for (const auto &next : nexts) {
     if (auto val_opt = table[1][next]) {
-      in_hash.emplace_back(val_opt->val_min, next);
+      in_hash.emplace_back(val_opt->val_max, next);
     } else {
       out_hash.emplace_back(_popcnt64(state::puttable_black(next)), next);
     }
