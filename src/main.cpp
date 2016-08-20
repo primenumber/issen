@@ -3,6 +3,8 @@
 #include <tuple>
 #include <vector>
 
+#include <boost/timer/timer.hpp>
+
 #include "picojson/picojson.h"
 
 #include "board.hpp"
@@ -20,12 +22,16 @@ void ffotest() {
   bool is_black;
   std::tie(bd, is_black) = utils::input_ffo();
   std::cout << utils::to_s(bd);
+  boost::timer::cpu_timer timer;
   GameSolver egs(10000001);
   int pt = egs.iddfs(bd);
   std::cout << pt << std::endl;
+  std::cout << timer.format() << std::endl;
 }
 
 void obftest() {
+  int fail = 0;
+  boost::timer::cpu_timer timer;
   for (int i = 0; i < 1000; ++i) {
     std::cout << "line: " << (i+1) << std::endl;
     board bd;
@@ -38,8 +44,11 @@ void obftest() {
     if (pt != num*100) {
       std::cerr << utils::to_s(bd);
       std::cerr << pt << ' ' << num << std::endl;
+      ++fail;
     }
   }
+  std::cout << "fail: " << fail << std::endl;
+  std::cout << timer.format() << std::endl;
 }
 
 void record_view() {
