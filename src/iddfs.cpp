@@ -127,7 +127,7 @@ int GameSolver::dfs_noordering(const board &bd, int alpha, int beta) {
   for (; puttable_bits; puttable_bits &= puttable_bits-1) {
     const uint64_t bit = puttable_bits & -puttable_bits;
     const uint8_t pos = bit_manipulations::bit_to_pos(bit);
-    const board next = state::put_black_at_rev(bd, pos / 8, pos & 7);
+    const board next = state::put_black_at_rev(bd, pos);
     result = std::max(result, -dfs(next, -beta, -alpha));
     if (result >= beta) {
       return result;
@@ -140,11 +140,11 @@ int GameSolver::dfs_noordering(const board &bd, int alpha, int beta) {
 int GameSolver::dfs_noordering2(const board &bd, int alpha, int beta) {
   bool pass = true;
   int result = -value::VALUE_MAX; // fail soft
-  uint64_t puttable_bits = ~(bd.black() | bd.white());
+  uint64_t puttable_bits = ~bit_manipulations::stones(bd);
   for (; puttable_bits; puttable_bits &= puttable_bits-1) {
     const uint64_t bit = puttable_bits & -puttable_bits;
     const uint8_t pos = bit_manipulations::bit_to_pos(bit);
-    const board next = state::put_black_at_rev(bd, pos / 8, pos & 7);
+    const board next = state::put_black_at_rev(bd, pos);
     if (next.black() == bd.white()) continue;
     pass = false;
     result = std::max(result, -dfs(next, -beta, -alpha));
@@ -167,9 +167,9 @@ int GameSolver::dfs_noordering2(const board &bd, int alpha, int beta) {
 int GameSolver::dfs_leaf(const board &bd) {
   uint64_t pos_bit = ~bit_manipulations::stones(bd);
   int pos = bit_manipulations::bit_to_pos(pos_bit);
-  const board nx = state::put_black_at(bd, pos / 8, pos & 7);
+  const board nx = state::put_black_at(bd, pos);
   if (nx.white() == bd.white()) {
-    const board nx2 = state::put_black_at(board::reverse_board(bd), pos / 8, pos & 7);
+    const board nx2 = state::put_black_at(board::reverse_board(bd), pos);
     if (nx2.white() == bd.black()) {
       return value::num_value(bd);
     } else {
