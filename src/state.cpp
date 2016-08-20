@@ -108,6 +108,7 @@ bool is_gameover(const board &bd) {
       puttable_black(board::reverse_board(bd)) == 0;
 }
 
+/*
 void put_black_at_dir(board &bd, int i, int j, int dir) {
   const int di[8] = {1, 1, 0, -1, -1, -1, 0, 1};
   const int dj[8] = {0, 1, 1, 1, 0, -1, -1, -1};
@@ -136,6 +137,7 @@ board put_black_at_naive(const board & bd, int i, int j) {
   res.black().set(i*8+j);
   return res;
 }
+*/
 
 struct u64_4 {
   __m128i xy, zw;
