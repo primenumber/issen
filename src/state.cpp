@@ -217,7 +217,7 @@ u64_4 upper_bit(u64_4 p) {
   return andnot(p >> 1, p);
 }
 
-uint64_t flip(const board &bd, int pos) {
+__m128i flip(const board &bd, int pos) {
   u64_4 flipped, OM, outflank, mask;
   uint64_t yzw = bd.white() & UINT64_C(0x7E7E7E7E7E7E7E7E);
   OM = u64_4(bd.white(), yzw, yzw, yzw);
@@ -240,25 +240,27 @@ uint64_t flip(const board &bd, int pos) {
   outflank = mask & ((OM | ~mask) + 1) & bd.black();
   flipped = flipped | ((outflank - (outflank != 0)) & mask);
   __m128i flipped_xz_yw = _mm_or_si128(flipped.xy, flipped.zw);
-  uint64_t lo = _mm_cvtsi128_si64(flipped_xz_yw);
-  uint64_t hi = _mm_cvtsi128_si64(_mm_srli_si128(flipped_xz_yw, 8));
-  return lo | hi;
+  return _mm_or_si128(flipped_xz_yw, _mm_alignr_epi8(flipped_xz_yw, flipped_xz_yw, 8));
+}
+
+board put_black_at(const board & bd, int pos) {
+  __m128i bits = flip(bd, pos);
+  return _mm_or_si128(_mm_xor_si128(bd, bits),
+      _mm_set_epi64x(0, UINT64_C(1) << pos));
 }
 
 board put_black_at(const board & bd, int i, int j) {
-  uint64_t reverse_bits = flip(bd, i*8 + j);
-  return board(
-      (bd.black() ^ reverse_bits) |
-          UINT64_C(1) << (i * 8 + j),
-      bd.white() ^ reverse_bits);
+  return put_black_at(bd, i*8 + j);
+}
+
+board put_black_at_rev(const board & bd, int pos) {
+  __m128i bits = flip(bd, pos);
+  return _mm_or_si128(_mm_xor_si128(board::reverse_board(bd), bits),
+      _mm_set_epi64x(UINT64_C(1) << pos, 0));
 }
 
 board put_black_at_rev(const board & bd, int i, int j) {
-  uint64_t reverse_bits = flip(bd, i*8 + j);
-  return board(
-      bd.white() ^ reverse_bits,
-      (bd.black() ^ reverse_bits) |
-          UINT64_C(1) << (i * 8 + j));
+  return put_black_at_rev(bd, i*8 + j);
 }
 
 std::vector<board> next_states(const board & bd) {
