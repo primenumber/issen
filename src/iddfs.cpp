@@ -165,7 +165,7 @@ int GameSolver::dfs_noordering2(const board &bd, int alpha, int beta) {
 }
 
 int GameSolver::dfs_leaf(const board &bd) {
-  uint64_t pos_bit = ~(bd.black() | bd.white());
+  uint64_t pos_bit = ~bit_manipulations::stones(bd);
   int pos = bit_manipulations::bit_to_pos(pos_bit);
   const board nx = state::put_black_at(bd, pos / 8, pos & 7);
   if (nx.white() == bd.white()) {
@@ -181,7 +181,7 @@ int GameSolver::dfs_leaf(const board &bd) {
 }
 
 int GameSolver::dfs_impl(const board &bd, int alpha, int beta) {
-  int stones = _popcnt64(bd.black() | bd.white());
+  int stones = bit_manipulations::stone_sum(bd);
   if (stones <= 56) {
     return dfs_ordering(bd, alpha, beta);
   //} else if (stones <= 59) {
@@ -195,7 +195,7 @@ int GameSolver::dfs_impl(const board &bd, int alpha, int beta) {
 
 int GameSolver::dfs(const board &bd, int alpha, int beta) {
   ++nodes;
-  int stones = _popcnt64(bd.black() | bd.white());
+  int stones = bit_manipulations::stone_sum(bd);
   if (64 - stones <= rem_stones) {
     return value::statistic_value(bd);
   }
