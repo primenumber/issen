@@ -7,8 +7,6 @@
 
 namespace subboard {
 
-std::vector<std::vector<int>> base3_to_index;
-std::vector<int> index_size;
 int index_max;
 
 constexpr std::array<int, 11> stones = {
@@ -24,72 +22,70 @@ constexpr int pow3(int index) {
   return index ? 3 * pow3(index - 1) : 1;
 }
 
-std::vector<int> int2digits(int num, int size) {
-  std::vector<int> digit(size);
-  for (int k = 0; k < size; ++k) {
-    digit[k] = num % 3;
-    num /= 3;
-  }
-  return digit;
-}
-
-int digits2int(std::vector<int> digits) {
-  int res = 0;
-  for (int i = digits.size() - 1; i >= 0; --i) {
-    res *= 3;
-    res += digits[i];
-  }
-  return res;
-}
-
-int rev_num(int num, int size) {
-  std::vector<int> digits = int2digits(num, size);
-  std::vector<int> rev(size);
-  std::reverse_copy(begin(digits), end(digits), begin(rev));
-  return digits2int(rev);
-}
-
 void init() {
-  using std::vector;
-  using std::begin;
-  using std::end;
-  base3_to_index.resize(11);
-  index_size.resize(11);
-  for (int i = 3; i <= 10; ++i) {
-    base3_to_index[i].resize(pow3(i));
-    vector<int> nums;
-    for (int j = 0; j < pow3(i); ++j) {
-      nums.push_back(std::min(j, rev_num(j, i)));
-    }
-    std::sort(begin(nums), end(nums));
-    nums.erase(std::unique(begin(nums), end(nums)), end(nums));
-    index_size[i] = nums.size();
-    for (int j = 0; j < pow3(i); ++j) {
-      int k = std::min(j, rev_num(j, i));
-      base3_to_index[i][j] =
-          std::lower_bound(begin(nums), end(nums), k) - begin(nums);
-    }
-  }
   index_begin.resize(stones.size());
   index_begin[0] = 0;
   for (int i = 1; i < (int)stones.size(); ++i) {
-    index_begin[i] = index_begin[i-1] + index_size[stones[i-1]];
+    index_begin[i] = index_begin[i-1] + pow3(stones[i-1]);
   }
-  index_max = index_begin.back() + index_size[stones.back()] - 1;
+  index_max = index_begin.back() + pow3(stones.back()) - 1;
+}
+
+uint16_t rev_bit(uint16_t bits, int size) {
+  switch (size) {
+    case 4:
+      bits = ((bits & 0x3) << 2) | ((bits & 0xC) >> 2);
+      return ((bits & 0x5) << 1) | ((bits & 0xA) >> 1);
+    case 5:
+      bits = ((bits & 0x3) << 3) | ((bits & 0x18) >> 3) | (bits & 0x4);
+      return ((bits & 0x9) << 1) | ((bits & 0x12) >> 1) | (bits & 0x4);
+    case 6:
+      bits = ((bits & 0x7) << 3) | ((bits & 0x38) >> 3);
+      return ((bits & 0x15) << 1) | ((bits & 0x2A) >> 1) | (bits & 0x12);
+    case 7:
+      bits = ((bits & 0x7) << 4) | ((bits & 0x70) >> 4) | (bits & 0x8);
+      return ((bits & 0x11) << 2) | ((bits & 0x44) >> 2) | (bits & 0x2A);
+    case 8:
+      bits = ((bits & 0x0F) << 4) | ((bits & 0xF0) >> 4);
+      bits = ((bits & 0x33) << 2) | ((bits & 0xCC) >> 2);
+      return ((bits & 0x55) << 1) | ((bits & 0xAA) >> 1);
+    case 9:
+      bits = ((bits & 0x0F) << 5) | ((bits & 0x1E0) >> 5) | (bits & 0x10);
+      bits = ((bits & 0x63) << 2) | ((bits & 0x18C) >> 2) | (bits & 0x10);
+      return ((bits & 0xA5) << 1) | ((bits & 0x14A) >> 1) | (bits & 0x10);
+    case 10:
+      bits = ((bits & 0x1F) << 5) | ((bits & 0x3E0) >> 5);
+      bits = ((bits & 0x63) << 3) | ((bits & 0x318) >> 3) | (bits & 0x84);
+      return ((bits & 0x129) << 1) | ((bits & 0x252) >> 1) | (bits & 0x84);
+    default: return bits;
+  }
+}
+
+uint16_t rev_bit_diag(uint16_t bits) {
+  return (bits & 0x111) |
+    ((bits & 0x88) >> 2) | ((bits & 0x40) >> 4) |
+    ((bits & 0x22) << 2) | ((bits & 0x04) << 4);
 }
 
 int to_index(uint64_t black, uint64_t white, int size) {
-  return base3_to_index[size][bit_manipulations::toBase3_8(black, white)];
+  return std::min(bit_manipulations::toBase3(black, white),
+      bit_manipulations::toBase3(rev_bit(black, size), rev_bit(white, size)));
+}
+
+int to_index_diag(uint64_t black, uint64_t white, int size) {
+  return std::min(bit_manipulations::toBase3(black, white),
+      bit_manipulations::toBase3(rev_bit_diag(black), rev_bit_diag(white)));
 }
 
 int to_index_asymmetry(uint64_t black, uint64_t white, int size) {
-  return bit_manipulations::toBase3_8(black, white);
+  return bit_manipulations::toBase3(black, white);
 }
 
 int get_index_horizontal(const board &bd, int index) {
   int hi = std::min(index, 7-index);
   return index_begin[hi-1] +
-      to_index(bd.black() >> (index*8), bd.white() >> (index*8), 8);
+      to_index(0xFF & (bd.black() >> (index*8)),
+          0xFF & (bd.white() >> (index*8)), 8);
 }
 
 int get_index_vertical(const board &bd, int index) {
@@ -137,7 +133,7 @@ uint16_t get_corner_3x3_bits(const bit_board &bbd) {
 }
 
 int get_index_corner_3x3(const board &bd) {
-  return index_begin[9] + to_index_asymmetry(get_corner_3x3_bits(bd.black()),
+  return index_begin[9] + to_index_diag(get_corner_3x3_bits(bd.black()),
       get_corner_3x3_bits(bd.white()), 9);
 }
 
