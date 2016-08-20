@@ -13,25 +13,25 @@
 
 namespace value {
 
-std::string files[] = {"lsval10", "lsval15"};
+std::string files[] = {"lsval8", "lsval9", "lsval10", "lsval11", "lsval12", "lsval13", "lsval14", "lsval15", "lsval16"};
 std::vector<std::vector<double>> vals;
 std::vector<double> puttable_coeff;
 std::vector<double> puttable_op_coeff;
 std::vector<double> const_offset;
 
 int val_indeces[60] = {
-  0,0,0,0,0,0,0,0,0,0,
-  0,0,0,1,1,1,1,1,1,1,
-  1,1,1,1,1,1,1,1,1,1,
-  1,1,1,1,1,1,1,1,1,1,
-  1,1,1,1,1,1,1,1,1,1,
-  1,1,1,1,1,1,1,1,1,1};
+  0,0,0,0,0,0,0,0,0,1,
+  2,3,4,5,6,7,8,8,8,8,
+  8,8,8,8,8,8,8,8,8,8,
+  8,8,8,8,8,8,8,8,8,8,
+  8,8,8,8,8,8,8,8,8,8,
+  8,8,8,8,8,8,8,8,8,8};
 
 void load16() {
 }
 
 void init() {
-  int n = 2;
+  int n = 9;
   vals.resize(n);
   const_offset.resize(n);
   puttable_coeff.resize(n);
