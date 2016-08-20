@@ -73,27 +73,28 @@ std::pair<board, bool> input() {
   std::string hs;
   std::cin >> hs;
   char hand = hs[0];
-  board bd;
+  bit_board black, white;
   for (int i = 0; i < 8; ++i) {
     std::string line;
     std::cin >> line;
     for (int j = 0; j < 8; ++j) {
       switch(line[j]) {
        case 'x':
-        bd.black().set(i*8+j);
-        bd.white().reset(i*8+j);
+        black.set(i*8+j);
+        white.reset(i*8+j);
         break;
        case 'o':
-        bd.black().reset(i*8+j);
-        bd.white().set(i*8+j);
+        black.reset(i*8+j);
+        white.set(i*8+j);
         break;
        default:
-        bd.black().reset(i*8+j);
-        bd.white().reset(i*8+j);
+        black.reset(i*8+j);
+        white.reset(i*8+j);
         break;
       }
     }
   }
+  board bd(black, white);
   if (hand == 'x') {
     return std::make_pair(bd, true);
   } else {
@@ -104,24 +105,24 @@ std::pair<board, bool> input() {
 board input_bd() {
   std::string line;
   std::cin >> line;
-  board bd;
+  bit_board black, white;
   for (int i = 0; i < 64; ++i) {
     switch(line[i]) {
      case 'X':
-      bd.black().set(i);
-      bd.white().reset(i);
+      black.set(i);
+      white.reset(i);
       break;
      case 'O':
-      bd.black().reset(i);
-      bd.white().set(i);
+      black.reset(i);
+      white.set(i);
       break;
      default:
-      bd.black().reset(i);
-      bd.white().reset(i);
+      black.reset(i);
+      white.reset(i);
       break;
     }
   }
-  return bd;
+  return board(black, white);
 }
 
 std::pair<board, bool> input_ffo() {
