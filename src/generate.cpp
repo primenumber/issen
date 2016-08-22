@@ -14,7 +14,7 @@
 #include "hand.hpp"
 #include "utils.hpp"
 #include "value.hpp"
-#include "iddfs.hpp"
+#include "gamesolver.hpp"
 
 namespace generator {
 

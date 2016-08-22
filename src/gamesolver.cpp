@@ -1,4 +1,4 @@
-#include "iddfs.hpp"
+#include "gamesolver.hpp"
 #include "value.hpp"
 #include "state.hpp"
 #include "bit_manipulations.hpp"

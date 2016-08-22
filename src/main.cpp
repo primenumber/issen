@@ -14,7 +14,7 @@
 #include "generate.hpp"
 #include "statistic_value_generator.hpp"
 #include "ggs_archive_parser.hpp"
-#include "iddfs.hpp"
+#include "gamesolver.hpp"
 #include "bit_manipulations.hpp"
 
 void ffotest() {
