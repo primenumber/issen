@@ -32,6 +32,7 @@ void ffotest() {
 void obftest() {
   int fail = 0;
   boost::timer::cpu_timer timer;
+  int diff = 0;
   for (int i = 0; i < 1000; ++i) {
     std::cout << "line: " << (i+1) << std::endl;
     board bd;
@@ -48,6 +49,7 @@ void obftest() {
     }
   }
   std::cout << "fail: " << fail << std::endl;
+  std::cout << "diff: " << diff << std::endl;
   std::cout << timer.format() << std::endl;
 }
 
