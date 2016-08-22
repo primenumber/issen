@@ -89,62 +89,8 @@ int puttable_black_count(const board &bd) {
   return _popcnt64(state::puttable_black(bd));
 }
 
-int definite_value(const board &bd) {
-  board df = bit_manipulations::definites(bd);
-  return diff_num(df) * 6;
-}
-
-int pos_value(const board &bd) {
-  int score = 0;
-  const std::array<int, 64> ary = {{
-    100, -40,   5,   0,   0,   5, -40, 100,
-    -40, -50, -10, -10, -10, -10, -50, -40,
-      5, -10,   0,  -3,  -3,   0, -10,   5,
-      0, -10,  -3,  -3,  -3,  -3, -10,   0,
-      0, -10,  -3,  -3,  -3,  -3, -10,   0,
-      5, -10,   0,  -3,  -3,   0, -10,   5,
-    -40, -50, -10, -10, -10, -10, -50, -40,
-    100, -40,   5,   0,   0,   5, -40, 100
-  }};
-  for (int i = 0; i < 64; ++i) {
-    if (bd.black().get(i)) score += ary[i];
-    else if (bd.white().get(i)) score -= ary[i];
-  }
-  return score;
-}
-
-int edge_value_impl(const board &bd) {
-  int index = bit_manipulations::toBase3_8(bd.black(), bd.white());
-  switch (index) {
-    case 1092: return  10; // .xxxxxx.
-    case 2184: return -10; // .oooooo.
-    case 1089: return -10; // .xxxxx..
-    case 2178: return  10; // .ooooo..
-    case  363: return -10; // ..xxxxx.
-    case  726: return  10; // ..ooooo.
-    case  360: return  10; // ..xxxx..
-    case  720: return -10; // ..oooo..
-    default: return 0;
-  }
-}
-
-int edge_value(const board &bd) {
-  using namespace bit_manipulations;
-  return edge_value_impl(bd) +
-      edge_value_impl(flipVertical(bd)) +
-      edge_value_impl(flipDiagA1H8(bd)) +
-      edge_value_impl(flipDiagA8H1(bd));
-}
-
 int value(const board & bd) {
-  //if (state::puttable_black(bd) == 0) return num_value(bd);
-  int score = 0;
-  score += puttable_value(bd);
-  //score += pos_value(bd);
-  score += definite_value(bd);
-  //score += edge_value(bd);
-  //score += statistic_value(bd);
-  return score;
+  return statistic_value(bd);
 }
 
 int num_value(const board & bd) {
