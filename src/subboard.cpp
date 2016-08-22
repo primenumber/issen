@@ -111,18 +111,18 @@ int get_index_diagonal_A8H1(const board &bd, int index) {
 }
 
 // *a****b* -> 000000ab
-uint8_t get_xbit(uint8_t line) {
-  return (uint8_t)((line & 0b01000010) * 17) >> 5;
+uint16_t get_xbit(uint8_t line) {
+  return (((line & 0b01000010) * 17) & 0b10000000010) >> 1;
 }
 
 uint16_t get_edge_bits(const bit_board &bbd) {
   uint16_t bit = bbd & 0xFF;
-  return bit | (uint16_t)get_xbit(bbd >> 8) << 8;
+  return bit << 1 | get_xbit(bbd >> 8);
 }
 
 int get_index_edge(const board &bd) {
   return index_begin[8] +
-      to_index_asymmetry(get_edge_bits(bd.black()), get_edge_bits(bd.white()), 10);
+      to_index(get_edge_bits(bd.black()), get_edge_bits(bd.white()), 10);
 }
 
 uint16_t get_corner_3x3_bits(const bit_board &bbd) {
