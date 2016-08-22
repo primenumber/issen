@@ -14,10 +14,10 @@
 namespace value {
 
 std::string files[] = {"lsval8", "lsval9", "lsval10", "lsval11", "lsval12", "lsval13", "lsval14", "lsval15", "lsval16"};
-std::vector<std::vector<double>> vals;
-std::vector<double> puttable_coeff;
-std::vector<double> puttable_op_coeff;
-std::vector<double> const_offset;
+std::vector<std::vector<float>> vals;
+std::vector<float> puttable_coeff;
+std::vector<float> puttable_op_coeff;
+std::vector<float> const_offset;
 
 int val_indeces[60] = {
   0,0,0,0,0,0,0,0,0,1,
@@ -39,7 +39,7 @@ void init() {
   for (int cnt = 0; cnt < n; ++cnt) {
     std::ifstream ifs(files[cnt]);
     for (int i = 0; i <= subboard::index_max; ++i) {
-      double v = 0;
+      float v = 0;
       ifs >> v;
       vals[cnt].push_back(v);
     }
@@ -154,7 +154,7 @@ int num_value(const board & bd) {
 int statistic_value (const board &bd) {
   int index = val_indeces[64 - bit_manipulations::stone_sum(bd)];
   std::vector<int> indeces = subboard::serialize(bd);
-  double res = const_offset[index];
+  float res = const_offset[index];
   assert(indeces.size() == 46);
   for (int i : indeces) {
     res += vals[index][i];
