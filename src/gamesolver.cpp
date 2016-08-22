@@ -1,52 +1,26 @@
 #include "gamesolver.hpp"
+#include <iostream>
+
 #include "value.hpp"
 #include "state.hpp"
 #include "bit_manipulations.hpp"
 
-uint64_t cnt = 0;
 uint64_t nodes = 0;
-void Table::update(
-    const board &bd, const Range range, const int32_t value) {
-  ++cnt;
-  uint64_t h = bd_hash(bd);
-  auto &p = table[h % hash_size];
-  if (range.val_min < value && value < range.val_max) {
-    p = std::make_pair(bd, Range(value));
-  } else {
-    if (p.first == bd) {
-      if (value >= range.val_max) {
-        p.second.update_min(range.val_max);
-      } else if (value <= range.val_min) {
-        p.second.update_max(range.val_min);
-      }
-    } else {
-      Range r;
-      if (value >= range.val_max) {
-        r.update_min(range.val_max);
-      } else if (value <= range.val_min) {
-        r.update_max(range.val_min);
-      }
-      p = std::make_pair(bd, r);
-    }
-  }
-}
 
 int GameSolver::iddfs(const board &bd) {
-  cnt = 0;
   nodes = 0;
   rem_stones = 64 - bit_manipulations::stone_sum(bd);
   int old_rems = rem_stones;
   for (rem_stones -= 6; old_rems - rem_stones <= std::min(old_rems/2, 12); --rem_stones) {
-    table[0].clear();
+    tb[0].clear();
     std::cerr << "rem: " << rem_stones << std::endl;
     dfs(bd, -value::VALUE_MAX, value::VALUE_MAX);
-    std::swap(table[0], table[1]);
+    std::swap(tb[0], tb[1]);
   }
   std::cerr << "full search" << std::endl;
   rem_stones = -1;
-  table[0].clear();
+  tb[0].clear();
   int res = dfs(bd, -value::VALUE_MAX, value::VALUE_MAX);
-  std::cerr << "hash update: " << cnt << std::endl;
   std::cerr << "nodes total: " << nodes << std::endl;
   return res;
 }
@@ -65,7 +39,7 @@ int GameSolver::dfs_ordering(const board &bd, int alpha, int beta) {
   }
   const auto nexts = state::next_states(bd, puttable_bits);
   for (const auto &next : nexts) {
-    if (auto val_opt = table[1][next]) {
+    if (auto val_opt = tb[1][next]) {
       in_hash.emplace_back(val_opt->val_max, next);
     } else {
       out_hash.emplace_back(_popcnt64(state::puttable_black(next)), next);
@@ -200,24 +174,24 @@ int GameSolver::dfs(const board &bd, int alpha, int beta) {
     return value::statistic_value(bd);
   }
   if (stones <= 56) {
-    if (const auto cache_opt = table[0][bd]) {
+    if (const auto cache_opt = tb[0][bd]) {
       const auto & cache = *cache_opt;
       if (cache.val_min >= beta) {
         return cache.val_min;
       } else {
-        Range new_ab = cache && Range(alpha, beta);
+        table::Range new_ab = cache && table::Range(alpha, beta);
         if (new_ab.val_min < new_ab.val_max) {
           alpha = new_ab.val_min;
           beta = new_ab.val_max;
           auto res = dfs_impl(bd, alpha, beta);
-          table[0].update(bd, new_ab, res);
+          tb[0].update(bd, new_ab, res);
           return res;
         }
         return cache.val_max;
       } 
     } else {
       auto res = dfs_impl(bd, alpha, beta);
-      table[0].update(bd, Range(alpha, beta), res);
+      tb[0].update(bd, table::Range(alpha, beta), res);
       return res;
     }
   } else {
