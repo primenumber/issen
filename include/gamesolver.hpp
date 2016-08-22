@@ -9,11 +9,11 @@ class GameSolver {
   int iddfs(const board &);
  private:
   table::Table tb[2];
-  int dfs(const board &bd, int alpha, int beta);
-  int dfs_impl(const board &bd, int alpha, int beta);
-  int dfs_ordering(const board &bd, int alpha, int beta);
-  int dfs_noordering(const board &bd, int alpha, int beta);
-  int dfs_noordering2(const board &bd, int alpha, int beta);
-  int dfs_leaf(const board &bd);
+  int iddfs(const board &bd, int alpha, int beta);
+  int iddfs_impl(const board &bd, int alpha, int beta);
+  int iddfs_ordering(const board &bd, int alpha, int beta);
+  int iddfs_noordering(const board &bd, int alpha, int beta);
+  int iddfs_noordering2(const board &bd, int alpha, int beta);
+  int iddfs_leaf(const board &bd);
   int rem_stones;
 };
