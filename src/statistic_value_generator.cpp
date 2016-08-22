@@ -23,7 +23,7 @@ void generate_lsprob() {
     for (int index : v) {
       std::cout << i << ' ' << index << ' ' << 1 << '\n';
     }
-    int offset = subboard::index_max;
+    int offset = subboard::index_max+1;
     std::cout << i << ' ' << offset << ' ' << value::puttable_black_count(bd) << '\n';
     std::cout << i << ' ' << (offset+1) << ' ' << value::puttable_black_count(board::reverse_board(bd)) << '\n';
     std::cout << i << ' ' << (offset+2) << ' ' << 1 << '\n';
