@@ -36,7 +36,7 @@ int GameSolver::iddfs(const board &bd) {
   nodes = 0;
   rem_stones = 64 - bit_manipulations::stone_sum(bd);
   int old_rems = rem_stones;
-  for (rem_stones -= 6; old_rems - rem_stones <= std::min(old_rems/2, 10); --rem_stones) {
+  for (rem_stones -= 6; old_rems - rem_stones <= std::min(old_rems/2, 12); --rem_stones) {
     table[0].clear();
     std::cerr << "rem: " << rem_stones << std::endl;
     dfs(bd, -value::VALUE_MAX, value::VALUE_MAX);
