@@ -17,7 +17,6 @@ int GameSolver::iddfs(const board &bd) {
     std::swap(tb[0], tb[1]);
   }
   std::cerr << "full search" << std::endl;
-  rem_stones = -1;
   tb[0].clear();
   int res = psearch(bd, -value::VALUE_MAX, value::VALUE_MAX);
   std::cerr << "nodes total: " << nodes << std::endl;
