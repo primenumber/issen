@@ -89,7 +89,7 @@ int GameSolver::iddfs_ordering(
 int GameSolver::iddfs_impl(
     const board &bd, int alpha, int beta, int depth, bool is_pn) {
   int stones = bit_manipulations::stone_sum(bd);
-  if (stones <= 60) {
+  if (stones < 60) {
     return iddfs_ordering(bd, alpha, beta, depth, is_pn);
   } else {
     return psearch(bd, alpha, beta);
