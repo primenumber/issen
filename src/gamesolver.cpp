@@ -120,6 +120,30 @@ int GameSolver::iddfs(
   }
 }
 
+bool GameSolver::psearch_ordering_impl(
+    std::vector<std::pair<int, board>> &&ary,
+    int &alpha, int beta, int &result, bool &first) {
+  std::sort(std::begin(ary), std::end(ary), order_first);
+  for (const auto &next : ary) {
+    if (!first) {
+      result = std::max(result,
+          -psearch(next.second, -alpha-1, -alpha));
+      if (result >= beta) return true;
+      if (result <= alpha) continue;
+      alpha = result;
+    } else {
+      first = false;
+    }
+    result = std::max(result,
+        -psearch(next.second, -beta, -alpha));
+    if (result >= beta) {
+      return true;
+    }
+    alpha = std::max(alpha, result);
+  }
+  return false;
+}
+
 int GameSolver::psearch_ordering(const board &bd, int alpha, int beta) {
   uint64_t puttable_bits = state::puttable_black(bd);
   bool pass = (puttable_bits == 0);
@@ -137,42 +161,9 @@ int GameSolver::psearch_ordering(const board &bd, int alpha, int beta) {
   }
   int result = -value::VALUE_MAX; // fail soft
   bool first = true;
-  std::sort(std::begin(in_hash), std::end(in_hash), order_first);
-  for (const auto &next : in_hash) {
-    if (!first) {
-      result = std::max(result,
-          -psearch(next.second, -alpha-1, -alpha));
-      if (result >= beta) return result;
-      if (result <= alpha) continue;
-      alpha = result;
-    } else {
-      first = false;
-    }
-    result = std::max(result,
-        -psearch(next.second, -beta, -alpha));
-    if (result >= beta) {
-      return result;
-    }
-    alpha = std::max(alpha, result);
-  }
-  std::sort(std::begin(out_hash), std::end(out_hash), order_first);
-  for (const auto &next : out_hash) {
-    if (!first) {
-      result = std::max(result,
-          -psearch(next.second, -alpha-1, -alpha));
-      if (result >= beta) return result;
-      if (result <= alpha) continue;
-      alpha = result;
-    } else {
-      first = false;
-    }
-    result = std::max(result,
-        -psearch(next.second, -beta, -alpha));
-    if (result >= beta) {
-      return result;
-    }
-    alpha = std::max(alpha, result);
-  }
+  if (psearch_ordering_impl(std::move(in_hash), alpha, beta, result, first))
+    return result;
+  psearch_ordering_impl(std::move(out_hash), alpha, beta, result, first);
   return result;
 }
 
