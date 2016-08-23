@@ -10,6 +10,7 @@ class GameSolver {
  private:
   table::Table tb[2];
   int iddfs(const board &bd, int alpha, int beta, int depth, bool is_pn);
+  bool iddfs_ordering_impl(std::vector<std::pair<int, board>> &&ary, int &alpha, int beta, int &result, int depth, bool is_pn, bool &first);
   int iddfs_ordering(const board &bd, int alpha, int beta, int depth, bool is_pn);
   int iddfs_impl(const board &bd, int alpha, int beta, int depth, bool is_pn);
   int psearch(const board &bd, int alpha, int beta);

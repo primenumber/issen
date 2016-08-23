@@ -29,6 +29,31 @@ bool order_first(const std::pair<int, board> &lhs,
   return lhs.first < rhs.first;
 }
 
+bool GameSolver::iddfs_ordering_impl(
+    std::vector<std::pair<int, board>> &&ary,
+    int &alpha, int beta, int &result,
+    int depth, bool is_pn, bool &first) {
+  std::sort(std::begin(ary), std::end(ary), order_first);
+  for (const auto &next : ary) {
+    if (!first) {
+      result = std::max(result,
+          -iddfs(next.second, -alpha-1, -alpha, depth-200, false));
+      if (result >= beta) return true;
+      if (result <= alpha) continue;
+      alpha = result;
+    } else {
+      first = false;
+    }
+    result = std::max(result,
+        -iddfs(next.second, -beta, -alpha, depth-(first?100:200), is_pn && first));
+    if (result >= beta) {
+      return true;
+    }
+    alpha = std::max(alpha, result);
+  }
+  return false;
+}
+
 int GameSolver::iddfs_ordering(
     const board &bd, int alpha, int beta, int depth, bool is_pn) {
   uint64_t puttable_bits = state::puttable_black(bd);
@@ -47,42 +72,9 @@ int GameSolver::iddfs_ordering(
   }
   int result = -value::VALUE_MAX; // fail soft
   bool first = true;
-  std::sort(std::begin(in_hash), std::end(in_hash), order_first);
-  for (const auto &next : in_hash) {
-    if (!first) {
-      result = std::max(result,
-          -iddfs(next.second, -alpha-1, -alpha, depth-200, false));
-      if (result >= beta) return result;
-      if (result <= alpha) continue;
-      alpha = result;
-    } else {
-      first = false;
-    }
-    result = std::max(result,
-        -iddfs(next.second, -beta, -alpha, depth-(first?100:200), is_pn && first));
-    if (result >= beta) {
-      return result;
-    }
-    alpha = std::max(alpha, result);
-  }
-  std::sort(std::begin(out_hash), std::end(out_hash), order_first);
-  for (const auto &next : out_hash) {
-    if (!first) {
-      result = std::max(result,
-          -iddfs(next.second, -alpha-1, -alpha, depth-200, false));
-      if (result >= beta) return result;
-      if (result <= alpha) continue;
-      alpha = result;
-    } else {
-      first = false;
-    }
-    result = std::max(result,
-        -iddfs(next.second, -beta, -alpha, depth-(first?100:200), is_pn && first));
-    if (result >= beta) {
-      return result;
-    }
-    alpha = std::max(alpha, result);
-  }
+  if (iddfs_ordering_impl(std::move(in_hash), alpha, beta, result, depth, is_pn, first))
+    return result;
+  iddfs_ordering_impl(std::move(out_hash), alpha, beta, result, depth, is_pn, first);
   return result;
 }
 
