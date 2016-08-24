@@ -73,7 +73,8 @@ std::pair<board, bool> input() {
   std::string hs;
   std::cin >> hs;
   char hand = hs[0];
-  bit_board black, white;
+  bit_board black = 0;
+  bit_board white = 0;
   for (int i = 0; i < 8; ++i) {
     std::string line;
     std::cin >> line;
@@ -105,7 +106,8 @@ std::pair<board, bool> input() {
 board input_bd() {
   std::string line;
   std::cin >> line;
-  bit_board black, white;
+  bit_board black = 0;
+  bit_board white = 0;
   for (int i = 0; i < 64; ++i) {
     switch(line[i]) {
      case 'X':
