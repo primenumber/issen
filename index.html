@@ -32,12 +32,12 @@
     <div id="main_content_wrap" class="outer">
       <section id="main_content" class="inner">
         <h1>
-<a id="issen" class="anchor" href="#issen" aria-hidden="true"><span class="octicon octicon-link"></span></a>issen</h1>
+<a id="issen" class="anchor" href="#issen" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>issen</h1>
 
 <p>高速なOthelloAIの実装</p>
 
 <h2>
-<a id="ビルドと実行" class="anchor" href="#%E3%83%93%E3%83%AB%E3%83%89%E3%81%A8%E5%AE%9F%E8%A1%8C" aria-hidden="true"><span class="octicon octicon-link"></span></a>ビルドと実行</h2>
+<a id="ビルドと実行" class="anchor" href="#%E3%83%93%E3%83%AB%E3%83%89%E3%81%A8%E5%AE%9F%E8%A1%8C" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>ビルドと実行</h2>
 
 <ul>
 <li>C++14に対応したコンパイラと、 Boost C++ Librariesが必要</li>
@@ -45,7 +45,7 @@
 </ul>
 
 <h3>
-<a id="初期化" class="anchor" href="#%E5%88%9D%E6%9C%9F%E5%8C%96" aria-hidden="true"><span class="octicon octicon-link"></span></a>初期化</h3>
+<a id="初期化" class="anchor" href="#%E5%88%9D%E6%9C%9F%E5%8C%96" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>初期化</h3>
 
 <pre><code>$ git submodule init
 $ git submodule update
@@ -54,13 +54,13 @@ $ cmake .
 </code></pre>
 
 <h3>
-<a id="コンパイル" class="anchor" href="#%E3%82%B3%E3%83%B3%E3%83%91%E3%82%A4%E3%83%AB" aria-hidden="true"><span class="octicon octicon-link"></span></a>コンパイル</h3>
+<a id="コンパイル" class="anchor" href="#%E3%82%B3%E3%83%B3%E3%83%91%E3%82%A4%E3%83%AB" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>コンパイル</h3>
 
 <pre><code>$ make
 </code></pre>
 
 <h3>
-<a id="実行" class="anchor" href="#%E5%AE%9F%E8%A1%8C" aria-hidden="true"><span class="octicon octicon-link"></span></a>実行</h3>
+<a id="実行" class="anchor" href="#%E5%AE%9F%E8%A1%8C" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>実行</h3>
 
 <p>オセロサーバーに接続してプレイする</p>
 
@@ -73,7 +73,7 @@ $ cmake .
 </code></pre>
 
 <h2>
-<a id="todo" class="anchor" href="#todo" aria-hidden="true"><span class="octicon octicon-link"></span></a>TODO</h2>
+<a id="todo" class="anchor" href="#todo" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>TODO</h2>
 
 <ul>
 <li>実際に対戦ができるようにする</li>
@@ -82,14 +82,14 @@ $ cmake .
 </ul>
 
 <h1>
-<a id="ffo-benchmark-test" class="anchor" href="#ffo-benchmark-test" aria-hidden="true"><span class="octicon octicon-link"></span></a><a href="http://www.radagast.se/othello/ffotest.html">FFO Benchmark Test</a>
+<a id="ffo-benchmark-test" class="anchor" href="#ffo-benchmark-test" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a><a href="http://www.radagast.se/othello/ffotest.html">FFO Benchmark Test</a>
 </h1>
 
 <ul>
-<li>CPU: Intel Core i7-3770</li>
-<li>Memory: 8GB</li>
-<li>OS: Arch Linux</li>
-<li>C++ Compiler: GCC 5.2.0</li>
+<li>CPU: Intel Core i3-3227U @ 1.90GHz</li>
+<li>Memory: 4GB</li>
+<li>OS: Ubuntu 16.04</li>
+<li>C++ Compiler: GCC 5.4.0</li>
 </ul>
 
 <p>Last Updated: 2015/11/07</p>
@@ -101,7 +101,6 @@ $ cmake .
 <th>Score</th>
 <th>Time</th>
 <th>Nodes</th>
-<th>Line</th>
 </tr>
 </thead>
 <tbody>
@@ -109,64 +108,121 @@ $ cmake .
 <td>#40</td>
 <td>+38</td>
 <td>5.8s</td>
-<td>28.0M</td>
-<td>a2b1c1</td>
+<td>20.5M</td>
 </tr>
 <tr>
 <td>#41</td>
 <td>0</td>
-<td>23s</td>
-<td>100M</td>
-<td>h4a3a2</td>
+<td>6.40s</td>
+<td>42.7M</td>
 </tr>
 <tr>
 <td>#42</td>
 <td>+6</td>
-<td>34s</td>
-<td>229M</td>
-<td>g2h1c2</td>
+<td>6.32s</td>
+<td>45.8M</td>
 </tr>
 <tr>
 <td>#43</td>
 <td>-12</td>
-<td>91s</td>
-<td>459M</td>
-<td>c7h4h5</td>
+<td>22.74s</td>
+<td>151M</td>
 </tr>
 <tr>
 <td>#44</td>
 <td>-14</td>
-<td>35s</td>
-<td>171M</td>
-<td>d2g5b8</td>
+<td>11.50s</td>
+<td>86.6M</td>
 </tr>
 <tr>
 <td>#45</td>
 <td>+6</td>
-<td>331s</td>
-<td>2.0G</td>
-<td>b2c1g5</td>
+<td>161.8s</td>
+<td>1.46G</td>
 </tr>
 <tr>
 <td>#46</td>
 <td>-8</td>
-<td>164s</td>
-<td>968M</td>
-<td>b3c1b1</td>
+<td>94.67s</td>
+<td>872M</td>
 </tr>
 <tr>
 <td>#47</td>
 <td>+4</td>
-<td>111s</td>
-<td>675M</td>
-<td>g2b8b7</td>
+<td>19.59s</td>
+<td>175M</td>
 </tr>
 <tr>
 <td>#48</td>
 <td>+28</td>
-<td>551s</td>
-<td>3.7G</td>
-<td>f6g5g3</td>
+<td>172.9s</td>
+<td>1.59G</td>
+</tr>
+<tr>
+<td>#49</td>
+<td>+16</td>
+<td>188.7s</td>
+<td>1.94G</td>
+</tr>
+<tr>
+<td>#50</td>
+<td>+10</td>
+<td>1586s</td>
+<td>16.1G</td>
+</tr>
+<tr>
+<td>#51</td>
+<td>+6</td>
+<td>767.9s</td>
+<td>7.45G</td>
+</tr>
+<tr>
+<td>#52</td>
+<td>0</td>
+<td>790.9s</td>
+<td>7.39G</td>
+</tr>
+<tr>
+<td>#53</td>
+<td>-2</td>
+<td>5254s</td>
+<td>53.4G</td>
+</tr>
+<tr>
+<td>#54</td>
+<td>-2</td>
+<td>9971s</td>
+<td>104G</td>
+</tr>
+<tr>
+<td>#55</td>
+<td>0</td>
+<td>27625s</td>
+<td>279G</td>
+</tr>
+<tr>
+<td>#56</td>
+<td>+2</td>
+<td>2256s</td>
+<td>22.1G</td>
+</tr>
+<tr>
+<td>#57</td>
+<td>-10</td>
+<td>3686s</td>
+<td>37.1G</td>
+</tr>
+<tr>
+<td>#58</td>
+<td>+4</td>
+<td>9882s</td>
+<td>100G</td>
+</tr>
+<tr>
+<td>#59</td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 </tbody>
 </table>
