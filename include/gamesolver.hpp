@@ -16,6 +16,7 @@ class GameSolver {
   int psearch(const board &bd, int alpha, int beta);
   int psearch_impl(const board &bd, int alpha, int beta);
   int psearch_ordering(const board &bd, int alpha, int beta);
+  bool psearch_ordering_impl(std::vector<std::pair<int, board>> &&ary, int &alpha, int beta, int &result, bool &first);
   int psearch_noordering(const board &bd, int alpha, int beta);
   int psearch_noordering2(const board &bd, int alpha, int beta);
   int psearch_leaf(const board &bd);
