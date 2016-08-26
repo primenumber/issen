@@ -198,31 +198,6 @@ int GameSolver::psearch_ordering(const board &bd, int alpha, int beta) {
 }
 
 int GameSolver::psearch_noordering(const board &bd, int alpha, int beta) {
-  uint64_t puttable_bits = state::puttable_black(bd);
-  bool pass = (puttable_bits == 0);
-  if (pass) {
-    const board rev_bd = board::reverse_board(bd);
-    if (state::puttable_black(rev_bd) == 0) {
-      return value::num_value(bd);
-    } else {
-      return -psearch(rev_bd, -beta, -alpha);
-    }
-  }
-  int result = -value::VALUE_MAX; // fail soft
-  for (; puttable_bits; puttable_bits &= puttable_bits-1) {
-    const uint64_t bit = puttable_bits & -puttable_bits;
-    const uint8_t pos = bit_manipulations::bit_to_pos(bit);
-    const board next = state::put_black_at_rev(bd, pos);
-    result = std::max(result, -psearch(next, -beta, -alpha));
-    if (result >= beta) {
-      return result;
-    }
-    alpha = std::max(alpha, result);
-  }
-  return result;
-}
-
-int GameSolver::psearch_noordering2(const board &bd, int alpha, int beta) {
   bool pass = true;
   int result = -value::VALUE_MAX; // fail soft
   uint64_t puttable_bits = ~bit_manipulations::stones(bd);
@@ -269,10 +244,8 @@ int GameSolver::psearch_impl(const board &bd, int alpha, int beta) {
   int stones = bit_manipulations::stone_sum(bd);
   if (stones <= psearch_ordering_th) {
     return psearch_ordering(bd, alpha, beta);
-  //} else if (stones <= 59) {
-    //return psearch_noordering(bd, alpha, beta);
   } else if (stones <= 62) {
-    return psearch_noordering2(bd, alpha, beta);
+    return psearch_noordering(bd, alpha, beta);
   } else {
     return psearch_leaf(bd);
   }
