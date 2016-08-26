@@ -111,7 +111,7 @@ int statistic_value (const board &bd) {
   }
   res += puttable_black_count(bd) * puttable_coeff[index];
   res += puttable_black_count(board::reverse_board(bd)) * puttable_op_coeff[index];
-  return std::max(-6399, std::min(6399, int(res * 100)));
+  return std::max(-6400, std::min(6400, int(res * 100)));
 }
 
 } // namespace value
