@@ -133,71 +133,70 @@ board put_black_at_naive(const board & bd, int i, int j) {
 */
 
 struct u64_4 {
-  __m128i xy, zw;
+  __m256i data;
   u64_4() = default;
   u64_4(uint64_t val)
-    : xy(_mm_set1_epi64x(val)), zw(_mm_set1_epi64x(val)) {}
+    : data(_mm256_set1_epi64x(val)) {}
   u64_4(uint64_t x, uint64_t y, uint64_t z, uint64_t w)
-    : xy(_mm_set_epi64x(x, y)), zw(_mm_set_epi64x(z, w)) {}
-  u64_4(__m128i xy, __m128i zw)
-    : xy(xy), zw(zw) {}
+    : data(_mm256_set_epi64x(x, y, z, w)) {}
+  u64_4(__m256i data) : data(data) {}
 };
 
 u64_4 operator>>(const u64_4 lhs, const size_t n) {
-  return u64_4(_mm_srli_epi64(lhs.xy, n), _mm_srli_epi64(lhs.zw, n));
+  return _mm256_srli_epi64(lhs.data, n);
 }
 
 u64_4 operator<<(const u64_4 lhs, const size_t n) {
-  return u64_4(_mm_slli_epi64(lhs.xy, n), _mm_slli_epi64(lhs.zw, n));
+  return _mm256_slli_epi64(lhs.data, n);
 }
 
 u64_4 operator&(const u64_4 lhs, const u64_4 rhs) {
-  return u64_4(_mm_and_si128(lhs.xy, rhs.xy), _mm_and_si128(lhs.zw, rhs.zw));
+  return _mm256_and_si256(lhs.data, rhs.data);
 }
 
 u64_4 operator&(const u64_4 lhs, const uint64_t rhs) {
-  __m128i r64 = _mm_set1_epi64x(rhs);
-  return u64_4(_mm_and_si128(lhs.xy, r64), _mm_and_si128(lhs.zw, r64));
+  __m256i r64 = _mm256_set1_epi64x(rhs);
+  return _mm256_and_si256(lhs.data, r64);
 }
 
 u64_4 operator|(const u64_4 lhs, const u64_4 rhs) {
-  return u64_4(_mm_or_si128(lhs.xy, rhs.xy), _mm_or_si128(lhs.zw, rhs.zw));
+  return _mm256_or_si256(lhs.data, rhs.data);
 }
 
 u64_4 operator|(const u64_4 lhs, const uint64_t rhs) {
-  __m128i r64 = _mm_set1_epi64x(rhs);
-  return u64_4(_mm_or_si128(lhs.xy, r64), _mm_or_si128(lhs.zw, r64));
-}
-
-u64_4 operator+(const u64_4 lhs, const uint64_t rhs) {
-  __m128i r64 = _mm_set1_epi64x(rhs);
-  return u64_4(_mm_add_epi64(lhs.xy, r64), _mm_add_epi64(lhs.zw, r64));
+  __m256i r64 = _mm256_set1_epi64x(rhs);
+  return _mm256_or_si256(lhs.data, r64);
 }
 
 u64_4 operator+(const u64_4 lhs, const u64_4 rhs) {
-  return u64_4(_mm_add_epi64(lhs.xy, rhs.xy), _mm_add_epi64(lhs.zw, rhs.zw));
+  return _mm256_add_epi64(lhs.data, rhs.data);
+}
+
+u64_4 operator+(const u64_4 lhs, const uint64_t rhs) {
+  __m256i r64 = _mm256_set1_epi64x(rhs);
+  return _mm256_add_epi64(lhs.data, r64);
 }
 
 u64_4 operator-(const u64_4 lhs, const u64_4 rhs) {
-  return u64_4(_mm_sub_epi64(lhs.xy, rhs.xy), _mm_sub_epi64(lhs.zw, rhs.zw));
+  return _mm256_sub_epi64(lhs.data, rhs.data);
 }
 
 u64_4 operator!=(const u64_4 lhs, const uint64_t rhs) {
-  __m128i r64 = _mm_set1_epi64x(rhs);
-  return u64_4(_mm_cmpeq_epi64(lhs.xy, r64), _mm_cmpeq_epi64(lhs.zw, r64)) + u64_4(1);
+  __m256i r64 = _mm256_set1_epi64x(rhs);
+  return _mm256_cmpeq_epi64(lhs.data, r64) + u64_4(1);
 }
 
 u64_4 operator-(const u64_4 lhs) {
-  return u64_4(_mm_sub_epi64(_mm_setzero_si128(), lhs.xy), _mm_sub_epi64(_mm_setzero_si128(), lhs.zw));
+  return _mm256_sub_epi64(_mm256_setzero_si256(), lhs.data);
 }
 
 // (NOT lhs) AND rhs
 u64_4 andnot(const u64_4 lhs, const u64_4 rhs) {
-  return u64_4(_mm_andnot_si128(lhs.xy, rhs.xy), _mm_andnot_si128(lhs.zw, rhs.zw));
+  return _mm256_andnot_si256(lhs.data, rhs.data);
 }
 
 u64_4 operator~(const u64_4 lhs) {
-  return u64_4(_mm_andnot_si128(lhs.xy, _mm_set1_epi8(0xFF)), _mm_andnot_si128(lhs.zw, _mm_set1_epi8(0xFF)));
+  return _mm256_andnot_si256(lhs.data, _mm256_set1_epi8(0xFF));
 }
 
 u64_4 upper_bit(u64_4 p) {
@@ -232,7 +231,8 @@ __m128i flip(const board &bd, int pos) {
   mask = mask << pos;
   outflank = mask & ((OM | ~mask) + 1) & bd.black();
   flipped = flipped | ((outflank - (outflank != 0)) & mask);
-  __m128i flipped_xz_yw = _mm_or_si128(flipped.xy, flipped.zw);
+  __m128i flipped_xz_yw = _mm_or_si128(_mm256_castsi256_si128(flipped.data),
+      _mm256_extractf128_si256(flipped.data, 1));
   return _mm_or_si128(flipped_xz_yw, _mm_alignr_epi8(flipped_xz_yw, flipped_xz_yw, 8));
 }
 
