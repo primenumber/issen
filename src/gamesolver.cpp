@@ -5,7 +5,19 @@
 #include "state.hpp"
 #include "bit_manipulations.hpp"
 
+constexpr int psearch_ordering_th = 57;
+
 uint64_t nodes = 0;
+GameSolver::GameSolver(size_t hash_size)
+    : tb{table::Table(hash_size), table::Table(hash_size)},
+      next_buffer(61), in_buffer(61), out_buffer(61)
+{
+  for (int i = 0; i <= 60; ++i) {
+    next_buffer[i].reserve(64-i);
+    in_buffer[i].reserve(64-i);
+    out_buffer[i].reserve(64-i);
+  }
+}
 
 int GameSolver::iddfs(const board &bd) {
   nodes = 0;
@@ -29,7 +41,7 @@ bool order_first(const std::pair<int, board> &lhs,
 }
 
 bool GameSolver::iddfs_ordering_impl(
-    std::vector<std::pair<int, board>> &&ary,
+    std::vector<std::pair<int, board>> &ary,
     int &alpha, int beta, int &result,
     int depth, bool is_pn, bool &first) {
   std::sort(std::begin(ary), std::end(ary), order_first);
@@ -57,23 +69,33 @@ int GameSolver::iddfs_ordering(
     const board &bd, int alpha, int beta, int depth, bool is_pn) {
   uint64_t puttable_bits = state::puttable_black(bd);
   bool pass = (puttable_bits == 0);
-  std::vector<std::pair<int, board>> in_hash, out_hash;
   if (pass && state::puttable_black(board::reverse_board(bd)) == 0) {
     return value::num_value(bd);
   }
-  const auto nexts = state::next_states(bd, puttable_bits);
-  for (const auto &next : nexts) {
-    if (auto val_opt = tb[1][next]) {
-      in_hash.emplace_back(val_opt->val_max, next);
-    } else {
+  int stone_sum = bit_manipulations::stone_sum(bd);
+  std::vector<std::pair<int, board>> &in_hash = in_buffer[stone_sum];
+  std::vector<std::pair<int, board>> &out_hash = out_buffer[stone_sum];
+  in_hash.clear();
+  out_hash.clear();
+  state::next_states(bd, puttable_bits, next_buffer[stone_sum]);
+  if (stone_sum > 56) {
+    for (const auto &next : next_buffer[stone_sum]) {
       out_hash.emplace_back(_popcnt64(state::puttable_black(next)), next);
+    }
+  } else {
+    for (const auto &next : next_buffer[stone_sum]) {
+      if (auto val_opt = tb[1][next]) {
+        in_hash.emplace_back(val_opt->val_max, next);
+      } else {
+        out_hash.emplace_back(_popcnt64(state::puttable_black(next)), next);
+      }
     }
   }
   int result = -value::VALUE_MAX; // fail soft
   bool first = true;
-  if (iddfs_ordering_impl(std::move(in_hash), alpha, beta, result, depth, is_pn, first))
+  if (iddfs_ordering_impl(in_hash, alpha, beta, result, depth, is_pn, first))
     return result;
-  iddfs_ordering_impl(std::move(out_hash), alpha, beta, result, depth, is_pn, first);
+  iddfs_ordering_impl(out_hash, alpha, beta, result, depth, is_pn, first);
   return result;
 }
 
@@ -121,7 +143,7 @@ int GameSolver::iddfs(
 }
 
 bool GameSolver::psearch_ordering_impl(
-    std::vector<std::pair<int, board>> &&ary,
+    std::vector<std::pair<int, board>> &ary,
     int &alpha, int beta, int &result, bool &first) {
   std::sort(std::begin(ary), std::end(ary), order_first);
   for (const auto &next : ary) {
@@ -147,23 +169,33 @@ bool GameSolver::psearch_ordering_impl(
 int GameSolver::psearch_ordering(const board &bd, int alpha, int beta) {
   uint64_t puttable_bits = state::puttable_black(bd);
   bool pass = (puttable_bits == 0);
-  std::vector<std::pair<int, board>> in_hash, out_hash;
   if (pass && state::puttable_black(board::reverse_board(bd)) == 0) {
     return value::num_value(bd);
   }
-  const auto nexts = state::next_states(bd, puttable_bits);
-  for (const auto &next : nexts) {
-    if (auto val_opt = tb[1][next]) {
-      in_hash.emplace_back(val_opt->val_max, next);
-    } else {
+  int stone_sum = bit_manipulations::stone_sum(bd);
+  std::vector<std::pair<int, board>> &in_hash = in_buffer[stone_sum];
+  std::vector<std::pair<int, board>> &out_hash = out_buffer[stone_sum];
+  in_hash.clear();
+  out_hash.clear();
+  state::next_states(bd, puttable_bits, next_buffer[stone_sum]);
+  if (stone_sum > 56) {
+    for (const auto &next : next_buffer[stone_sum]) {
       out_hash.emplace_back(_popcnt64(state::puttable_black(next)), next);
+    }
+  } else {
+    for (const auto &next : next_buffer[stone_sum]) {
+      if (auto val_opt = tb[1][next]) {
+        in_hash.emplace_back(val_opt->val_max, next);
+      } else {
+        out_hash.emplace_back(_popcnt64(state::puttable_black(next)), next);
+      }
     }
   }
   int result = -value::VALUE_MAX; // fail soft
   bool first = true;
-  if (psearch_ordering_impl(std::move(in_hash), alpha, beta, result, first))
+  if (psearch_ordering_impl(in_hash, alpha, beta, result, first))
     return result;
-  psearch_ordering_impl(std::move(out_hash), alpha, beta, result, first);
+  psearch_ordering_impl(out_hash, alpha, beta, result, first);
   return result;
 }
 
@@ -237,7 +269,7 @@ int GameSolver::psearch_leaf(const board &bd) {
 
 int GameSolver::psearch_impl(const board &bd, int alpha, int beta) {
   int stones = bit_manipulations::stone_sum(bd);
-  if (stones <= 56) {
+  if (stones <= psearch_ordering_th) {
     return psearch_ordering(bd, alpha, beta);
   //} else if (stones <= 59) {
     //return psearch_noordering(bd, alpha, beta);
