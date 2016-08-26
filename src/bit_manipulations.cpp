@@ -255,6 +255,20 @@ uint64_t puttable_black_forward(board bd) {
   return puttable_black_forward_nomask(bd) & ~(bd.black() | bd.white());
 }
 
+uint64_t puttable_black_backward(board bd) {
+  uint64_t b1 = (bd.black() << 1);
+  uint64_t b1m = b1 & UINT64_C(0xFEFEFEFEFEFEFEFE);
+  uint64_t w = bd.white() & UINT64_C(0xFEFEFEFEFEFEFEFE);
+  return (b1m + w) & ~(b1 | w) & UINT64_C(0xFEFEFEFEFEFEFEFE);
+}
+
+board puttable_black_backward_p2(board bd1, board bd2) {
+  __m128i b = _mm_unpacklo_epi64(bd1, bd2);
+  __m128i b1 = _mm_add_epi8(b, b);
+  __m128i w = _mm_unpackhi_epi64(bd1, bd2);
+  return _mm_andnot_si128(_mm_or_si128(b1, w), _mm_add_epi8(b1, w));
+}
+
 uint64_t stones(board bd) {
   return _mm_cvtsi128_si64(_mm_or_si128(_mm_alignr_epi8(bd, bd, 8), bd));
 }

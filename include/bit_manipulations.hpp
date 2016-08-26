@@ -210,6 +210,8 @@ board definites(board);
 
 uint64_t puttable_black_forward(board);
 uint64_t puttable_black_forward_nomask(board);
+uint64_t puttable_black_backward(board);
+board puttable_black_backward_p2(board, board);
 
 uint64_t stones(board);
 int stone_sum(board);
