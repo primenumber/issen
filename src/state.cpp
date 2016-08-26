@@ -6,7 +6,6 @@
 #include <iostream>
 
 #include "bit_manipulations.hpp"
-#include "line.hpp"
 
 #include "immintrin.h"
 
@@ -59,34 +58,29 @@ uint64_t puttable_black_naive(const board & bd) {
 
 // puttable_black
 uint64_t puttable_black_horizontal(const board &bd) {
-  uint64_t res = bm::puttable_black_forward_nomask(bd) |
-    bm::mirrorHorizontal(
-        bm::puttable_black_forward_nomask(
-            bm::mirrorHorizontal(bd)));
-  return res;
+  board tmp = bm::puttable_black_backward_p2(bd, bm::mirrorHorizontal(bd));
+  return tmp.black() | bm::mirrorHorizontal(tmp.white());
 }
 
 uint64_t puttable_black_vertical(const board &bd) {
-  using bm::flipDiagA1H8;
-  using bm::flipDiagA8H1;
-  using bm::puttable_black_forward_nomask;
-  return flipDiagA1H8(puttable_black_forward_nomask(flipDiagA1H8(bd))) |
-      flipDiagA8H1(puttable_black_forward_nomask(flipDiagA8H1(bd)));
+  return bm::flipDiagA1H8(puttable_black_horizontal(bm::flipDiagA1H8(bd)));
 }
 
 uint64_t puttable_black_diag_implA8H1(const board &bd) {
   const board prot45_bd = bm::pseudoRotate45clockwise(bd);
-  uint64_t res = 0;
-  for (int i = 0; i < 8; ++i)
-    res |= (uint64_t)line::puttable_line(prot45_bd, i, i) << (i * 8);
+  uint64_t mask64 = UINT64_C(0x80C0E0F0F8FCFEFF);
+  __m128i mask = _mm_set1_epi64x(mask64);
+  uint64_t res = (mask64 & puttable_black_horizontal(_mm_and_si128(mask, prot45_bd))) |
+      (~mask64 & puttable_black_horizontal(_mm_andnot_si128(mask, prot45_bd)));
   return bm::pseudoRotate45antiClockwise(res);
 }
 
 uint64_t puttable_black_diag_implA1H8(const board &bd) {
   const board prot45a_bd = bm::pseudoRotate45antiClockwise(bd);
-  uint64_t res = 0;
-  for (int i = 0; i < 8; ++i)
-    res |= (uint64_t)line::puttable_line(prot45a_bd, i, (-i) & 7) << (i * 8);
+  uint64_t mask64 = UINT64_C(0xFEFCF8F0E0C08000);
+  __m128i mask = _mm_set1_epi64x(mask64);
+  uint64_t res = (mask64 & puttable_black_horizontal(_mm_and_si128(mask, prot45a_bd))) |
+      (~mask64 & puttable_black_horizontal(_mm_andnot_si128(mask, prot45a_bd)));
   return bm::pseudoRotate45clockwise(res);
 }
 
@@ -97,10 +91,9 @@ uint64_t puttable_black_diag(const board &bd) {
 }
 
 uint64_t puttable_black(const board &bd) {
-  return ~(bd.black() | bd.white()) &
-      (puttable_black_horizontal(bd) |
+  return (puttable_black_horizontal(bd) |
       puttable_black_vertical(bd) |
-      puttable_black_diag(bd));
+      puttable_black_diag(bd)) & ~bm::stones(bd);
 }
 
 bool is_gameover(const board &bd) {
