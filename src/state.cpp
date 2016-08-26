@@ -269,6 +269,17 @@ std::vector<board> next_states(const board & bd) {
   return res;
 }
 
+void next_states(const board & bd, std::vector<board> &res) {
+  res.clear();
+  bool is_pass = true;
+  for (uint64_t bits = puttable_black(bd); bits != 0; bits &= bits - 1) {
+    int pos = bm::bit_to_pos(bits & -bits);
+    res.emplace_back(put_black_at_rev(bd, pos / 8, pos % 8));
+    is_pass = false;
+  }
+  if (is_pass) res.emplace_back(bd, reverse_construct_t());
+}
+
 std::vector<board> next_states(const board & bd, uint64_t bits) {
   std::vector<board> res;
   res.reserve(16);
@@ -278,6 +289,15 @@ std::vector<board> next_states(const board & bd, uint64_t bits) {
     res.emplace_back(put_black_at_rev(bd, pos / 8, pos % 8));
   }
   return res;
+}
+
+void next_states(const board & bd, uint64_t bits, std::vector<board> &res) {
+  res.clear();
+  if (bits == 0) res.emplace_back(bd, reverse_construct_t());
+  for (; bits != 0; bits &= bits - 1) {
+    int pos = bm::bit_to_pos(bits & -bits);
+    res.emplace_back(put_black_at_rev(bd, pos / 8, pos % 8));
+  }
 }
 
 } // namespace state
