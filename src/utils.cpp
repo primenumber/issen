@@ -5,7 +5,6 @@
 #include "value.hpp"
 #include "bit_manipulations.hpp"
 #include "state.hpp"
-#include "line.hpp"
 #include "generate.hpp"
 #include "subboard.hpp"
 
@@ -14,7 +13,6 @@ namespace utils {
 void init_all() {
   bit_manipulations::init();
   state::init();
-  line::init();
   subboard::init();
   value::init();
 }
