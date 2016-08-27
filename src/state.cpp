@@ -142,9 +142,10 @@ u64_4 upper_bit(u64_4 p) {
 }
 
 __m128i flip(const board &bd, int pos) {
+  uint64_t black = bd.black(), white = bd.white();
   u64_4 flipped, OM, outflank, mask;
-  uint64_t yzw = bd.white() & UINT64_C(0x7E7E7E7E7E7E7E7E);
-  OM = u64_4(bd.white(), yzw, yzw, yzw);
+  uint64_t yzw = white & UINT64_C(0x7E7E7E7E7E7E7E7E);
+  OM = u64_4(white, yzw, yzw, yzw);
   mask = {
     UINT64_C(0x0080808080808080),
     UINT64_C(0x7F00000000000000),
@@ -152,7 +153,7 @@ __m128i flip(const board &bd, int pos) {
     UINT64_C(0x0040201008040201)
   };
   mask = mask >> (63 - pos);
-  outflank = upper_bit(andnot(OM, mask)) & bd.black();
+  outflank = upper_bit(andnot(OM, mask)) & black;
   flipped = (-outflank << 1) & mask;
   mask = {
     UINT64_C(0x0101010101010100),
@@ -161,7 +162,7 @@ __m128i flip(const board &bd, int pos) {
     UINT64_C(0x8040201008040200)
   };
   mask = mask << pos;
-  outflank = mask & ((OM | ~mask) + 1) & bd.black();
+  outflank = mask & ((OM | ~mask) + 1) & black;
   flipped = flipped | ((outflank - (outflank != 0)) & mask);
   return hor(flipped);
 }
