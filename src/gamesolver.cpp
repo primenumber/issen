@@ -106,7 +106,7 @@ int GameSolver::iddfs_impl(
   if (stones < 60) {
     return iddfs_ordering(bd, alpha, beta, depth, is_pn);
   } else {
-    return psearch(bd, alpha, beta);
+    return psearch_impl(bd, alpha, beta);
   }
 }
 
@@ -234,6 +234,7 @@ int GameSolver::psearch_leaf(const board &bd) {
     if (nx2.white() == bd.black()) {
       return value::num_value(bd);
     } else {
+      ++nodes;
       return -value::num_value(nx2);
     }
   } else {
