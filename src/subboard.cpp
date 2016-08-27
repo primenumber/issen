@@ -125,29 +125,16 @@ int get_index_edge(const board &bd) {
       to_index(get_edge_bits(bd.black()), get_edge_bits(bd.white()), 10);
 }
 
-uint16_t get_corner_3x3_bits(const bit_board &bbd) {
-  uint16_t bit = 0;
-  for (int i = 0; i < 3; ++i)
-    bit |= (uint16_t)((bbd >> (i*8)) & 0b111) << (3 * i);
-  return bit;
-}
-
 int get_index_corner_3x3(const board &bd) {
-  return index_begin[9] + to_index_diag(get_corner_3x3_bits(bd.black()),
-      get_corner_3x3_bits(bd.white()), 9);
-}
-
-uint16_t get_corner_2x5_bits(const bit_board &bbd) {
-  uint16_t bit = 0;
-  for (int i = 0; i < 2; ++i)
-    bit |= (uint16_t)((bbd >> (i*8)) & 0b11111) << (5 * i);
-  return bit;
+  return index_begin[9] + to_index_diag(
+      _pext_u64(bd.black(), 0x070707),
+      _pext_u64(bd.white(), 0x070707), 9);
 }
 
 int get_index_corner_2x5(const board &bd) {
   return index_begin[10] + to_index_asymmetry(
-      get_corner_2x5_bits(bd.black()),
-      get_corner_2x5_bits(bd.white()), 10);
+      _pext_u64(bd.black(), 0x1F1F),
+      _pext_u64(bd.white(), 0x1F1F), 10);
 }
 
 std::array<int, 46> serialize(const board &bd) {
