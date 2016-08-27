@@ -25,7 +25,8 @@ int GameSolver::iddfs(const board &bd) {
   for (int depth = 1200; depth <= rem_stones * 100; depth += 200) {
     tb[0].clear();
     std::cerr << "depth: " << (depth/100) << std::endl;
-    iddfs(bd, -value::VALUE_MAX, value::VALUE_MAX, depth, true);
+    int res = iddfs(bd, -value::VALUE_MAX, value::VALUE_MAX, depth, true);
+    std::cerr << res << std::endl;
     std::swap(tb[0], tb[1]);
   }
   std::cerr << "full search" << std::endl;
