@@ -57,7 +57,7 @@ bool GameSolver::iddfs_ordering_impl(
       first = false;
     }
     result = std::max(result,
-        -iddfs(next.second, -beta, -alpha, depth-(first?100:200), is_pn && first));
+        -iddfs(next.second, -beta, -alpha, depth-(first?50:200), is_pn && first));
     if (result >= beta) {
       return true;
     }
