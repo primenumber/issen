@@ -41,7 +41,7 @@ void obftest() {
     std::cerr << "num: " << num << ", sscore: " << value::statistic_value(bd) << std::endl;
     GameSolver egs(10000001);
     int pt = egs.iddfs(bd);
-    if (pt != num*100) {
+    if (pt != num) {
       std::cerr << utils::to_s(bd);
       std::cerr << pt << ' ' << num << std::endl;
       ++fail;

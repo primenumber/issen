@@ -171,7 +171,7 @@ int GameSolver::psearch_ordering(const board &bd, int alpha, int beta) {
   int stone_sum = bit_manipulations::stone_sum(bd);
   bool pass = state::next_states(bd, next_buffer[stone_sum]);
   if (pass && state::puttable_black(board::reverse_board(bd)) == 0) {
-    return value::num_value(bd);
+    return value::fixed_diff_num(bd);
   }
   std::vector<std::pair<int, board>> &in_hash = in_buffer[stone_sum];
   std::vector<std::pair<int, board>> &out_hash = out_buffer[stone_sum];
@@ -217,7 +217,7 @@ int GameSolver::psearch_noordering(const board &bd, int alpha, int beta) {
   if (pass) {
     const board rev_bd = board::reverse_board(bd);
     if (state::puttable_black(rev_bd) == 0) {
-      return value::num_value(bd);
+      return value::fixed_diff_num(bd);
     } else {
       return -psearch(rev_bd, -beta, -alpha);
     }
@@ -232,13 +232,13 @@ int GameSolver::psearch_leaf(const board &bd) {
   if (nx.white() == bd.white()) {
     const board nx2 = state::put_black_at(board::reverse_board(bd), pos);
     if (nx2.white() == bd.black()) {
-      return value::num_value(bd);
+      return value::fixed_diff_num(bd);
     } else {
       ++nodes;
-      return -value::num_value(nx2);
+      return -value::fixed_diff_num(nx2);
     }
   } else {
-    return value::num_value(nx);
+    return value::fixed_diff_num(nx);
   }
 }
 

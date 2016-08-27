@@ -31,7 +31,7 @@ void generate_lsprob() {
   }
   std::cout << n << std::endl;
   for (int r : res) {
-    std::cout << r/100 << '\n';
+    std::cout << r << '\n';
   }
 }
 
