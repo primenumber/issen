@@ -103,7 +103,7 @@ int num_value(const board & bd) {
 
 int statistic_value (const board &bd) {
   int index = val_indeces[64 - bit_manipulations::stone_sum(bd)];
-  std::vector<int> indeces = subboard::serialize(bd);
+  auto indeces = subboard::serialize(bd);
   float res = const_offset[index];
   assert(indeces.size() == 46);
   for (int i : indeces) {

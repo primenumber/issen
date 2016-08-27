@@ -150,29 +150,30 @@ int get_index_corner_2x5(const board &bd) {
       get_corner_2x5_bits(bd.white()), 10);
 }
 
-std::vector<int> serialize(const board &bd) {
-  std::vector<int> cols;
+std::array<int, 46> serialize(const board &bd) {
+  std::array<int, 46> cols;
+  int cnt = 0;
   for (int i = 1; i < 7; ++i) {
-    cols.push_back(get_index_horizontal(bd, i));
-    cols.push_back(get_index_vertical(bd, i));
+    cols[cnt++] = get_index_horizontal(bd, i);
+    cols[cnt++] = get_index_vertical(bd, i);
   }
   for (int i = -4; i <= 4; ++i) {
-    cols.push_back(get_index_diagonal_A1H8(bd, i));
-    cols.push_back(get_index_diagonal_A8H1(bd, i));
+    cols[cnt++] = get_index_diagonal_A1H8(bd, i);
+    cols[cnt++] = get_index_diagonal_A8H1(bd, i);
   }
   for (int i = 0; i < 4; ++i) {
     board tmp = bd;
     if (i & 1) tmp = bit_manipulations::rotate90clockwise(tmp);
     if (i & 2) tmp = bit_manipulations::rotate180(tmp);
-    cols.push_back(get_index_edge(tmp));
-    cols.push_back(get_index_corner_3x3(tmp));
+    cols[cnt++] = get_index_edge(tmp);
+    cols[cnt++] = get_index_corner_3x3(tmp);
   }
   for (int i = 0; i < 8; ++i) {
     board tmp = bd;
     if (i & 1) tmp = bit_manipulations::rotate90clockwise(tmp);
     if (i & 2) tmp = bit_manipulations::rotate180(tmp);
     if (i & 4) tmp = bit_manipulations::flipVertical(tmp);
-    cols.push_back(get_index_corner_2x5(tmp));
+    cols[cnt++] = get_index_corner_2x5(tmp);
   }
   return cols;
 }
