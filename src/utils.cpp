@@ -12,7 +12,6 @@ namespace utils {
 
 void init_all() {
   bit_manipulations::init();
-  state::init();
   subboard::init();
   value::init();
 }
