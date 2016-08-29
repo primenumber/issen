@@ -72,12 +72,12 @@ int to_index(uint64_t black, uint64_t white, int size) {
       bit_manipulations::toBase3(rev_bit(black, size), rev_bit(white, size)));
 }
 
-int to_index_diag(uint64_t black, uint64_t white, int size) {
+int to_index_diag(uint64_t black, uint64_t white) {
   return std::min(bit_manipulations::toBase3(black, white),
       bit_manipulations::toBase3(rev_bit_diag(black), rev_bit_diag(white)));
 }
 
-int to_index_asymmetry(uint64_t black, uint64_t white, int size) {
+int to_index_asymmetry(uint64_t black, uint64_t white) {
   return bit_manipulations::toBase3(black, white);
 }
 
@@ -128,13 +128,13 @@ int get_index_edge(const board &bd) {
 int get_index_corner_3x3(const board &bd) {
   return index_begin[9] + to_index_diag(
       _pext_u64(bd.black(), 0x070707),
-      _pext_u64(bd.white(), 0x070707), 9);
+      _pext_u64(bd.white(), 0x070707));
 }
 
 int get_index_corner_2x5(const board &bd) {
   return index_begin[10] + to_index_asymmetry(
       _pext_u64(bd.black(), 0x1F1F),
-      _pext_u64(bd.white(), 0x1F1F), 10);
+      _pext_u64(bd.white(), 0x1F1F));
 }
 
 std::array<int, 46> serialize(const board &bd) {
