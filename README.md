@@ -6,14 +6,13 @@ issen
 ## ビルドと実行
 
 - C++14に対応したコンパイラと、 Boost C++ Librariesが必要
-- SSE\*とpopcountに対応したCPUでないと動作しません
+- AVX2とBMIに対応したCPUでないと動作しません(Haswell以降)
 
 ### 初期化
 
 ```
 $ git submodule init
 $ git submodule update
-$ bundle install --path=vendor/bundle
 $ cmake .
 ```
 
@@ -23,10 +22,6 @@ $ cmake .
 
 ### 実行
 
-オセロサーバーに接続してプレイする
-
-    $ bundle exec ruby server.rb
-
 [ffotest](http://www.radagast.se/othello/ffotest.html)
 
     $ ./issen --ffotest < input.pos
@@ -34,5 +29,3 @@ $ cmake .
 ## TODO
 
 - 実際に対戦ができるようにする
-- 評価関数をまともなものに変更する
-- AVXに移行する
