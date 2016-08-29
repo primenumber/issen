@@ -1,6 +1,3 @@
 [submodule "picojson"]
 	path = include/picojson
 	url = https://github.com/kazuho/picojson.git
-[submodule "simple_chat"]
-	path = simple_chat
-	url = git@github.com:primenumber/SimpleChatRubyClient.git
