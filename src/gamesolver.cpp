@@ -122,16 +122,15 @@ int GameSolver::iddfs(
       const auto & cache = *cache_opt;
       if (cache.val_min >= beta) {
         return cache.val_min;
+      } else if (cache.val_max <= alpha) {
+        return cache.val_max;
       } else {
         table::Range new_ab = cache && table::Range(alpha, beta);
-        if (new_ab.val_min < new_ab.val_max) {
-          alpha = new_ab.val_min;
-          beta = new_ab.val_max;
-          auto res = iddfs_impl(bd, alpha, beta, depth, is_pn);
-          tb[0].update(bd, new_ab, res);
-          return res;
-        }
-        return cache.val_max;
+        alpha = new_ab.val_min;
+        beta = new_ab.val_max;
+        auto res = iddfs_impl(bd, alpha, beta, depth, is_pn);
+        tb[0].update(bd, new_ab, res);
+        return res;
       } 
     } else {
       auto res = iddfs_impl(bd, alpha, beta, depth, is_pn);
@@ -261,16 +260,15 @@ int GameSolver::psearch(const board &bd, int alpha, int beta) {
       const auto & cache = *cache_opt;
       if (cache.val_min >= beta) {
         return cache.val_min;
+      } else if (cache.val_max <= alpha) {
+        return cache.val_max;
       } else {
         table::Range new_ab = cache && table::Range(alpha, beta);
-        if (new_ab.val_min < new_ab.val_max) {
-          alpha = new_ab.val_min;
-          beta = new_ab.val_max;
-          auto res = psearch_impl(bd, alpha, beta);
-          tb[0].update(bd, new_ab, res);
-          return res;
-        }
-        return cache.val_max;
+        alpha = new_ab.val_min;
+        beta = new_ab.val_max;
+        auto res = psearch_impl(bd, alpha, beta);
+        tb[0].update(bd, new_ab, res);
+        return res;
       } 
     } else {
       auto res = psearch_impl(bd, alpha, beta);
