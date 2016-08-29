@@ -278,7 +278,7 @@ int stone_sum(board bd) {
 }
 
 int bit_to_pos(uint64_t bit) {
-  return _popcnt64(bit - 1);
+  return _tzcnt_u64(bit);
 }
 
 uint16_t toBase3(uint16_t black, uint16_t white) {
