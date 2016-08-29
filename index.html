@@ -41,7 +41,7 @@
 
 <ul>
 <li>C++14に対応したコンパイラと、 Boost C++ Librariesが必要</li>
-<li>SSE*とpopcountに対応したCPUでないと動作しません</li>
+<li>AVX2, BMIに対応したCPUでないと動作しません(Haswell以降)</li>
 </ul>
 
 <h3>
@@ -49,7 +49,6 @@
 
 <pre><code>$ git submodule init
 $ git submodule update
-$ bundle install --path=vendor/bundle
 $ cmake .
 </code></pre>
 
@@ -80,13 +79,13 @@ $ cmake .
 </h1>
 
 <ul>
-<li>CPU: Intel Core i3-3227U @ 1.90GHz</li>
-<li>Memory: 4GB</li>
-<li>OS: Ubuntu 16.04</li>
-<li>C++ Compiler: GCC 5.4.0</li>
+<li>CPU: Intel Core i7-6700K @ 4.0GHz TB 4.2GHz</li>
+<li>Memory: 64GB</li>
+<li>OS: Arch Linux (Linux 4.7.2-1)</li>
+<li>C++ Compiler: GCC 6.1.1</li>
 </ul>
 
-<p>Last Updated: 2015/11/07</p>
+<p>Last Updated: 2016/08/29</p>
 
 <table>
 <thead>
@@ -101,116 +100,116 @@ $ cmake .
 <tr>
 <td>#40</td>
 <td>+38</td>
-<td>5.8s</td>
-<td>20.5M</td>
+<td>1.10s</td>
+<td>17.5M</td>
 </tr>
 <tr>
 <td>#41</td>
 <td>0</td>
-<td>6.40s</td>
-<td>42.7M</td>
+<td>2.27s</td>
+<td>37.9M</td>
 </tr>
 <tr>
 <td>#42</td>
 <td>+6</td>
-<td>6.32s</td>
-<td>45.8M</td>
+<td>2.35s</td>
+<td>40.7M</td>
 </tr>
 <tr>
 <td>#43</td>
 <td>-12</td>
-<td>22.74s</td>
-<td>151M</td>
+<td>8.68s</td>
+<td>126M</td>
 </tr>
 <tr>
 <td>#44</td>
 <td>-14</td>
-<td>11.50s</td>
-<td>86.6M</td>
+<td>4.34s</td>
+<td>78.5M</td>
 </tr>
 <tr>
 <td>#45</td>
 <td>+6</td>
-<td>161.8s</td>
-<td>1.46G</td>
+<td>62.14s</td>
+<td>1.22G</td>
 </tr>
 <tr>
 <td>#46</td>
 <td>-8</td>
-<td>94.67s</td>
-<td>872M</td>
+<td>39.50s</td>
+<td>822M</td>
 </tr>
 <tr>
 <td>#47</td>
 <td>+4</td>
-<td>19.59s</td>
-<td>175M</td>
+<td>7.92s</td>
+<td>155M</td>
 </tr>
 <tr>
 <td>#48</td>
 <td>+28</td>
-<td>172.9s</td>
-<td>1.59G</td>
+<td>73.87s</td>
+<td>1.57G</td>
 </tr>
 <tr>
 <td>#49</td>
 <td>+16</td>
-<td>188.7s</td>
-<td>1.94G</td>
+<td>77.76s</td>
+<td>1.69G</td>
 </tr>
 <tr>
 <td>#50</td>
 <td>+10</td>
-<td>1586s</td>
-<td>16.1G</td>
+<td>632.4s</td>
+<td>13.2G</td>
 </tr>
 <tr>
 <td>#51</td>
 <td>+6</td>
-<td>767.9s</td>
-<td>7.45G</td>
+<td>300.8s</td>
+<td>6.25G</td>
 </tr>
 <tr>
 <td>#52</td>
 <td>0</td>
-<td>790.9s</td>
-<td>7.39G</td>
+<td>317.9s</td>
+<td>6.52G</td>
 </tr>
 <tr>
 <td>#53</td>
 <td>-2</td>
-<td>5254s</td>
-<td>53.4G</td>
+<td>2095s</td>
+<td>46.5G</td>
 </tr>
 <tr>
 <td>#54</td>
 <td>-2</td>
-<td>9971s</td>
-<td>104G</td>
+<td>3903s</td>
+<td>87.9G</td>
 </tr>
 <tr>
 <td>#55</td>
 <td>0</td>
-<td>27625s</td>
-<td>279G</td>
+<td>10961s</td>
+<td>238G</td>
 </tr>
 <tr>
 <td>#56</td>
 <td>+2</td>
-<td>2256s</td>
-<td>22.1G</td>
+<td>900.5s</td>
+<td>19.1G</td>
 </tr>
 <tr>
 <td>#57</td>
 <td>-10</td>
-<td>3686s</td>
-<td>37.1G</td>
+<td>1374s</td>
+<td>29.5G</td>
 </tr>
 <tr>
 <td>#58</td>
 <td>+4</td>
-<td>9882s</td>
-<td>100G</td>
+<td>3823s</td>
+<td>86.0G</td>
 </tr>
 <tr>
 <td>#59</td>
