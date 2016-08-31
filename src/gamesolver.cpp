@@ -83,7 +83,7 @@ int GameSolver::iddfs_ordering(
   std::vector<std::pair<int, board>> &out_hash = out_buffer[stone_sum];
   in_hash.clear();
   out_hash.clear();
-  if (stone_sum > 56) {
+  if (stone_sum > 54) {
     for (const auto &next : next_buffer[stone_sum]) {
       out_hash.emplace_back(_popcnt64(state::puttable_black(next)), next);
     }
@@ -121,7 +121,7 @@ int GameSolver::iddfs(
   if (depth <= 0) {
     return value::statistic_value(bd);
   }
-  if (stones <= 56) {
+  if (stones <= 54) {
     if (const auto cache_opt = tb[0][bd]) {
       const auto & cache = *cache_opt;
       if (cache.val_min >= beta) {
@@ -185,7 +185,7 @@ int GameSolver::psearch_ordering(const board &bd, int alpha, int beta) {
   std::vector<std::pair<int, board>> &out_hash = out_buffer[stone_sum];
   in_hash.clear();
   out_hash.clear();
-  if (stone_sum > 56) {
+  if (stone_sum > 54) {
     for (const auto &next : next_buffer[stone_sum]) {
       out_hash.emplace_back(_popcnt64(state::puttable_black(next)), next);
     }
@@ -264,7 +264,7 @@ int GameSolver::psearch_impl(const board &bd, int alpha, int beta) {
 int GameSolver::psearch(const board &bd, int alpha, int beta) {
   ++nodes;
   int stones = bit_manipulations::stone_sum(bd);
-  if (stones <= 56) {
+  if (stones <= 54) {
     if (const auto cache_opt = tb[0][bd]) {
       const auto & cache = *cache_opt;
       if (cache.val_min >= beta) {
