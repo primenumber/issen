@@ -58,6 +58,8 @@ class Table {
   std::vector<std::pair<board, Range>> table;
   size_t hash_size;
   std::hash<board> bd_hash;
+ public:
+  int32_t range_max = value::VALUE_MAX;
 };
 
 } // namespace table

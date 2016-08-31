@@ -30,7 +30,7 @@ void Table::update(
         p.second.update_max(value);
       }
     } else {
-      Range r;
+      Range r(-range_max, range_max);
       if (value >= range.val_max) {
         r.update_min(value);
       } else if (value <= range.val_min) {
@@ -43,7 +43,7 @@ void Table::update(
 
 void Table::clear() {
   std::fill(std::begin(table), std::end(table),
-      std::make_pair(board::initial_board(), Range()));
+      std::make_pair(board::initial_board(), Range(-range_max, range_max)));
 }
 
 } // namespace table

@@ -30,6 +30,7 @@ int GameSolver::iddfs(const board &bd) {
     std::swap(tb[0], tb[1]);
   }
   std::cerr << "full search" << std::endl;
+  tb[0].range_max = 64;
   tb[0].clear();
   int res = psearch(bd, -64, 64);
   std::cerr << "nodes total: " << nodes << std::endl;
@@ -197,7 +198,7 @@ int GameSolver::psearch_ordering(const board &bd, int alpha, int beta) {
       }
     }
   }
-  int result = -value::VALUE_MAX; // fail soft
+  int result = -64; // fail soft
   bool first = true;
   if (psearch_ordering_impl(in_hash, alpha, beta, result, first))
     return result;
@@ -207,7 +208,7 @@ int GameSolver::psearch_ordering(const board &bd, int alpha, int beta) {
 
 int GameSolver::psearch_noordering(const board &bd, int alpha, int beta) {
   bool pass = true;
-  int result = -value::VALUE_MAX; // fail soft
+  int result = -64; // fail soft
   uint64_t puttable_bits = ~bit_manipulations::stones(bd);
   for (; puttable_bits; puttable_bits &= puttable_bits-1) {
     const uint64_t bit = puttable_bits & -puttable_bits;
