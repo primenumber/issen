@@ -210,8 +210,8 @@ int GameSolver::psearch_noordering(const board &bd, int alpha, int beta) {
   bool pass = true;
   int result = -64; // fail soft
   uint64_t puttable_bits = ~bit_manipulations::stones(bd);
-  for (; puttable_bits; puttable_bits &= puttable_bits-1) {
-    const uint64_t bit = puttable_bits & -puttable_bits;
+  for (; puttable_bits; puttable_bits = _blsr_u64(puttable_bits)) {
+    const uint64_t bit = _blsi_u64(puttable_bits);
     const uint8_t pos = bit_manipulations::bit_to_pos(bit);
     const board next = state::put_black_at_rev(bd, pos);
     if (next.black() == bd.white()) continue;
