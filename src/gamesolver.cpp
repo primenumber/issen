@@ -68,17 +68,20 @@ bool GameSolver::iddfs_ordering_impl(
 
 int GameSolver::iddfs_ordering(
     const board &bd, int alpha, int beta, int depth, bool is_pn) {
-  uint64_t puttable_bits = state::puttable_black(bd);
-  bool pass = (puttable_bits == 0);
-  if (pass && state::puttable_black(board::reverse_board(bd)) == 0) {
-    return value::num_value(bd);
-  }
   int stone_sum = bit_manipulations::stone_sum(bd);
+  bool pass = state::next_states(bd, next_buffer[stone_sum]);
+  if (pass) {
+    board rev_bd = board::reverse_board(bd);
+    if (state::puttable_black(rev_bd) == 0) {
+      return value::num_value(bd);
+    } else {
+      return -iddfs(rev_bd, -beta, -alpha, depth, is_pn);
+    }
+  }
   std::vector<std::pair<int, board>> &in_hash = in_buffer[stone_sum];
   std::vector<std::pair<int, board>> &out_hash = out_buffer[stone_sum];
   in_hash.clear();
   out_hash.clear();
-  state::next_states(bd, puttable_bits, next_buffer[stone_sum]);
   if (stone_sum > 56) {
     for (const auto &next : next_buffer[stone_sum]) {
       out_hash.emplace_back(_popcnt64(state::puttable_black(next)), next);
@@ -169,8 +172,13 @@ bool GameSolver::psearch_ordering_impl(
 int GameSolver::psearch_ordering(const board &bd, int alpha, int beta) {
   int stone_sum = bit_manipulations::stone_sum(bd);
   bool pass = state::next_states(bd, next_buffer[stone_sum]);
-  if (pass && state::puttable_black(board::reverse_board(bd)) == 0) {
-    return value::fixed_diff_num(bd);
+  if (pass) {
+    board rev_bd = board::reverse_board(bd);
+    if (state::puttable_black(rev_bd) == 0) {
+      return value::fixed_diff_num(bd);
+    } else {
+      return -psearch(rev_bd, -beta, -alpha);
+    }
   }
   std::vector<std::pair<int, board>> &in_hash = in_buffer[stone_sum];
   std::vector<std::pair<int, board>> &out_hash = out_buffer[stone_sum];
