@@ -3,14 +3,14 @@
 #include <x86intrin.h>
 #include "gcc_intrinsics.hpp"
 
-struct bit_board {
+struct half_board {
   uint64_t data;
-  bit_board() = default;
-  constexpr bit_board(const bit_board &) = default;
-  constexpr bit_board(bit_board &&) = default;
-  constexpr bit_board(const uint64_t data) : data(data) {}
-  bit_board &operator=(const bit_board &) = default;
-  bit_board &operator=(bit_board &&) = default;
+  half_board() = default;
+  constexpr half_board(const half_board &) = default;
+  constexpr half_board(half_board &&) = default;
+  constexpr half_board(const uint64_t data) : data(data) {}
+  half_board &operator=(const half_board &) = default;
+  half_board &operator=(half_board &&) = default;
   operator uint64_t() { return data; }
   operator uint64_t() const { return data; }
   bool get(const size_t index) const { return _bittest64(&data, index); }
@@ -36,8 +36,8 @@ struct board {
   operator __m128i() const { return data; }
   board &operator=(const board &) = default;
   board &operator=(board &&) = default;
-  const bit_board black() const { return _mm_cvtsi128_si64(data); }
-  const bit_board white() const {
+  const half_board black() const { return _mm_cvtsi128_si64(data); }
+  const half_board white() const {
     return _mm_extract_epi64(data, 1);
   }
   static board initial_board() {

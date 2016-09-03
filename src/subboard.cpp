@@ -88,12 +88,7 @@ int get_index_horizontal(const board &bd, int index) {
           0xFF & (bd.white() >> (index*8)), 8);
 }
 
-int get_index_vertical(const board &bd, int index) {
-  return get_index_horizontal(bit_manipulations::flipDiagA1H8(bd), index);
-}
-
-int get_index_diagonal_A1H8(const board &bd, int index) {
-  board rtbd = bit_manipulations::pseudoRotate45clockwise(bd);
+int get_index_diagonal(const board &rtbd, int index) {
   uint8_t black_bit, white_bit;
   if (index >= 0) {
     black_bit = (rtbd.black() >> (index*9)) & (0xFF >> index);
@@ -106,16 +101,12 @@ int get_index_diagonal_A1H8(const board &bd, int index) {
       to_index(black_bit, white_bit, 8-std::abs(index));
 }
 
-int get_index_diagonal_A8H1(const board &bd, int index) {
-  return get_index_diagonal_A1H8(bit_manipulations::flipVertical(bd), index);
-}
-
 // *a****b* -> 000000ab
 uint16_t get_xbit(uint8_t line) {
   return (((line & 0b01000010) * 17) & 0b10000000010) >> 1;
 }
 
-uint16_t get_edge_bits(const bit_board &bbd) {
+uint16_t get_edge_bits(const half_board &bbd) {
   uint16_t bit = bbd & 0xFF;
   return bit << 1 | get_xbit(bbd >> 8);
 }
@@ -140,20 +131,16 @@ int get_index_corner_2x5(const board &bd) {
 std::array<int, 46> serialize(const board &bd) {
   std::array<int, 46> cols;
   int cnt = 0;
+  board fdbd = bit_manipulations::flipDiagA1H8(bd);
   for (int i = 1; i < 7; ++i) {
     cols[cnt++] = get_index_horizontal(bd, i);
-    cols[cnt++] = get_index_vertical(bd, i);
+    cols[cnt++] = get_index_horizontal(fdbd, i);
   }
+  board rtbd = bit_manipulations::pseudoRotate45clockwise(bd);
+  board rtfbd = bit_manipulations::pseudoRotate45clockwise(bit_manipulations::flipVertical(bd));
   for (int i = -4; i <= 4; ++i) {
-    cols[cnt++] = get_index_diagonal_A1H8(bd, i);
-    cols[cnt++] = get_index_diagonal_A8H1(bd, i);
-  }
-  for (int i = 0; i < 4; ++i) {
-    board tmp = bd;
-    if (i & 1) tmp = bit_manipulations::rotate90clockwise(tmp);
-    if (i & 2) tmp = bit_manipulations::rotate180(tmp);
-    cols[cnt++] = get_index_edge(tmp);
-    cols[cnt++] = get_index_corner_3x3(tmp);
+    cols[cnt++] = get_index_diagonal(rtbd, i);
+    cols[cnt++] = get_index_diagonal(rtfbd, i);
   }
   for (int i = 0; i < 8; ++i) {
     board tmp = bd;
@@ -161,6 +148,10 @@ std::array<int, 46> serialize(const board &bd) {
     if (i & 2) tmp = bit_manipulations::rotate180(tmp);
     if (i & 4) tmp = bit_manipulations::flipVertical(tmp);
     cols[cnt++] = get_index_corner_2x5(tmp);
+    if (i < 4) {
+      cols[cnt++] = get_index_edge(tmp);
+      cols[cnt++] = get_index_corner_3x3(tmp);
+    }
   }
   return cols;
 }
