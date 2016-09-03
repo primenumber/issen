@@ -1,6 +1,7 @@
 #include "value.hpp"
 
 #include <cassert>
+#include <cmath>
 
 #include <iostream>
 #include <fstream>
@@ -18,10 +19,10 @@ std::string files[] = {
   "lsval/lsval8", "lsval/lsval9", "lsval/lsval10", "lsval/lsval11",
   "lsval/lsval12", "lsval/lsval13", "lsval/lsval14", "lsval/lsval15",
   "lsval/lsval16"};
-std::vector<std::vector<float>> vals;
-std::vector<float> puttable_coeff;
-std::vector<float> puttable_op_coeff;
-std::vector<float> const_offset;
+std::vector<std::vector<int16_t>> vals;
+std::vector<int16_t> puttable_coeff;
+std::vector<int16_t> puttable_op_coeff;
+std::vector<int16_t> const_offset;
 
 int val_indeces[60] = {
    0, 0, 0, 0, 0, 1, 2, 3, 4, 5,
@@ -43,11 +44,15 @@ void init() {
   for (int cnt = 0; cnt < n; ++cnt) {
     std::ifstream ifs(files[cnt]);
     for (int i = 0; i <= subboard::index_max; ++i) {
-      float v = 0;
+      double v = 0;
       ifs >> v;
-      vals[cnt].push_back(v);
+      vals[cnt].push_back(round(v * 100));
     }
-    ifs >> puttable_coeff[cnt] >> puttable_op_coeff[cnt] >> const_offset[cnt];
+    double pc, poc, co;
+    ifs >> pc >> poc >> co;
+    puttable_coeff[cnt] = std::round(pc * 100);
+    puttable_op_coeff[cnt] = std::round(poc * 100);
+    const_offset[cnt] = std::round(co * 100);
   }
 }
 
@@ -104,14 +109,14 @@ int num_value(const board & bd) {
 int statistic_value (const board &bd) {
   int index = val_indeces[64 - bit_manipulations::stone_sum(bd)];
   auto indeces = subboard::serialize(bd);
-  float res = const_offset[index];
+  int res = const_offset[index];
   assert(indeces.size() == 46);
   for (int i : indeces) {
     res += vals[index][i];
   }
   res += puttable_black_count(bd) * puttable_coeff[index];
   res += puttable_black_count(board::reverse_board(bd)) * puttable_op_coeff[index];
-  return std::max(-6400, std::min(6400, int(res * 100)));
+  return std::max(-6400, std::min(6400, res));
 }
 
 } // namespace value
