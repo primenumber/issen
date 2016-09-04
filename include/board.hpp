@@ -30,7 +30,7 @@ struct board {
   board(const board & bd, const reverse_construct_t)
     : data(_mm_alignr_epi8(bd.data, bd.data, 8)) {}
   board(const uint64_t black, const uint64_t white)
-    : data(_mm_set_epi64x(white, black)) {}
+    : data(_mm_setr_epi64x(black, white)) {}
   board(__m128i data) : data(data) {}
   operator __m128i() { return data; }
   operator __m128i() const { return data; }
