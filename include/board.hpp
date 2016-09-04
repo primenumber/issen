@@ -48,6 +48,23 @@ struct board {
   }
 };
 
+struct double_board {
+  __m256i data;
+  double_board() = default;
+  double_board(const double_board &) = default;
+  double_board(const board &bd1, const board &bd2)
+    : data(_mm256_setr_m128i(bd1, bd2)) {}
+  double_board(const uint64_t black1, const uint64_t white1,
+      const uint64_t black2, const uint64_t white2)
+    : data(_mm256_setr_epi64x(black1, white1, black2, white2)) {}
+  operator __m256i() { return data; }
+  operator __m256i() const { return data; }
+  double_board &operator=(const double_board &) = default;
+  double_board &operator=(double_board &&) = default;
+  const board board1() const { return _mm256_extracti128_si256(data, 0); }
+  const board board2() const { return _mm256_extracti128_si256(data, 1); }
+};
+
 namespace std {
 
 template<>
