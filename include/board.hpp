@@ -54,15 +54,27 @@ struct double_board {
   double_board(const double_board &) = default;
   double_board(const board &bd1, const board &bd2)
     : data(_mm256_setr_m128i(bd1, bd2)) {}
+  explicit double_board(const board &bd)
+    : data(_mm256_broadcastsi128_si256(bd)) {}
   double_board(const uint64_t black1, const uint64_t white1,
       const uint64_t black2, const uint64_t white2)
     : data(_mm256_setr_epi64x(black1, white1, black2, white2)) {}
+  double_board(const __m256i data) : data(data) {}
   operator __m256i() { return data; }
   operator __m256i() const { return data; }
   double_board &operator=(const double_board &) = default;
   double_board &operator=(double_board &&) = default;
-  const board board1() const { return _mm256_extracti128_si256(data, 0); }
+  const board board1() const { return _mm256_castsi256_si128(data); }
   const board board2() const { return _mm256_extracti128_si256(data, 1); }
+  uint64_t operator[](const size_t index) {
+    switch(index) {
+      case 0: return _mm256_extract_epi64(data, 0);
+      case 1: return _mm256_extract_epi64(data, 1);
+      case 2: return _mm256_extract_epi64(data, 2);
+      case 3: return _mm256_extract_epi64(data, 3);
+      default: return 0;
+    }
+  }
 };
 
 namespace std {
