@@ -16,13 +16,28 @@ board puttable_black_backward_p2(board bd1, board bd2) {
   return _mm_andnot_si128(_mm_or_si128(b1, w), _mm_add_epi8(b1, w));
 }
 
+double_board flippable_right_p4(double_board dbd1, double_board dbd2) {
+	__m256i b = _mm256_unpacklo_epi64(dbd1, dbd2);
+	__m256i b1 = _mm256_add_epi8(b, b);
+	__m256i w = _mm256_unpackhi_epi64(dbd1, dbd2);
+	return _mm256_andnot_si256(_mm256_or_si256(b1, w), _mm256_add_epi8(b1, w));
+}
+
 uint64_t puttable_black_horizontal(const board &bd) {
   board tmp = puttable_black_backward_p2(bd, bm::mirrorHorizontal(bd));
   return tmp.black() | bm::mirrorHorizontal(tmp.white());
 }
 
-uint64_t puttable_black_vertical(const board &bd) {
-  return bm::flipDiagA1H8(puttable_black_horizontal(bm::flipDiagA1H8(bd)));
+uint64_t puttable_black_horizontal_and_vertical(const board &bd) {
+  board bd_h = bm::flipDiagA1H8(bd);
+  double_board dbd1(bd, bd_h);
+  double_board dbd2 = bm::mirrorHorizontal(dbd1);
+  double_board res = flippable_right_p4(dbd1, dbd2);
+  double_board resp = _mm256_permute4x64_epi64(res, 0b11011000);
+  board res1 = resp.board1();
+  board res2 = bm::mirrorHorizontal(resp.board2());
+  board resb = _mm_or_si128(res1, res2);
+  return resb.black() | bm::flipDiagA1H8(resb.white());
 }
 
 uint64_t puttable_black_diag_implA8H1(const board &bd) {
@@ -50,8 +65,7 @@ uint64_t puttable_black_diag(const board &bd) {
 }
 
 uint64_t puttable_black(const board &bd) {
-  return (puttable_black_horizontal(bd) |
-      puttable_black_vertical(bd) |
+  return (puttable_black_horizontal_and_vertical(bd) |
       puttable_black_diag(bd)) & ~bm::stones(bd);
 }
 
