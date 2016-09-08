@@ -27,6 +27,7 @@ bool equal(board, board);
 //  16 17 18 19 20 21 22 23
 //   8  9 10 11 12 13 14 15
 //   0  1  2  3  4  5  6  7
+double_board flipVertical(double_board);
 board flipVertical(board);
 uint64_t flipVertical(uint64_t);
 
@@ -49,6 +50,7 @@ uint64_t flipVertical(uint64_t);
 //  47 46 45 44 43 42 41 40
 //  55 54 53 52 51 50 49 48
 //  63 62 61 60 59 58 57 56
+double_board mirrorHorizontal(double_board);
 board mirrorHorizontal(board);
 uint64_t mirrorHorizontal(uint64_t);
 
@@ -71,6 +73,7 @@ uint64_t mirrorHorizontal(uint64_t);
 //   5 13 21 29 37 45 53 61
 //   6 14 22 30 38 46 54 62
 //   7 15 23 31 39 47 55 63
+double_board flipDiagA1H8(double_board);
 board flipDiagA1H8(board);
 uint64_t flipDiagA1H8(uint64_t);
 
@@ -93,6 +96,7 @@ uint64_t flipDiagA1H8(uint64_t);
 //   5 13 21 29 37 45 53 61
 //   6 14 22 30 38 46 54 62
 //   7 15 23 31 39 47 55 63
+double_board flipDiagA8H1(double_board);
 board flipDiagA8H1(board);
 uint64_t flipDiagA8H1(uint64_t);
 
@@ -115,6 +119,7 @@ uint64_t flipDiagA8H1(uint64_t);
 //  23 22 21 20 19 18 17 16
 //  15 14 13 12 11 10  9  8
 //   7  6  5  4  3  2  1  0
+double_board rotate180(double_board);
 board rotate180(board);
 uint64_t rotate180(uint64_t);
 
@@ -137,6 +142,7 @@ uint64_t rotate180(uint64_t);
 //  61 53 45 37 29 21 13  5
 //  62 54 46 38 30 22 14  6
 //  63 55 47 39 31 23 15  7
+double_board rotate90clockwise(double_board);
 board rotate90clockwise(board);
 uint64_t rotate90clockwise(uint64_t);
 
@@ -159,6 +165,7 @@ uint64_t rotate90clockwise(uint64_t);
 //   2 10 18 26 34 42 50 58
 //   1  9 17 25 33 41 49 57
 //   0  8 16 24 32 40 48 56
+double_board rotate90antiClockwise(double_board);
 board rotate90antiClockwise(board);
 uint64_t rotate90antiClockwise(uint64_t);
 
@@ -181,6 +188,7 @@ uint64_t rotate90antiClockwise(uint64_t);
 //  32 25 18 11  4 61 54 47
 //  40 33 26 19 12  5 62 55
 //  48 41 34 27 20 13  6 63
+double_board pseudoRotate45clockwise(double_board);
 board pseudoRotate45clockwise(board);
 uint64_t pseudoRotate45clockwise(uint64_t);
 
@@ -203,6 +211,7 @@ uint64_t pseudoRotate45clockwise(uint64_t);
 //  40 49 58  3 12 21 30 39
 //  48 57  2 11 20 29 38 47
 //  56  1 10 19 28 37 46 55
+double_board pseudoRotate45antiClockwise(double_board);
 board pseudoRotate45antiClockwise(board);
 uint64_t pseudoRotate45antiClockwise(uint64_t);
 
