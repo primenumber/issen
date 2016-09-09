@@ -372,4 +372,36 @@ uint16_t toBase3_8(uint8_t black, uint8_t white) {
   return base3[black] + 2*base3[white];
 }
 
+board toBase3_4x16(board bd) {
+  __m128i hi = _mm_and_si128(_mm_srli_epi16(bd, 4), _mm_set1_epi8(0x0F));
+  __m128i lo = _mm_and_si128(bd, _mm_set1_epi8(0x0F));
+  __m128i b = _mm_unpacklo_epi8(hi, lo);
+  __m128i w = _mm_unpackhi_epi8(hi, lo);
+  __m128i table1 = _mm_setr_epi8( 0,  1,  3,  4,  9, 10, 12, 13, 27, 28, 30, 31, 36, 37, 39, 40); // base2 -> base3 table
+  __m128i table2 = _mm_setr_epi8( 0,  2,  6,  8, 18, 20, 24, 26, 54, 56, 60, 62, 72, 74, 78, 80); // base2 -> base3 table * 2
+  __m128i b_base3 = _mm_shuffle_epi8(table1, b);
+  __m128i w_base3 = _mm_shuffle_epi8(table2, w);
+  return _mm_add_epi8(b_base3, w_base3);
+}
+
+board toBase3_8x8(board bd) {
+  __m128i coeff = _mm_set1_epi16(0x5101);
+  return _mm_maddubs_epi16(toBase3_4x16(bd), coeff);
+}
+
+std::string toBase81(board bd) {
+  __m128i hi = _mm_and_si128(_mm_srli_epi16(bd, 4), _mm_set1_epi8(0x0F));
+  __m128i lo = _mm_and_si128(bd, _mm_set1_epi8(0x0F));
+  __m128i b = _mm_unpacklo_epi8(hi, lo);
+  __m128i w = _mm_unpackhi_epi8(hi, lo);
+  __m128i table1 = _mm_setr_epi8(   0,   1,   3,   4,  9,  10,  12,  13,  32,  33,  35,  36,  41,  42,  44,  45); // 32 * a[3] + 9 * a[2] + 3 * a[1] + a[0]
+  __m128i table2 = _mm_setr_epi8(  33,  35,  39,  41, 51,  53,  57,  59,  97,  99, 103, 105, 115, 117, 121, 123); // table1 * 2 + 33
+  __m128i b_base3 = _mm_shuffle_epi8(table1, b);
+  __m128i w_base3 = _mm_shuffle_epi8(table2, w);
+  __m128i res = _mm_add_epi8(b_base3, w_base3);
+  std::string res_str(16, 'A');
+  _mm_storeu_si128((__m128i*)res_str.data(), res);
+  return res_str;
+}
+
 } // namespace bit_manipulations

@@ -1,4 +1,6 @@
 #pragma once
+#include <string>
+
 #include "board.hpp"
 
 // bitwise manipulation functions utility
@@ -225,6 +227,9 @@ uint64_t rotr(uint64_t, int);
 
 uint16_t toBase3(uint16_t, uint16_t);
 uint16_t toBase3_8(uint8_t, uint8_t);
+board toBase3_4x16(board);
+board toBase3_8x8(board);
+std::string toBase81(board);
 
 } // namespace bit_manipulations
 
