@@ -21,14 +21,10 @@ struct half_board {
   }
 };
 
-struct reverse_construct_t {};
-
 struct board {
   __m128i data;
   board() = default;
   board(const board &) = default;
-  board(const board & bd, const reverse_construct_t)
-    : data(_mm_alignr_epi8(bd.data, bd.data, 8)) {}
   board(const uint64_t black, const uint64_t white)
     : data(_mm_setr_epi64x(black, white)) {}
   board(__m128i data) : data(data) {}
@@ -44,7 +40,7 @@ struct board {
     return board(UINT64_C(0x0000000810000000), UINT64_C(0x0000001008000000));
   }
   static board reverse_board(const board &bd) {
-    return board(bd, reverse_construct_t());
+    return board(_mm_alignr_epi8(bd.data, bd.data, 8));
   }
 };
 

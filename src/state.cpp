@@ -28,7 +28,7 @@ std::vector<board> next_states(const board & bd) {
     res.emplace_back(put_black_at_rev(bd, pos / 8, pos % 8));
     is_pass = false;
   }
-  if (is_pass) res.emplace_back(bd, reverse_construct_t());
+  if (is_pass) res.emplace_back(board::reverse_board(bd));
   return res;
 }
 
@@ -43,14 +43,14 @@ bool next_states(const board & bd, std::vector<board> &res) {
       is_pass = false;
     }
   }
-  if (is_pass) res.emplace_back(bd, reverse_construct_t());
+  if (is_pass) res.emplace_back(board::reverse_board(bd));
   return is_pass;
 }
 
 std::vector<board> next_states(const board & bd, uint64_t bits) {
   std::vector<board> res;
   res.reserve(16);
-  if (bits == 0) res.emplace_back(bd, reverse_construct_t());
+  if (bits == 0) res.emplace_back(board::reverse_board(bd));
   for (; bits; bits = _blsr_u64(bits)) {
     int pos = bm::bit_to_pos(_blsi_u64(bits));
     res.emplace_back(put_black_at_rev(bd, pos));
@@ -61,7 +61,7 @@ std::vector<board> next_states(const board & bd, uint64_t bits) {
 bool next_states(const board & bd, uint64_t bits, std::vector<board> &res) {
   res.clear();
   bool is_pass = bits == 0;
-  if (is_pass) res.emplace_back(bd, reverse_construct_t());
+  if (is_pass) res.emplace_back(board::reverse_board(bd));
   for (; bits; bits = _blsr_u64(bits)) {
     int pos = bm::bit_to_pos(_blsi_u64(bits));
     res.emplace_back(put_black_at_rev(bd, pos));
