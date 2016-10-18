@@ -17,6 +17,7 @@ struct u64_4 {
   u64_4(uint64_t x, uint64_t y, uint64_t z, uint64_t w)
     : data(_mm256_set_epi64x(x, y, z, w)) {}
   u64_4(__m256i data) : data(data) {}
+  operator __m256i() { return data; }
 };
 
 inline u64_4 operator>>(const u64_4 lhs, const size_t n) {
@@ -86,10 +87,10 @@ u64_4 upper_bit(u64_4 p) {
   p = p | (p >> 1);
   p = p | (p >> 2);
   p = p | (p >> 4);
-  p = p | (p >> 8);
-  p = p | (p >> 16);
-  p = p | (p >> 32);
-  return andnot(p >> 1, p);
+  p = andnot(p >> 1, p);
+  p = (__m256i)bit_manipulations::flipVertical(__m256i(p));
+  p = p & -p;
+  return (__m256i)bit_manipulations::flipVertical(__m256i(p));
 }
 
 __m128i flip(const board &bd, int pos) {
