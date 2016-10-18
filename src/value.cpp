@@ -14,7 +14,7 @@
 
 namespace value {
 
-std::string files[] = {
+std::vector<std::string> files = {
   "lsval/lsval4", "lsval/lsval5", "lsval/lsval6", "lsval/lsval7",
   "lsval/lsval8", "lsval/lsval9", "lsval/lsval10", "lsval/lsval11",
   "lsval/lsval12", "lsval/lsval13", "lsval/lsval14", "lsval/lsval15",
@@ -36,7 +36,7 @@ void load16() {
 }
 
 void init() {
-  int n = 13;
+  int n = files.size();
   vals.resize(n);
   const_offset.resize(n);
   puttable_coeff.resize(n);
