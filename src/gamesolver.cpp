@@ -250,14 +250,61 @@ int GameSolver::psearch_leaf(const board &bd) {
   }
 }
 
+int GameSolver::psearch_2(const board &bd, int alpha, int beta) {
+  const uint64_t black = bd.black();
+  const uint64_t white = bd.white();
+  const uint64_t puttable_bits = ~bit_manipulations::stones(bd);
+  const uint64_t bit1 = _blsi_u64(puttable_bits);
+  const uint8_t pos1 = bit_manipulations::bit_to_pos(bit1);
+  board next = state::put_black_at_rev(bd, pos1);
+  const uint64_t bit2 = _blsr_u64(puttable_bits);
+  const uint8_t pos2 = bit_manipulations::bit_to_pos(bit2);
+  if (next.black() == white) {
+    next = state::put_black_at_rev(bd, pos2);
+    if (next.black() == white) {
+      const board rev_bd = board::reverse_board(bd);
+      next = state::put_black_at_rev(rev_bd, pos1);
+      if (next.black() == black) {
+        next = state::put_black_at_rev(rev_bd, pos2);
+        if (next.black() == black) {
+          return value::fixed_diff_num(bd);
+        } else {
+          return psearch_leaf(next);
+        }
+      } else {
+        int result = psearch_leaf(next);
+        if (result <= alpha) {
+          return result;
+        }
+        next = state::put_black_at_rev(rev_bd, pos2);
+        if (next.black() == black) {
+          return result;
+        }
+        return std::min(result, psearch_leaf(next));
+      }
+    }
+    return -psearch_leaf(next);
+  } else {
+    int result = -psearch_leaf(next);
+    if (result >= beta) {
+      return result;
+    }
+    next = state::put_black_at_rev(bd, pos2);
+    if (next.black() == white) {
+      return result;
+    }
+    return std::max(result, -psearch_leaf(next));
+  }
+}
+
 int GameSolver::psearch_impl(const board &bd, int alpha, int beta) {
   int stones = bit_manipulations::stone_sum(bd);
   if (stones <= psearch_ordering_th) {
     return psearch_ordering(bd, alpha, beta);
-  } else if (stones <= 62) {
+  } else if (stones <= 61) {
     return psearch_noordering(bd, alpha, beta);
   } else {
-    return psearch_leaf(bd);
+    return psearch_2(bd, alpha, beta);
   }
 }
 
