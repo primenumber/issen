@@ -37,20 +37,35 @@ int GameSolver::iddfs(const board &bd, bool debug) {
   return res;
 }
 
-bool order_first(const std::pair<int, board> &lhs,
+bool order_impl(const std::pair<int, board> &lhs,
     const std::pair<int, board> &rhs) {
   return lhs.first < rhs.first;
 }
 
+bool order_impl(const std::tuple<int, int, board> &lhs,
+    const std::tuple<int, int, board> &rhs) {
+  using std::get;
+  return get<0>(lhs) == get<0>(rhs) ? get<1>(lhs) < get<1>(rhs) : get<0>(lhs) < get<0>(rhs);
+}
+
+board get_board(const std::pair<int, board> &p) {
+  return p.second;
+}
+
+board get_board(const std::tuple<int, int, board> &t) {
+  return std::get<2>(t);
+}
+
+template <typename T>
 bool GameSolver::iddfs_ordering_impl(
-    std::vector<std::pair<int, board>> &ary,
+    std::vector<T> &ary,
     int &alpha, int beta, int &result,
     int depth, bool is_pn, bool &first) {
-  std::sort(std::begin(ary), std::end(ary), order_first);
+  std::sort(std::begin(ary), std::end(ary), (bool(*)(const T&, const T&))order_impl);
   for (const auto &next : ary) {
     if (!first) {
       result = std::max(result,
-          -iddfs(next.second, -alpha-1, -alpha, depth-200, false));
+          -iddfs(get_board(next), -alpha-1, -alpha, depth-200, false));
       if (result >= beta) return true;
       if (result <= alpha) continue;
       alpha = result;
@@ -58,7 +73,7 @@ bool GameSolver::iddfs_ordering_impl(
       first = false;
     }
     result = std::max(result,
-        -iddfs(next.second, -beta, -alpha, depth-(first?50:200), is_pn && first));
+        -iddfs(get_board(next), -beta, -alpha, depth-(first?50:200), is_pn && first));
     if (result >= beta) {
       return true;
     }
@@ -79,7 +94,7 @@ int GameSolver::iddfs_ordering(
       return -iddfs(rev_bd, -beta, -alpha, depth, is_pn);
     }
   }
-  std::vector<std::pair<int, board>> &in_hash = in_buffer[stone_sum];
+  std::vector<std::tuple<int, int, board>> &in_hash = in_buffer[stone_sum];
   std::vector<std::pair<int, board>> &out_hash = out_buffer[stone_sum];
   in_hash.clear();
   out_hash.clear();
@@ -90,7 +105,7 @@ int GameSolver::iddfs_ordering(
   } else {
     for (const auto &next : next_buffer[stone_sum]) {
       if (auto val_opt = tb[1][next]) {
-        in_hash.emplace_back(val_opt->val_max, next);
+        in_hash.emplace_back(val_opt->val_max, val_opt->val_min, next);
       } else {
         out_hash.emplace_back(_popcnt64(state::puttable_black(next)), next);
       }
@@ -146,14 +161,15 @@ int GameSolver::iddfs(
   }
 }
 
+template <typename T>
 bool GameSolver::psearch_ordering_impl(
-    std::vector<std::pair<int, board>> &ary,
+    std::vector<T> &ary,
     int &alpha, int beta, int &result, bool &first) {
-  std::sort(std::begin(ary), std::end(ary), order_first);
+  std::sort(std::begin(ary), std::end(ary), (bool(*)(const T&, const T&))order_impl);
   for (const auto &next : ary) {
     if (!first) {
       result = std::max(result,
-          -psearch(next.second, -alpha-1, -alpha));
+          -psearch(get_board(next), -alpha-1, -alpha));
       if (result >= beta) return true;
       if (result <= alpha) continue;
       alpha = result;
@@ -161,7 +177,7 @@ bool GameSolver::psearch_ordering_impl(
       first = false;
     }
     result = std::max(result,
-        -psearch(next.second, -beta, -alpha));
+        -psearch(get_board(next), -beta, -alpha));
     if (result >= beta) {
       return true;
     }
@@ -181,7 +197,7 @@ int GameSolver::psearch_ordering(const board &bd, int alpha, int beta) {
       return -psearch(rev_bd, -beta, -alpha);
     }
   }
-  std::vector<std::pair<int, board>> &in_hash = in_buffer[stone_sum];
+  std::vector<std::tuple<int, int, board>> &in_hash = in_buffer[stone_sum];
   std::vector<std::pair<int, board>> &out_hash = out_buffer[stone_sum];
   in_hash.clear();
   out_hash.clear();
@@ -192,7 +208,7 @@ int GameSolver::psearch_ordering(const board &bd, int alpha, int beta) {
   } else {
     for (const auto &next : next_buffer[stone_sum]) {
       if (auto val_opt = tb[1][next]) {
-        in_hash.emplace_back(val_opt->val_max, next);
+        in_hash.emplace_back(val_opt->val_max, val_opt->val_min, next);
       } else {
         out_hash.emplace_back(_popcnt64(state::puttable_black(next)), next);
       }
