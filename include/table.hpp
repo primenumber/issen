@@ -18,8 +18,6 @@ struct Range {
     : val_min(val_min), val_max(val_max) {}
   explicit Range(int32_t val)
     : val_min(val), val_max(val) {}
-  Range()
-    : val_min(-value::VALUE_MAX), val_max(value::VALUE_MAX) {}
   Range(const Range &) = default;
   Range(Range &&) = default;
   Range &operator=(const Range &) = default;
@@ -46,7 +44,7 @@ inline Range operator&&(const Range &lhs, const Range &rhs) {
 class Table {
  public:
   explicit Table(size_t hash_size)
-    : table(hash_size), hash_size(hash_size), bd_hash() {}
+    : table(hash_size, std::make_pair(board(), Range(-value::VALUE_MAX, value::VALUE_MAX))), hash_size(hash_size), bd_hash() {}
   Table(const Table &) = default;
   Table(Table &&) = default;
   Table &operator=(const Table &) = default;
