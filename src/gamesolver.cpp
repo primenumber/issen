@@ -262,6 +262,7 @@ int GameSolver::psearch_2(const board &bd, int alpha, int beta) {
   if (next.black() == white) {
     next = state::put_black_at_rev(bd, pos2);
     if (next.black() == white) {
+      ++nodes;
       const board rev_bd = board::reverse_board(bd);
       next = state::put_black_at_rev(rev_bd, pos1);
       if (next.black() == black) {
