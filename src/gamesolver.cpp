@@ -19,21 +19,21 @@ GameSolver::GameSolver(size_t hash_size)
   }
 }
 
-int GameSolver::iddfs(const board &bd) {
+int GameSolver::iddfs(const board &bd, bool debug) {
   nodes = 0;
   int rem_stones = 64 - bit_manipulations::stone_sum(bd);
   for (int depth = 1200; depth <= rem_stones * 100; depth += 200) {
     tb[0].clear();
-    std::cerr << "depth: " << (depth/100) << std::endl;
+    if (debug) std::cerr << "depth: " << (depth/100) << std::endl;
     int res = iddfs(bd, -value::VALUE_MAX, value::VALUE_MAX, depth, true);
-    std::cerr << res << std::endl;
+    if (debug) std::cerr << res << std::endl;
     std::swap(tb[0], tb[1]);
   }
-  std::cerr << "full search" << std::endl;
+  if (debug) std::cerr << "full search" << std::endl;
   tb[0].range_max = 64;
   tb[0].clear();
   int res = psearch(bd, -64, 64);
-  std::cerr << "nodes total: " << nodes << std::endl;
+  if (debug) std::cerr << "nodes total: " << nodes << std::endl;
   return res;
 }
 

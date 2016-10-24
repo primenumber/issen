@@ -5,7 +5,7 @@
 class GameSolver {
  public:
   explicit GameSolver(size_t hash_size);
-  int iddfs(const board &);
+  int iddfs(const board &, bool debug = false);
  private:
   table::Table tb[2];
   std::vector<std::vector<board>> next_buffer;
