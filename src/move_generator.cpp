@@ -32,18 +32,8 @@ inline u64_4 operator&(const u64_4 lhs, const u64_4 rhs) {
   return _mm256_and_si256(lhs.data, rhs.data);
 }
 
-inline u64_4 operator&(const u64_4 lhs, const uint64_t rhs) {
-  __m256i r64 = _mm256_set1_epi64x(rhs);
-  return _mm256_and_si256(lhs.data, r64);
-}
-
 inline u64_4 operator|(const u64_4 lhs, const u64_4 rhs) {
   return _mm256_or_si256(lhs.data, rhs.data);
-}
-
-inline u64_4 operator|(const u64_4 lhs, const uint64_t rhs) {
-  __m256i r64 = _mm256_set1_epi64x(rhs);
-  return _mm256_or_si256(lhs.data, r64);
 }
 
 inline u64_4 operator+(const u64_4 lhs, const u64_4 rhs) {
@@ -77,13 +67,13 @@ inline u64_4 operator~(const u64_4 lhs) {
   return _mm256_andnot_si256(lhs.data, _mm256_set1_epi8(0xFF));
 }
 
-__m128i hor(const u64_4 lhs) {
+inline __m128i hor(const u64_4 lhs) {
   __m128i lhs_xz_yw = _mm_or_si128(_mm256_castsi256_si128(lhs.data),
       _mm256_extractf128_si256(lhs.data, 1));
   return _mm_or_si128(lhs_xz_yw, _mm_alignr_epi8(lhs_xz_yw, lhs_xz_yw, 8));
 }
 
-u64_4 upper_bit(u64_4 p) {
+inline u64_4 upper_bit(u64_4 p) {
   p = p | (p >> 1);
   p = p | (p >> 2);
   p = p | (p >> 4);
@@ -93,11 +83,25 @@ u64_4 upper_bit(u64_4 p) {
   return (__m256i)bit_manipulations::flipVertical(__m256i(p));
 }
 
+inline __m256i broadcast_black(const board &bd) {
+  return _mm256_broadcastq_epi64(bd);
+}
+
+inline __m256i broadcast_white(const board &bd) {
+  return _mm256_permute4x64_epi64(_mm256_castsi128_si256(bd), 0x55);
+}
+
 __m128i flip(const board &bd, int pos) {
-  uint64_t black = bd.black(), white = bd.white();
+  u64_4 black = broadcast_black(bd);
+  u64_4 white = broadcast_white(bd);
   u64_4 flipped, OM, outflank, mask;
-  uint64_t yzw = white & UINT64_C(0x7E7E7E7E7E7E7E7E);
-  OM = u64_4(white, yzw, yzw, yzw);
+  u64_4 yzw = {
+    UINT64_C(0xFFFFFFFFFFFFFFFF),
+    UINT64_C(0x7E7E7E7E7E7E7E7E),
+    UINT64_C(0x7E7E7E7E7E7E7E7E),
+    UINT64_C(0x7E7E7E7E7E7E7E7E)
+  };
+  OM = white & yzw;
   mask = {
     UINT64_C(0x0080808080808080),
     UINT64_C(0x7F00000000000000),
