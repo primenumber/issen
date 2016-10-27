@@ -230,6 +230,7 @@ uint16_t toBase3_8(uint8_t, uint8_t);
 board toBase3_4x16(board);
 board toBase3_8x8(board);
 std::string toBase81(board);
+board toBoard(const std::string &);
 
 } // namespace bit_manipulations
 
