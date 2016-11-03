@@ -14,10 +14,9 @@ boost::optional<Range> Table::operator[](const board &bd) const {
   }
 }
 
-uint64_t cnt = 0;
 void Table::update(
     const board &bd, const Range range, const int32_t value) {
-  ++cnt;
+  ++update_count;
   uint64_t h = bd_hash(bd);
   auto &p = table[h % hash_size];
   if (range.val_min < value && value < range.val_max) {
@@ -30,6 +29,7 @@ void Table::update(
         p.second.update_max(value);
       }
     } else {
+      if (!(p.first == board::empty_board())) ++conflict_count;
       Range r(-range_max, range_max);
       if (value >= range.val_max) {
         r.update_min(value);
@@ -43,7 +43,7 @@ void Table::update(
 
 void Table::clear() {
   std::fill(std::begin(table), std::end(table),
-      std::make_pair(board::initial_board(), Range(-range_max, range_max)));
+      std::make_pair(board::empty_board(), Range(-range_max, range_max)));
 }
 
 } // namespace table
