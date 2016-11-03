@@ -39,6 +39,9 @@ struct board {
   static board initial_board() {
     return board(UINT64_C(0x0000000810000000), UINT64_C(0x0000001008000000));
   }
+  static board empty_board() {
+    return board(_mm_setzero_si128());
+  }
   static board reverse_board(const board &bd) {
     return board(_mm_alignr_epi8(bd.data, bd.data, 8));
   }
