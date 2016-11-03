@@ -2,6 +2,7 @@
 
 #include <cassert>
 #include <cmath>
+#include <cstdlib>
 
 #include <iostream>
 #include <fstream>
@@ -15,10 +16,10 @@
 namespace value {
 
 std::vector<std::string> files = {
-  "lsval/lsval4", "lsval/lsval5", "lsval/lsval6", "lsval/lsval7",
-  "lsval/lsval8", "lsval/lsval9", "lsval/lsval10", "lsval/lsval11",
-  "lsval/lsval12", "lsval/lsval13", "lsval/lsval14", "lsval/lsval15",
-  "lsval/lsval16"};
+  "lsval4", "lsval5", "lsval6", "lsval7",
+  "lsval8", "lsval9", "lsval10", "lsval11",
+  "lsval12", "lsval13", "lsval14", "lsval15",
+  "lsval16"};
 std::vector<std::vector<int16_t>> vals;
 std::vector<int16_t> puttable_coeff;
 std::vector<int16_t> puttable_op_coeff;
@@ -41,8 +42,10 @@ void init() {
   const_offset.resize(n);
   puttable_coeff.resize(n);
   puttable_op_coeff.resize(n);
+  char *val_dir = std::getenv("VAL_PATH");
   for (int cnt = 0; cnt < n; ++cnt) {
-    std::ifstream ifs(files[cnt]);
+    std::string val_pos = val_dir == nullptr ? files[cnt] : val_dir + ("/" + files[cnt]);
+    std::ifstream ifs(val_pos);
     for (int i = 0; i <= subboard::index_max; ++i) {
       double v = 0;
       ifs >> v;
