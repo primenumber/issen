@@ -250,6 +250,7 @@ int GameSolver::psearch_noordering(const board &bd, int alpha, int beta) {
 }
 
 int GameSolver::psearch_leaf(const board &bd) {
+  ++nodes;
   uint64_t pos_bit = ~bit_manipulations::stones(bd);
   int pos = bit_manipulations::bit_to_pos(pos_bit);
   const board nx = state::put_black_at(bd, pos);
