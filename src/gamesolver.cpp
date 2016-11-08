@@ -33,7 +33,11 @@ int GameSolver::iddfs(const board &bd, bool debug) {
   tb[0].range_max = 64;
   tb[0].clear();
   int res = psearch(bd, -64, 64);
-  if (debug) std::cerr << "nodes total: " << nodes << std::endl;
+  if (debug) {
+    std::cerr << "nodes total: " << nodes << std::endl;
+    std::cerr << "hash update: " << (tb[0].update_num() + tb[1].update_num()) << std::endl;
+    std::cerr << "hash conflict: " << (tb[0].conflict_num() + tb[1].conflict_num()) << std::endl;
+  }
   return res;
 }
 
