@@ -49,11 +49,6 @@ inline u64_4 operator-(const u64_4 lhs, const u64_4 rhs) {
   return _mm256_sub_epi64(lhs.data, rhs.data);
 }
 
-inline u64_4 operator!=(const u64_4 lhs, const uint64_t rhs) {
-  __m256i r64 = _mm256_set1_epi64x(rhs);
-  return _mm256_cmpeq_epi64(lhs.data, r64) + u64_4(1);
-}
-
 inline u64_4 operator-(const u64_4 lhs) {
   return _mm256_sub_epi64(_mm256_setzero_si256(), lhs.data);
 }
@@ -65,6 +60,10 @@ inline u64_4 andnot(const u64_4 lhs, const u64_4 rhs) {
 
 inline u64_4 operator~(const u64_4 lhs) {
   return _mm256_andnot_si256(lhs.data, _mm256_set1_epi8(0xFF));
+}
+
+inline u64_4 nonzero(const u64_4 lhs) {
+  return _mm256_cmpeq_epi64(lhs.data, _mm256_setzero_si256()) + u64_4(1);
 }
 
 inline __m128i hor(const u64_4 lhs) {
@@ -119,7 +118,7 @@ __m128i flip(const board &bd, int pos) {
   };
   mask = mask << pos;
   outflank = mask & ((OM | ~mask) + 1) & black;
-  flipped = flipped | ((outflank - (outflank != 0)) & mask);
+  flipped = flipped | ((outflank - nonzero(outflank)) & mask);
   return hor(flipped);
 }
 
