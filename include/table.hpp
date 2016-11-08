@@ -1,7 +1,9 @@
 #pragma once
 #include <functional>
-#include <utility>
+#include <tuple>
 #include <vector>
+#include <mutex>
+#include <memory>
 
 #include <boost/optional.hpp>
 
@@ -41,10 +43,59 @@ inline Range operator&&(const Range &lhs, const Range &rhs) {
       std::min(lhs.val_max, rhs.val_max));
 }
 
+class Entry {
+ public:
+  Entry() : data(_mm256_setzero_si256()) {}
+  Entry(board bd, Range range) : data(_mm256_castsi128_si256(bd)) {
+    data = _mm256_insert_epi32(data, range.val_min, 4);
+    data = _mm256_insert_epi32(data, range.val_max, 5);
+  }
+  explicit Entry(int32_t range_max)
+    : data(_mm256_setr_epi32(0, 0, 0, 0, -range_max, range_max, 0, 0)) {}
+  Entry(const Entry &) = default;
+  Entry(const __m256i &data) : data(data) {}
+  Entry& operator=(const Entry &) noexcept = default;
+  Entry& operator=(Entry &&) noexcept = default;
+  operator __m256i() const { return data; }
+  board get_board() const { return _mm256_castsi256_si128(data); }
+  void set_board(const board &bd) { data = _mm256_inserti128_si256(data, bd, 0); }
+  Range get_range() const {
+    return Range(_mm256_extract_epi32(data, 4), _mm256_extract_epi32(data, 5));
+  }
+  void set_range(const Range &r) {
+    _mm256_insert_epi32(data, r.val_min, 4);
+    _mm256_insert_epi32(data, r.val_max, 5);
+  }
+ private:
+  __m256i data;
+};
+
+class EntryArray {
+ public:
+  EntryArray(size_t array_size, Entry e) 
+    : array((Entry*)aligned_alloc(32, array_size * 32), free), array_size(array_size) {
+    std::fill(array.get(), array.get() + array_size, e);
+  }
+  EntryArray(EntryArray &&) = default;
+  EntryArray &operator=(EntryArray &&) = default;
+  Entry load(size_t index) const {
+    return _mm256_load_si256((__m256i*)array.get() + index);
+  }
+  void store(size_t index, Entry e) {
+    _mm256_store_si256((__m256i*)array.get() + index, e);
+  }
+  void clear(int32_t range_max) {
+    std::fill(array.get(), array.get() + array_size, Entry(range_max));
+  }
+ private:
+  std::unique_ptr<Entry, decltype(&free)> array;
+  size_t array_size;
+};
+
 class Table {
  public:
   explicit Table(size_t hash_size)
-    : table(hash_size, std::make_pair(board::empty_board(), Range(-value::VALUE_MAX, value::VALUE_MAX))),
+    : table(hash_size, Entry(range_max)),
       hash_size(hash_size), bd_hash(), conflict_count(0), update_count(0) {}
   Table(const Table &) = default;
   Table(Table &&) = default;
@@ -59,7 +110,7 @@ class Table {
     conflict_count = update_count = 0;
   }
  private:
-  std::vector<std::pair<board, Range>> table;
+  EntryArray table;
   size_t hash_size;
   std::hash<board> bd_hash;
  public:

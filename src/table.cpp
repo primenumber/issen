@@ -2,13 +2,18 @@
 
 #include <algorithm>
 
+#include "x86intrin.h"
+
 namespace table {
+
+using unique_lock = std::unique_lock<std::mutex>;
 
 boost::optional<Range> Table::operator[](const board &bd) const {
   uint64_t h = bd_hash(bd);
-  const auto &p = table[h % hash_size];
-  if (p.first == bd) {
-    return p.second;
+  std::size_t index = h % hash_size;
+  Entry e = table.load(index);
+  if (e.get_board() == bd) {
+    return e.get_range();
   } else {
     return boost::none;
   }
@@ -18,32 +23,35 @@ void Table::update(
     const board &bd, const Range range, const int32_t value) {
   ++update_count;
   uint64_t h = bd_hash(bd);
-  auto &p = table[h % hash_size];
+  std::size_t index = h % hash_size;
+  Entry e = table.load(index);
   if (range.val_min < value && value < range.val_max) {
-    p = std::make_pair(bd, Range(value));
+    e = Entry(bd, Range(value));
   } else {
-    if (p.first == bd) {
+    if (e.get_board() == bd) {
+      Range r = e.get_range();
       if (value >= range.val_max) {
-        p.second.update_min(value);
+        r.update_min(value);
       } else if (value <= range.val_min) {
-        p.second.update_max(value);
+        r.update_max(value);
       }
+      e.set_range(r);
     } else {
-      if (!(p.first == board::empty_board())) ++conflict_count;
+      if (!(e.get_board() == board::empty_board())) ++conflict_count;
       Range r(-range_max, range_max);
       if (value >= range.val_max) {
         r.update_min(value);
       } else if (value <= range.val_min) {
         r.update_max(value);
       }
-      p = std::make_pair(bd, r);
+      e = Entry(bd, r);
     }
   }
+  table.store(index, e);
 }
 
 void Table::clear() {
-  std::fill(std::begin(table), std::end(table),
-      std::make_pair(board::empty_board(), Range(-range_max, range_max)));
+  table.clear(range_max);
 }
 
 } // namespace table
