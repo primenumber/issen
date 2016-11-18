@@ -43,15 +43,22 @@ inline Range operator&&(const Range &lhs, const Range &rhs) {
       std::min(lhs.val_max, rhs.val_max));
 }
 
+union RangeUint64 {
+  Range range;
+  uint64_t data;
+  RangeUint64(const Range &r) : range(r) {}
+  RangeUint64(const uint64_t d) : data(d) {}
+};
+
 class Entry {
  public:
   Entry() : data(_mm256_setzero_si256()) {}
   Entry(board bd, Range range) : data(_mm256_castsi128_si256(bd)) {
-    data = _mm256_insert_epi32(data, range.val_min, 4);
-    data = _mm256_insert_epi32(data, range.val_max, 5);
+    RangeUint64 ru = range;
+    data = _mm256_insert_epi64(data, ru.data, 2);
   }
   explicit Entry(int32_t range_max)
-    : data(_mm256_setr_epi32(0, 0, 0, 0, -range_max, range_max, 0, 0)) {}
+    : data(_mm256_setr_epi64x(0, 0, RangeUint64(Range(range_max)).data, 0)) {}
   Entry(const Entry &) = default;
   Entry(const __m256i &data) : data(data) {}
   Entry& operator=(const Entry &) noexcept = default;
@@ -60,11 +67,10 @@ class Entry {
   board get_board() const { return _mm256_castsi256_si128(data); }
   void set_board(const board &bd) { data = _mm256_inserti128_si256(data, bd, 0); }
   Range get_range() const {
-    return Range(_mm256_extract_epi32(data, 4), _mm256_extract_epi32(data, 5));
+    return RangeUint64(_mm256_extract_epi64(data, 2)).range;
   }
   void set_range(const Range &r) {
-    _mm256_insert_epi32(data, r.val_min, 4);
-    _mm256_insert_epi32(data, r.val_max, 5);
+    data = _mm256_insert_epi64(data, RangeUint64(r).data, 2);
   }
  private:
   __m256i data;
