@@ -43,6 +43,10 @@ inline Range operator&&(const Range &lhs, const Range &rhs) {
       std::min(lhs.val_max, rhs.val_max));
 }
 
+inline bool operator<(const Range &lhs, const Range &rhs) {
+  return lhs.val_max == rhs.val_max ? lhs.val_min < rhs.val_min : lhs.val_max < rhs.val_max;
+}
+
 union RangeUint64 {
   Range range;
   uint64_t data;

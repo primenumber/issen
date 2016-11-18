@@ -1,5 +1,9 @@
 #include "gamesolver.hpp"
 #include <iostream>
+#include <iterator>
+#include <atomic>
+#include <thread>
+#include <future>
 
 #include "value.hpp"
 #include "state.hpp"
@@ -7,19 +11,11 @@
 
 constexpr int psearch_ordering_th = 57;
 
-uint64_t nodes = 0;
+std::atomic<uint64_t> nodes(0);
 GameSolver::GameSolver(size_t hash_size)
-    : tb{table::Table(hash_size), table::Table(hash_size)},
-      next_buffer(61), in_buffer(61), out_buffer(61)
-{
-  for (int i = 0; i <= 60; ++i) {
-    next_buffer[i].reserve(64-i);
-    in_buffer[i].reserve(64-i);
-    out_buffer[i].reserve(64-i);
-  }
-}
+    : tb{table::Table(hash_size), table::Table(hash_size)} {}
 
-int GameSolver::iddfs(const board &bd, bool debug) {
+int GameSolver::iddfs(const board &bd, bool parallel_search, bool debug) {
   nodes = 0;
   int rem_stones = 64 - bit_manipulations::stone_sum(bd);
   for (int depth = 1200; depth <= rem_stones * 100; depth += 200) {
@@ -32,18 +28,19 @@ int GameSolver::iddfs(const board &bd, bool debug) {
   if (debug) std::cerr << "full search" << std::endl;
   tb[0].range_max = 64;
   tb[0].clear();
-  int res = psearch(bd, -64, 64);
+  int res = psearch(bd, -64, 64, parallel_search ? 1 : 0);
   if (debug) {
-    std::cerr << "nodes total: " << nodes << std::endl;
+    std::cerr << "nodes total: " << nodes.load() << std::endl;
     std::cerr << "hash update: " << (tb[0].update_num() + tb[1].update_num()) << std::endl;
     std::cerr << "hash conflict: " << (tb[0].conflict_num() + tb[1].conflict_num()) << std::endl;
   }
   return res;
 }
 
-bool order_impl(const std::pair<int, board> &lhs,
-    const std::pair<int, board> &rhs) {
-  return lhs.first < rhs.first;
+bool order_impl(const std::tuple<int, board> &lhs,
+    const std::tuple<int, board> &rhs) {
+  using std::get;
+  return get<0>(lhs) < get<0>(rhs);
 }
 
 bool order_impl(const std::tuple<int, int, board> &lhs,
@@ -52,21 +49,23 @@ bool order_impl(const std::tuple<int, int, board> &lhs,
   return get<0>(lhs) == get<0>(rhs) ? get<1>(lhs) < get<1>(rhs) : get<0>(lhs) < get<0>(rhs);
 }
 
-board get_board(const std::pair<int, board> &p) {
-  return p.second;
+board get_board(const std::tuple<int, board> &t) {
+  return std::get<1>(t);
 }
 
 board get_board(const std::tuple<int, int, board> &t) {
   return std::get<2>(t);
 }
 
-template <typename T>
+template <typename InputIt>
 bool GameSolver::iddfs_ordering_impl(
-    std::vector<T> &ary,
+    InputIt next_first, InputIt next_last,
     int &alpha, int beta, int &result,
     int depth, bool is_pn, bool &first) {
-  std::sort(std::begin(ary), std::end(ary), (bool(*)(const T&, const T&))order_impl);
-  for (const auto &next : ary) {
+  using T = typename std::iterator_traits<InputIt>::value_type;
+  std::sort(next_first, next_last, (bool(*)(const T&, const T&))order_impl);
+  for (auto itr = next_first; itr != next_last; ++itr) {
+    const auto &next = *itr;
     if (!first) {
       result = std::max(result,
           -iddfs(get_board(next), -alpha-1, -alpha, depth-200, false));
@@ -89,8 +88,9 @@ bool GameSolver::iddfs_ordering_impl(
 int GameSolver::iddfs_ordering(
     const board &bd, int alpha, int beta, int depth, bool is_pn) {
   int stone_sum = bit_manipulations::stone_sum(bd);
-  bool pass = state::next_states(bd, next_buffer[stone_sum]);
-  if (pass) {
+  std::array<board, 60> next_buffer;
+  int puttable_count = state::next_states(bd, next_buffer);
+  if (puttable_count == 0) {
     board rev_bd = board::reverse_board(bd);
     if (state::puttable_black(rev_bd) == 0) {
       return value::num_value(bd);
@@ -98,28 +98,33 @@ int GameSolver::iddfs_ordering(
       return -iddfs(rev_bd, -beta, -alpha, depth, is_pn);
     }
   }
-  std::vector<std::tuple<int, int, board>> &in_hash = in_buffer[stone_sum];
-  std::vector<std::pair<int, board>> &out_hash = out_buffer[stone_sum];
-  in_hash.clear();
-  out_hash.clear();
+  std::array<std::tuple<int, int, board>, 60> in_hash;
+  std::array<std::tuple<int, board>, 60> out_hash;
+  int count_in = 0;
+  int count_out = 0;
   if (stone_sum > 54) {
-    for (const auto &next : next_buffer[stone_sum]) {
-      out_hash.emplace_back(_popcnt64(state::puttable_black(next)), next);
+    for (int i = 0; i < puttable_count; ++i) {
+      const auto &next = next_buffer[i];
+      out_hash[count_out++] = std::make_tuple(_popcnt64(state::puttable_black(next)), next);
     }
   } else {
-    for (const auto &next : next_buffer[stone_sum]) {
+    for (int i = 0; i < puttable_count; ++i) {
+      const auto &next = next_buffer[i];
       if (auto val_opt = tb[1][next]) {
-        in_hash.emplace_back(val_opt->val_max, val_opt->val_min, next);
+        in_hash[count_in++] = std::make_tuple(val_opt->val_max, val_opt->val_min, next);
       } else {
-        out_hash.emplace_back(_popcnt64(state::puttable_black(next)), next);
+        out_hash[count_out++] = std::make_tuple(_popcnt64(state::puttable_black(next)), next);
       }
     }
   }
   int result = -value::VALUE_MAX; // fail soft
   bool first = true;
-  if (iddfs_ordering_impl(in_hash, alpha, beta, result, depth, is_pn, first))
+  if (iddfs_ordering_impl(std::begin(in_hash), std::begin(in_hash) + count_in,
+        alpha, beta, result, depth, is_pn, first))
     return result;
-  iddfs_ordering_impl(out_hash, alpha, beta, result, depth, is_pn, first);
+  alpha = std::max(alpha, result);
+  iddfs_ordering_impl(std::begin(out_hash), std::begin(out_hash) + count_out,
+      alpha, beta, result, depth, is_pn, first);
   return result;
 }
 
@@ -129,7 +134,7 @@ int GameSolver::iddfs_impl(
   if (stones < 60) {
     return iddfs_ordering(bd, alpha, beta, depth, is_pn);
   } else {
-    return psearch_impl(bd, alpha, beta);
+    return psearch_impl(bd, alpha, beta, is_pn);
   }
 }
 
@@ -165,15 +170,76 @@ int GameSolver::iddfs(
   }
 }
 
-template <typename T>
+int GameSolver::null_window_search_impl(const board &bd, int alpha, int beta, int result, int ybwc_depth) {
+  result = std::max(result, -psearch(bd, -alpha-1, -alpha, ybwc_depth));
+  if (result >= beta) return result;
+  if (result > alpha) {
+    alpha = result;
+    return std::max(result, -psearch(bd, -beta, -alpha, ybwc_depth));
+  }
+  return result;
+}
+
+int GameSolver::psearch_ybwc(const board &bd, int alpha, int beta, int ybwc_depth) {
+  std::array<board, 60> next_buffer;
+  int puttable_count = state::next_states(bd, next_buffer);
+  if (puttable_count == 0) {
+    board rev_bd = board::reverse_board(bd);
+    if (state::puttable_black(rev_bd) == 0) {
+      return value::fixed_diff_num(bd);
+    } else {
+      return -psearch(rev_bd, -beta, -alpha, ybwc_depth);
+    }
+  }
+  int pv_index = 0;
+  table::Range pv_range(-value::VALUE_MAX, -value::VALUE_MAX);
+  bool is_in_hash = false;
+  int puttable_min = 64;
+  for (int i = 0; i < puttable_count; ++i) {
+    const auto &next = next_buffer[i];
+    if (auto val_opt = tb[1][next]) {
+      if (!is_in_hash) {
+        is_in_hash = true;
+        pv_range = *val_opt;
+        pv_index = i;
+      } else if (*val_opt < pv_range) {
+        pv_range = *val_opt;
+        pv_index = i;
+      }
+    } else if (!is_in_hash) {
+      int count = _popcnt64(state::puttable_black(next));
+      if (puttable_min > count) {
+        pv_index = i;
+        puttable_min = count;
+      }
+    }
+  }
+  int result = -psearch(next_buffer[pv_index], -beta, -alpha, ybwc_depth);
+  if (result >= beta) return result;
+  alpha = std::max(alpha, result);
+  std::vector<std::future<int>> vf;
+  for (int i = 0; i < puttable_count; ++i) {
+    if (i == pv_index) continue;
+    const board next = next_buffer[i];
+    vf.push_back(std::async(std::launch::async, &GameSolver::null_window_search_impl, this, next, alpha, beta, result, ybwc_depth-1));
+  }
+  for (auto &&f : vf) {
+    result = std::max(result, f.get());
+  }
+  return result;
+}
+
+template <typename InputIt>
 bool GameSolver::psearch_ordering_impl(
-    std::vector<T> &ary,
-    int &alpha, int beta, int &result, bool &first) {
-  std::sort(std::begin(ary), std::end(ary), (bool(*)(const T&, const T&))order_impl);
-  for (const auto &next : ary) {
+    InputIt next_first, InputIt next_last,
+    int &alpha, int beta, int &result, bool &first, int ybwc_depth) {
+  using T = typename std::iterator_traits<InputIt>::value_type;
+  std::sort(next_first, next_last, (bool(*)(const T&, const T&))order_impl);
+  for (auto itr = next_first; itr != next_last; ++itr) {
+    const auto &next = *itr;
     if (!first) {
       result = std::max(result,
-          -psearch(get_board(next), -alpha-1, -alpha));
+          -psearch(get_board(next), -alpha-1, -alpha, ybwc_depth));
       if (result >= beta) return true;
       if (result <= alpha) continue;
       alpha = result;
@@ -181,7 +247,7 @@ bool GameSolver::psearch_ordering_impl(
       first = false;
     }
     result = std::max(result,
-        -psearch(get_board(next), -beta, -alpha));
+        -psearch(get_board(next), -beta, -alpha, ybwc_depth));
     if (result >= beta) {
       return true;
     }
@@ -190,39 +256,71 @@ bool GameSolver::psearch_ordering_impl(
   return false;
 }
 
-int GameSolver::psearch_ordering(const board &bd, int alpha, int beta) {
-  int stone_sum = bit_manipulations::stone_sum(bd);
-  bool pass = state::next_states(bd, next_buffer[stone_sum]);
-  if (pass) {
+int GameSolver::psearch_ordering(const board &bd, int alpha, int beta, int ybwc_depth) {
+  std::array<board, 60> next_buffer;
+  int puttable_count = state::next_states(bd, next_buffer);
+  if (puttable_count == 0) {
     board rev_bd = board::reverse_board(bd);
     if (state::puttable_black(rev_bd) == 0) {
       return value::fixed_diff_num(bd);
     } else {
-      return -psearch(rev_bd, -beta, -alpha);
+      return -psearch(rev_bd, -beta, -alpha, ybwc_depth);
     }
   }
-  std::vector<std::tuple<int, int, board>> &in_hash = in_buffer[stone_sum];
-  std::vector<std::pair<int, board>> &out_hash = out_buffer[stone_sum];
-  in_hash.clear();
-  out_hash.clear();
-  if (stone_sum > 54) {
-    for (const auto &next : next_buffer[stone_sum]) {
-      out_hash.emplace_back(_popcnt64(state::puttable_black(next)), next);
-    }
-  } else {
-    for (const auto &next : next_buffer[stone_sum]) {
-      if (auto val_opt = tb[1][next]) {
-        in_hash.emplace_back(val_opt->val_max, val_opt->val_min, next);
-      } else {
-        out_hash.emplace_back(_popcnt64(state::puttable_black(next)), next);
-      }
+  std::array<std::tuple<int, int, board>, 60> in_hash;
+  std::array<std::tuple<int, board>, 60> out_hash;
+  int count_in = 0;
+  int count_out = 0;
+  for (int i = 0; i < puttable_count; ++i) {
+    const auto &next = next_buffer[i];
+    if (auto val_opt = tb[1][next]) {
+      in_hash[count_in++] = std::make_tuple(val_opt->val_max, val_opt->val_min, next);
+    } else {
+      out_hash[count_out++] = std::make_tuple(_popcnt64(state::puttable_black(next)), next);
     }
   }
   int result = -64; // fail soft
   bool first = true;
-  if (psearch_ordering_impl(in_hash, alpha, beta, result, first))
+  if (psearch_ordering_impl(std::begin(in_hash), std::begin(in_hash) + count_in,
+        alpha, beta, result, first, ybwc_depth))
     return result;
-  psearch_ordering_impl(out_hash, alpha, beta, result, first);
+  alpha = std::max(alpha, result);
+  psearch_ordering_impl(std::begin(out_hash), std::begin(out_hash) + count_out,
+      alpha, beta, result, first, ybwc_depth);
+  return result;
+}
+
+int GameSolver::psearch_static_ordering(const board &bd, int alpha, int beta) {
+  std::array<board, 60> next_buffer;
+  int puttable_count = state::next_states(bd, next_buffer);
+  if (puttable_count == 0) {
+    board rev_bd = board::reverse_board(bd);
+    if (state::puttable_black(rev_bd) == 0) {
+      return value::fixed_diff_num(bd);
+    } else {
+      return -psearch_nohash(rev_bd, -beta, -alpha);
+    }
+  }
+  std::array<std::tuple<int, int>, 60> index_ary;
+  int count_ary = 0;
+  for (int i = 0; i < puttable_count; ++i) {
+    const auto &next = next_buffer[i];
+    index_ary[count_ary++] = std::make_tuple(_popcnt64(state::puttable_black(next)), i);
+  }
+  std::sort(std::begin(index_ary), std::begin(index_ary) + puttable_count,
+      [](const auto &lhs, const auto &rhs) { return std::get<0>(lhs) < std::get<0>(rhs); });
+  int result = -psearch_nohash(next_buffer[std::get<1>(index_ary[0])], -beta, -alpha);
+  if (result >= beta) return result;
+  alpha = std::max(alpha, result);
+  for (int i = 1; i < puttable_count; ++i) {
+    result = std::max(result, -psearch_nohash(next_buffer[std::get<1>(index_ary[i])], -alpha-1, -alpha));
+    if (result >= beta) return result;
+    if (result <= alpha) continue;
+    alpha = result;
+    result = std::max(result, -psearch_nohash(next_buffer[std::get<1>(index_ary[i])], -beta, -alpha));
+    if (result >= beta) return result;
+    alpha = std::max(alpha, result);
+  }
   return result;
 }
 
@@ -236,7 +334,7 @@ int GameSolver::psearch_noordering(const board &bd, int alpha, int beta) {
     const board next = state::put_black_at_rev(bd, pos);
     if (next.black() == bd.white()) continue;
     pass = false;
-    result = std::max(result, -psearch(next, -beta, -alpha));
+    result = std::max(result, -psearch_nohash(next, -beta, -alpha));
     if (result >= beta) {
       return result;
     }
@@ -247,7 +345,7 @@ int GameSolver::psearch_noordering(const board &bd, int alpha, int beta) {
     if (state::puttable_black(rev_bd) == 0) {
       return value::fixed_diff_num(bd);
     } else {
-      return -psearch(rev_bd, -beta, -alpha);
+      return -psearch_nohash(rev_bd, -beta, -alpha);
     }
   }
   return result;
@@ -319,10 +417,20 @@ int GameSolver::psearch_2(const board &bd, int alpha, int beta) {
   }
 }
 
-int GameSolver::psearch_impl(const board &bd, int alpha, int beta) {
+int GameSolver::psearch_impl(const board &bd, int alpha, int beta, int ybwc_depth) {
   int stones = bit_manipulations::stone_sum(bd);
-  if (stones <= psearch_ordering_th) {
-    return psearch_ordering(bd, alpha, beta);
+  if (stones <= 52 && ybwc_depth) {
+    return psearch_ybwc(bd, alpha, beta, ybwc_depth);
+  } else {
+    return psearch_ordering(bd, alpha, beta, ybwc_depth);
+  }
+}
+
+int GameSolver::psearch_nohash(const board &bd, int alpha, int beta) {
+  ++nodes;
+  int stones = bit_manipulations::stone_sum(bd);
+  if (stones <= 57) {
+    return psearch_static_ordering(bd, alpha, beta);
   } else if (stones <= 61) {
     return psearch_noordering(bd, alpha, beta);
   } else {
@@ -330,7 +438,7 @@ int GameSolver::psearch_impl(const board &bd, int alpha, int beta) {
   }
 }
 
-int GameSolver::psearch(const board &bd, int alpha, int beta) {
+int GameSolver::psearch(const board &bd, int alpha, int beta, int ybwc_depth) {
   ++nodes;
   int stones = bit_manipulations::stone_sum(bd);
   if (stones <= 54) {
@@ -344,16 +452,16 @@ int GameSolver::psearch(const board &bd, int alpha, int beta) {
         table::Range new_ab = cache && table::Range(alpha, beta);
         alpha = new_ab.val_min;
         beta = new_ab.val_max;
-        auto res = psearch_impl(bd, alpha, beta);
+        auto res = psearch_impl(bd, alpha, beta, ybwc_depth);
         tb[0].update(bd, new_ab, res);
         return res;
       } 
     } else {
-      auto res = psearch_impl(bd, alpha, beta);
+      auto res = psearch_impl(bd, alpha, beta, ybwc_depth);
       tb[0].update(bd, table::Range(alpha, beta), res);
       return res;
     }
   } else {
-    return psearch_impl(bd, alpha, beta);
+    return psearch_nohash(bd, alpha, beta);
   }
 }

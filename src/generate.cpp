@@ -28,7 +28,7 @@ void worker() {
     if (que.empty()) return;
     board bd = que.front(); que.pop();
     ul.unlock();
-    int pt = gs.iddfs(bd);
+    int pt = gs.iddfs(bd, false);
     std::string base81 = bit_manipulations::toBase81(bd);
     std::lock_guard<std::mutex> lg(mtx2);
     std::cout << base81 << ' ' << pt << '\n';
