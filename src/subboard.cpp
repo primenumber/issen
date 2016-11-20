@@ -81,14 +81,17 @@ int to_index_asymmetry(uint64_t black, uint64_t white) {
   return bit_manipulations::toBase3(black, white);
 }
 
-int get_index_horizontal(const board &bd, int index) {
-  int hi = std::min(index, 7-index);
-  return index_begin[hi-1] +
-      to_index(0xFF & (bd.black() >> (index*8)),
+int get_index_horizontal_no_offset(const board &bd, int index) {
+  return to_index(0xFF & (bd.black() >> (index*8)),
           0xFF & (bd.white() >> (index*8)), 8);
 }
 
-int get_index_diagonal(const board &rtbd, int index) {
+int get_index_horizontal(const board &bd, int index) {
+  int hi = std::min(index, 7-index);
+  return index_begin[hi-1] + get_index_horizontal_no_offset(bd, index);
+}
+
+int get_index_diagonal_no_offset(const board &rtbd, int index) {
   uint8_t black_bit, white_bit;
   if (index >= 0) {
     black_bit = (rtbd.black() >> (index*9)) & (0xFF >> index);
@@ -97,8 +100,12 @@ int get_index_diagonal(const board &rtbd, int index) {
     black_bit = (rtbd.black() >> ((8+index)*8)) & (0xFF >> -index);
     white_bit = (rtbd.white() >> ((8+index)*8)) & (0xFF >> -index);
   }
+  return to_index(black_bit, white_bit, 8-std::abs(index));
+}
+
+int get_index_diagonal(const board &rtbd, int index) {
   return index_begin[3 + std::abs(index)] +
-      to_index(black_bit, white_bit, 8-std::abs(index));
+      get_index_diagonal_no_offset(rtbd, index);
 }
 
 // *a****b* -> 000000ab
@@ -111,21 +118,32 @@ uint16_t get_edge_bits(const half_board &bbd) {
   return bit << 1 | get_xbit(bbd >> 8);
 }
 
-int get_index_edge(const board &bd) {
-  return index_begin[8] +
-      to_index(get_edge_bits(bd.black()), get_edge_bits(bd.white()), 10);
+int get_index_edge_no_offset(const board &bd) {
+  return to_index(get_edge_bits(bd.black()), get_edge_bits(bd.white()), 10);
 }
 
-int get_index_corner_3x3(const board &bd) {
-  return index_begin[9] + to_index_diag(
+int get_index_edge(const board &bd) {
+  return index_begin[8] +
+    get_index_edge_no_offset(bd);
+}
+
+int get_index_corner_3x3_no_offset(const board &bd) {
+  return to_index_diag(
       _pext_u64(bd.black(), 0x070707),
       _pext_u64(bd.white(), 0x070707));
 }
 
-int get_index_corner_2x5(const board &bd) {
-  return index_begin[10] + to_index_asymmetry(
+int get_index_corner_3x3(const board &bd) {
+  return index_begin[9] + get_index_corner_3x3_no_offset(bd);
+}
+
+int get_index_corner_2x5_no_offset(const board &bd) {
+  return to_index_asymmetry(
       _pext_u64(bd.black(), 0x1F1F),
       _pext_u64(bd.white(), 0x1F1F));
+}
+int get_index_corner_2x5(const board &bd) {
+  return index_begin[10] + get_index_corner_2x5_no_offset(bd);
 }
 
 std::array<int, 46> serialize(const board &bd) {
