@@ -24,7 +24,7 @@ void ffotest() {
   std::cout << utils::to_s(bd);
   boost::timer::cpu_timer timer;
   GameSolver egs(10000001);
-  int pt = egs.iddfs(bd, true, true);
+  int pt = egs.iddfs(bd, false, true);
   std::cout << pt << std::endl;
   std::cout << timer.format() << std::endl;
 }
@@ -39,7 +39,7 @@ void obftest() {
     bool is_black;
     std::tie(bd, num, is_black) = utils::input_obf();
     std::cerr << "num: " << num << ", sscore: " << value::statistic_value(bd) << std::endl;
-    GameSolver egs(10000001);
+    GameSolver egs(1000001);
     int pt = egs.iddfs(bd);
     if (pt != num) {
       std::cerr << utils::to_s(bd);
@@ -83,22 +83,33 @@ void to_base81(const std::vector<std::string> &args) {
   generator::to_base81(n);
 }
 
+template<typename Container>
+bool has_opt(Container c, std::string s) {
+  return std::count(std::begin(c), std::end(c), s);
+}
+
 int main(int argc, char **argv) {
   utils::init_all();
   std::vector<std::string> args(argc);
   for (int i = 0; i < argc; ++i)
     args[i] = argv[i];
-  if (std::count(std::begin(args), std::end(args), "--ffotest"))
+  if (has_opt(args, "--ffotest"))
     ffotest();
-  else if (std::count(std::begin(args), std::end(args), "--obftest"))
+  else if (has_opt(args, "--obftest"))
     obftest();
-  else if (std::count(std::begin(args), std::end(args), "--gen-score"))
+  else if (has_opt(args, "--gen-score"))
     generate_score(args);
-  else if (std::count(std::begin(args), std::end(args), "--gen-lsprob"))
+  else if (has_opt(args, "--to-base81"))
+    to_base81(args);
+  else if (has_opt(args, "--solve-base81"))
+    generator::solve_81();
+  else if (has_opt(args, "--gen-lsprob2"))
+    sv_gen::generate_lsprob2();
+  else if (has_opt(args, "--gen-lsprob"))
     sv_gen::generate_lsprob();
-  else if (std::count(std::begin(args), std::end(args), "--ggs-parse"))
+  else if (has_opt(args, "--ggs-parse"))
     ggs_archive_parser();
-  else if (std::count(std::begin(args), std::end(args), "--record-view"))
+  else if (has_opt(args, "--record-view"))
     record_view();
   return 0;
 }
