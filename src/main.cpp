@@ -78,6 +78,11 @@ void generate_score(const std::vector<std::string> &args) {
   generator::generate_score(n);
 }
 
+void to_base81(const std::vector<std::string> &args) {
+  int n = std::stoi(args[2]);
+  generator::to_base81(n);
+}
+
 int main(int argc, char **argv) {
   utils::init_all();
   std::vector<std::string> args(argc);
