@@ -21,7 +21,7 @@ $ cmake .
     $ make
     
 ### 評価関数テーブルディレクトリの指定
-    
+
     $ export VAL_PATH=/path/to/value/table/dir
 
 ### 実行
