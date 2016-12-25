@@ -1,0 +1,8 @@
+title: Issen
+description: オセロAIの高速な実装
+google_analytics: 
+show_downloads: true
+theme: jekyll-theme-slate
+
+gems:
+  - jekyll-mentions
