@@ -16,25 +16,30 @@
 namespace value {
 
 std::vector<std::string> files = {
-  "lsval4", "lsval5", "lsval6", "lsval7",
-  "lsval8", "lsval9", "lsval10", "lsval11",
-  "lsval12", "lsval13", "lsval14", "lsval15",
-  "lsval16"};
+  "lsval60", "lsval59", "lsval58", "lsval57",
+  "lsval56", "lsval55", "lsval54", "lsval53",
+  "lsval52", "lsval51", "lsval50", "lsval49",
+  "lsval48", "lsval47"};
 std::vector<std::vector<int16_t>> vals;
 std::vector<int16_t> puttable_coeff;
 std::vector<int16_t> puttable_op_coeff;
 std::vector<int16_t> const_offset;
 
 int val_indeces[60] = {
-   0, 0, 0, 0, 0, 1, 2, 3, 4, 5,
-   6, 7, 8, 9,10,11,12,12,12,12,
-  12,12,12,12,12,12,12,12,12,12,
-  12,12,12,12,12,12,12,12,12,12,
-  12,12,12,12,12,12,12,12,12,12,
-  12,12,12,12,12,12,12,12,12,12};
+   0,  0,  0,  0,  0,  1,  2,  3,  4,  5,
+   6,  7,  8,  9, 10, 11, 12, 13, 13, 13,
+  13, 13, 13, 13, 13, 13, 13, 13, 13, 13,
+  13, 13, 13, 13, 13, 13, 13, 13, 13, 13,
+  13, 13, 13, 13, 13, 13, 13, 13, 13, 13,
+  13, 13, 13, 13, 13, 13, 13, 13, 13, 13};
 
 void load16() {
 }
+
+constexpr int patterns = 13;
+
+std::array<uint64_t, patterns> bits;
+std::array<uint32_t, patterns+1> offset;
 
 void init() {
   int n = files.size();
@@ -43,10 +48,32 @@ void init() {
   puttable_coeff.resize(n);
   puttable_op_coeff.resize(n);
   char *val_dir = std::getenv("VAL_PATH");
+  std::ifstream sb_ifs("subboard.txt");
+  std::string line;
+  uint32_t offset_all = 0;
+  int pow3[13];
+  pow3[0] = 1;
+  for (int i = 0; i < 12; ++i) pow3[i+1] = 3 * pow3[i];
+  for (int i = 0; i < patterns; ++i) {
+    uint64_t bit = 0;
+    for (int j = 0; j < 8; ++j) {
+      std::getline(sb_ifs, line);
+      for (int k = 0; k < 8; ++k) {
+        if (line[k] == 'o') {
+          bit |= UINT64_C(1) << (j*8 + k);
+        }
+      }
+    }
+    bits[i] = bit;
+    offset[i] = offset_all;
+    offset_all += pow3[_popcnt64(bit)];
+    if (i) std::getline(sb_ifs, line);
+  }
+  offset[patterns] = offset_all;
   for (int cnt = 0; cnt < n; ++cnt) {
     std::string val_pos = val_dir == nullptr ? files[cnt] : val_dir + ("/" + files[cnt]);
     std::ifstream ifs(val_pos);
-    for (int i = 0; i <= subboard::index_max; ++i) {
+    for (int i = 0; i < offset_all; ++i) {
       double v = 0;
       ifs >> v;
       vals[cnt].push_back(round(v * 100));
@@ -111,9 +138,8 @@ int num_value(const board & bd) {
 
 int statistic_value (const board &bd) {
   int index = val_indeces[64 - bit_manipulations::stone_sum(bd)];
-  auto indeces = subboard::serialize(bd);
+  auto indeces = subboard::serialize(bd, bits);
   int res = const_offset[index];
-  assert(indeces.size() == 46);
   for (int i : indeces) {
     res += vals[index][i];
   }
