@@ -5,7 +5,7 @@
 class GameSolver {
  public:
   explicit GameSolver(size_t hash_size);
-  int iddfs(const board &, bool parallel_search = true, bool debug = false);
+  int iddfs(const board &, bool parallel_search = true, bool debug = false, bool perfect = true);
  private:
   table::Table tb[2];
   int iddfs(const board &bd, int alpha, int beta, int depth, bool is_pn);
