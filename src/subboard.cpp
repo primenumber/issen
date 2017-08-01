@@ -18,17 +18,19 @@ constexpr std::array<int, 11> stones = {
 
 std::vector<int> index_begin;
 
-constexpr int pow3(int index) {
-  return index ? 3 * pow3(index - 1) : 1;
-}
+uint32_t pow3[13];
 
 void init() {
+  pow3[0] = 1;
+  for (int i = 0; i < 12; ++i) {
+    pow3[i+1] = pow3[i] * 3;
+  }
   index_begin.resize(stones.size());
   index_begin[0] = 0;
   for (int i = 1; i < (int)stones.size(); ++i) {
-    index_begin[i] = index_begin[i-1] + pow3(stones[i-1]);
+    index_begin[i] = index_begin[i-1] + pow3[stones[i-1]];
   }
-  index_max = index_begin.back() + pow3(stones.back()) - 1;
+  index_max = index_begin.back() + pow3[stones.back()] - 1;
 }
 
 uint16_t rev_bit(uint16_t bits, int size) {
