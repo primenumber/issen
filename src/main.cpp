@@ -83,6 +83,11 @@ void to_base81(const std::vector<std::string> &args) {
   generator::to_base81(n);
 }
 
+void solve81(const std::vector<std::string> &args) {
+  int n = std::stoi(args[2]);
+  generator::solve_81(n);
+}
+
 template<typename Container>
 bool has_opt(Container c, std::string s) {
   return std::count(std::begin(c), std::end(c), s);
@@ -102,7 +107,7 @@ int main(int argc, char **argv) {
   else if (has_opt(args, "--to-base81"))
     to_base81(args);
   else if (has_opt(args, "--solve-base81"))
-    generator::solve_81();
+    solve81(args);
   else if (has_opt(args, "--gen-lsprob2"))
     sv_gen::generate_lsprob2();
   else if (has_opt(args, "--gen-lsprob"))
