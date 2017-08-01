@@ -119,12 +119,12 @@ class Table {
   void reset_count() {
     conflict_count = update_count = 0;
   }
+  int32_t range_max = value::VALUE_MAX;
  private:
   EntryArray table;
   size_t hash_size;
   std::hash<board> bd_hash;
  public:
-  int32_t range_max = value::VALUE_MAX;
   uint64_t conflict_count;
   uint64_t update_count;
 };
