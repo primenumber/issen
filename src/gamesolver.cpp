@@ -423,7 +423,7 @@ int GameSolver::psearch_2(const board &bd, int alpha, int beta) {
 
 int GameSolver::psearch_impl(const board &bd, int alpha, int beta, int ybwc_depth) {
   int stones = bit_manipulations::stone_sum(bd);
-  if (stones <= 52 && ybwc_depth) {
+  if (stones <= 50 && ybwc_depth) {
     return psearch_ybwc(bd, alpha, beta, ybwc_depth);
   } else {
     return psearch_ordering(bd, alpha, beta, ybwc_depth);
