@@ -175,8 +175,7 @@ double_board flipDiagA1H8(double_board dbd) {
 board flipDiagA1H8(board bd) {
   __m128i mask1 = _mm_set1_epi16(0x5500);
   __m128i mask2 = _mm_set1_epi32(0x33330000);
-  __m128i mask3 = _mm_set1_epi64(
-      _mm_cvtsi64_m64(UINT64_C(0x0f0f0f0f00000000)));
+  __m128i mask3 = _mm_set1_epi64x(UINT64_C(0x0f0f0f0f00000000));
   __m128i data = delta_swap(bd, mask3, 28);
   data = delta_swap(data, mask2, 14);
   return board(delta_swap(data, mask1, 7));
