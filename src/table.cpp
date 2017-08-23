@@ -37,7 +37,10 @@ void Table::update(
       }
       e.set_range(r);
     } else {
-      if (!(e.get_board() == board::empty_board())) ++conflict_count;
+      if (!(e.get_board() == board::empty_board())) {
+        ++conflict_count;
+        if (bit_manipulations::stone_sum(e.get_board()) < bit_manipulations::stone_sum(bd)) return;
+      }
       Range r(-range_max, range_max);
       if (value >= range.val_max) {
         r.update_min(value);
