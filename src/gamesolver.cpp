@@ -73,7 +73,7 @@ bool GameSolver::iddfs_ordering_impl(
     const auto &next = *itr;
     if (!first) {
       result = std::max(result,
-          -iddfs(get_board(next), -alpha-1, -alpha, depth-200, false));
+          -iddfs(get_board(next), -alpha-1, -alpha, depth-100, false));
       if (result >= beta) return true;
       if (result <= alpha) continue;
       alpha = result;
@@ -81,7 +81,7 @@ bool GameSolver::iddfs_ordering_impl(
       first = false;
     }
     result = std::max(result,
-        -iddfs(get_board(next), -beta, -alpha, depth-(first?50:200), is_pn && first));
+        -iddfs(get_board(next), -beta, -alpha, depth-(first?param.iddfs_pv_extension:100), is_pn && first));
     if (result >= beta) {
       return true;
     }
