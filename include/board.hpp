@@ -82,7 +82,7 @@ template<>
 struct hash<board> {
  public:
   size_t operator()(const board &bd) const {
-    return bd.black() + bd.white() * 17;
+    return _bswap64(bd.black()) + bd.white() * 17;
   }
 };
 
