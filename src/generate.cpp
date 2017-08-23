@@ -95,7 +95,8 @@ void solver(const std::vector<board> &vb, std::vector<int> &result, std::stack<i
     int i = stack.top();
     stack.pop();
     lk.unlock();
-    result[i] = gs.iddfs(vb[i], false, false, false);
+    GameSolverParam param = {false, false, true, 50};
+    result[i] = gs.solve(vb[i], param);
   }
 }
 
