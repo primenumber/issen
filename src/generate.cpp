@@ -78,7 +78,7 @@ void generate_score(int m) {
   }
   std::cout << que.size() << std::endl;
   std::vector<std::thread> vt;
-  for (int i = 0; i < std::thread::hardware_concurrency(); ++i) {
+  for (size_t i = 0; i < std::thread::hardware_concurrency(); ++i) {
     vt.emplace_back(worker);
   }
   for (auto &&th : vt) {
@@ -112,19 +112,19 @@ void solve_81(int depth) {
     board bd = bit_manipulations::toBoard(base81);
     auto desc = expand_desc(bd, depth);
     vb.insert(std::end(vb), std::begin(desc), std::end(desc));
-    for (int j = 0; j < desc.size(); ++j) {
+    for (size_t j = 0; j < desc.size(); ++j) {
       stack.push(cnt++);
     }
   }
   std::vector<int> result(vb.size());
   std::vector<std::thread> vt;
-  for (int i = 0; i < std::thread::hardware_concurrency(); ++i) {
+  for (size_t i = 0; i < std::thread::hardware_concurrency(); ++i) {
     vt.emplace_back(solver, std::cref(vb), std::ref(result), std::ref(stack));
   }
   for (auto &&th : vt) {
     th.join();
   }
-  for (int i = 0; i < vb.size(); ++i) {
+  for (size_t i = 0; i < vb.size(); ++i) {
     std::cout << bit_manipulations::toBase81(vb[i]) << ' ' << result[i] << '\n';
   }
   std::cout << std::flush;
