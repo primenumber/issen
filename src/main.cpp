@@ -1,7 +1,9 @@
+#include <algorithm>
 #include <iostream>
 #include <string>
 #include <tuple>
 #include <vector>
+#include <random>
 
 #include <boost/timer/timer.hpp>
 
@@ -51,6 +53,34 @@ void obftest() {
   }
   std::cout << "fail: " << fail << std::endl;
   std::cout << timer.format() << std::endl;
+}
+
+void check_score() {
+  int n;
+  std::cin >> n;
+  GameSolver egs(257);
+  std::vector<std::pair<std::string, int>> vp;
+  for (int i = 0; i < n; ++i) {
+    std::string b81;
+    int score;
+    std::cin >> b81 >> score;
+    vp.emplace_back(b81, score);
+  }
+  std::random_device rd;
+  std::mt19937 mt(rd());
+  std::shuffle(std::begin(vp), std::end(vp), mt);
+  for (int i = 0; i < n; ++i) {
+    std::string b81;
+    int score;
+    std::tie(b81, score) = vp[i];
+    GameSolverParam param = {false, false, true, 50};
+    int pt = egs.solve(bit_manipulations::toBoard(b81), param);
+    if (pt != score) {
+      std::cerr << i << ' ' << b81 << ' ' << pt << ' ' << score << std::endl;
+    }
+    if ((i % 1000) == 0) std::cerr << '.';
+  }
+  std::cerr << "end" << std::endl;
 }
 
 void record_view() {
@@ -110,6 +140,8 @@ int main(int argc, char **argv) {
     to_base81(args);
   else if (has_opt(args, "--solve-base81"))
     solve81(args);
+  else if (has_opt(args, "--check-base81"))
+    check_score();
   else if (has_opt(args, "--gen-lsprob2"))
     sv_gen::generate_lsprob2();
   else if (has_opt(args, "--gen-lsprob"))
