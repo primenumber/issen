@@ -101,6 +101,7 @@ void solver(const std::vector<board> &vb, std::vector<int> &result, std::stack<i
 }
 
 void solve_81(int depth) {
+  std::ios::sync_with_stdio(false);
   int n;
   std::cin >> n;
   std::vector<board> vb;
