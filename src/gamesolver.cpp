@@ -15,25 +15,26 @@ std::atomic<uint64_t> nodes(0);
 GameSolver::GameSolver(size_t hash_size)
     : tb{table::Table(hash_size), table::Table(hash_size)} {}
 
-int GameSolver::iddfs(const board &bd, bool parallel_search, bool debug, bool perfect) {
+int GameSolver::solve(const board &bd, const GameSolverParam solver_param) {
+  param = solver_param;
   nodes = 0;
   int rem_stones = 64 - bit_manipulations::stone_sum(bd);
   int res = 0;
-  for (int depth = 1200; depth <= rem_stones * 100; depth += 200) {
+  for (int depth = std::min(rem_stones * param.iddfs_pv_extension, 1000); depth <= rem_stones * 50; depth += 100) {
     tb[0].clear();
-    if (debug) std::cerr << "depth: " << (depth/100) << std::endl;
+    if (param.debug) std::cerr << "depth: " << (depth/100) << std::endl;
     res = iddfs(bd, -value::VALUE_MAX, value::VALUE_MAX, depth, true);
-    if (debug) std::cerr << res << std::endl;
+    if (param.debug) std::cerr << res << std::endl;
     std::swap(tb[0], tb[1]);
   }
-  if (!perfect) {
+  if (!param.perfect) {
     return res / 100;
   }
-  if (debug) std::cerr << "full search" << std::endl;
   tb[0].range_max = 64;
   tb[0].clear();
-  res = psearch(bd, -64, 64, parallel_search ? 2 : 0);
-  if (debug) {
+  if (param.debug) std::cerr << "full search" << std::endl;
+  res = psearch(bd, -64, 64, param.parallel_search ? 2 : 0);
+  if (param.debug) {
     std::cerr << "nodes total: " << nodes.load() << std::endl;
     std::cerr << "hash update: " << (tb[0].update_num() + tb[1].update_num()) << std::endl;
     std::cerr << "hash conflict: " << (tb[0].conflict_num() + tb[1].conflict_num()) << std::endl;

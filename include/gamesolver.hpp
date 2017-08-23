@@ -2,12 +2,22 @@
 #include "board.hpp"
 #include "table.hpp"
 
+struct GameSolverParam {
+  bool parallel_search;
+  bool debug;
+  bool perfect;
+  int iddfs_pv_extension = 50;
+};
+
+constexpr GameSolverParam solve_perfect = {false, false, true, 50};
+
 class GameSolver {
  public:
   explicit GameSolver(size_t hash_size);
-  int iddfs(const board &, bool parallel_search = true, bool debug = false, bool perfect = true);
+  int solve(const board &, const GameSolverParam solver_param);
  private:
   table::Table tb[2];
+  GameSolverParam param;
   int iddfs(const board &bd, int alpha, int beta, int depth, bool is_pn);
   template <typename InputIt>
   bool iddfs_ordering_impl(InputIt next_first, InputIt next_last,

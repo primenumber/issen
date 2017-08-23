@@ -29,7 +29,8 @@ void worker() {
     if (que.empty()) return;
     board bd = que.front(); que.pop();
     ul.unlock();
-    int pt = gs.iddfs(bd, false, false, false);
+    GameSolverParam param = {false, false, false, 50};
+    int pt = gs.solve(bd, param);
     std::string base81 = bit_manipulations::toBase81(bd);
     std::lock_guard<std::mutex> lg(mtx2);
     std::cout << base81 << ' ' << pt << '\n';
