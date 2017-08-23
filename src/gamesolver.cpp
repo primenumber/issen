@@ -139,7 +139,7 @@ int GameSolver::iddfs_impl(
   if (stones < 60) {
     return iddfs_ordering(bd, alpha, beta, depth, is_pn);
   } else {
-    return psearch_impl(bd, alpha, beta, is_pn);
+    return psearch_impl(bd, alpha, beta, is_pn) * 100;
   }
 }
 
