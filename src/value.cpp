@@ -67,12 +67,13 @@ void init() {
     bits[i] = bit;
     offset[i] = offset_all;
     offset_all += pow3[_popcnt64(bit)];
-    if (i) std::getline(sb_ifs, line);
+    if (i != patterns - 1) std::getline(sb_ifs, line);
   }
   offset[patterns] = offset_all;
   for (int cnt = 0; cnt < n; ++cnt) {
     std::string val_pos = val_dir == nullptr ? files[cnt] : val_dir + ("/" + files[cnt]);
     std::ifstream ifs(val_pos);
+    if (!ifs) std::cerr << "cannot open file: " << val_pos << std::endl;
     for (int i = 0; i < offset_all; ++i) {
       double v = 0;
       ifs >> v;
