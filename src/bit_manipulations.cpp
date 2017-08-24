@@ -4,7 +4,7 @@
 
 namespace bit_manipulations {
 
-constexpr int base3_bits = 10;
+constexpr int base3_bits = 12;
 constexpr int base3_size = 1 << base3_bits;
 alignas(32) uint16_t base3[base3_size];
 
