@@ -20,7 +20,7 @@ int GameSolver::solve(const board &bd, const GameSolverParam solver_param) {
   nodes = 0;
   int rem_stones = 64 - bit_manipulations::stone_sum(bd);
   int res = 0;
-  for (int depth = std::min(rem_stones * param.iddfs_pv_extension, 1000); depth <= rem_stones * 50; depth += 100) {
+  for (int depth = std::min(rem_stones * param.iddfs_pv_extension, 1000); depth <= rem_stones * 100 - 1200; depth += 100) {
     tb[0].clear();
     if (param.debug) std::cerr << "depth: " << (depth/100) << std::endl;
     res = iddfs(bd, -value::VALUE_MAX, value::VALUE_MAX, depth, true);
