@@ -26,7 +26,7 @@ void ffotest() {
   std::cout << utils::to_s(bd);
   boost::timer::cpu_timer timer;
   GameSolver egs(10000001);
-  GameSolverParam param = {false, true, true, 25};
+  GameSolverParam param = {true, true, true, 25};
   int pt = egs.solve(bd, param);
   std::cout << pt << std::endl;
   std::cout << timer.format() << std::endl;
