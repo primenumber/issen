@@ -63,7 +63,7 @@ class GameSolver {
   int psearch(const board &bd, int alpha, int beta, const YBWC_Type type);
   int psearch_nohash(const board &bd, int alpha, int beta);
   int psearch_impl(const board &bd, int alpha, int beta, const YBWC_Type type);
-  int null_window_search_impl(const board &bd, int alpha, int beta, int result, const YBWC_Type type);
+  int null_window_search_impl(const board &bd, int alpha, int beta, const YBWC_Type type);
   int psearch_ybwc(const board &bd, int alpha, int beta, const YBWC_Type type);
   template <typename InputIt>
   bool psearch_ordering_impl(InputIt next_first, InputIt next_last,

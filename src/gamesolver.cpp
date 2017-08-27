@@ -202,6 +202,15 @@ bool GameSolver::psearch_ordering_impl(
   return false;
 }
 
+int GameSolver::null_window_search_impl(const board &bd, int alpha, int beta, const YBWC_Type type) {
+  int result = -psearch(bd, -alpha-1, -alpha, type);
+  if (result >= beta) return result;
+  if (result >= alpha) {
+    result = -psearch(bd, -beta, -result, type);
+  }
+  return result;
+}
+
 int GameSolver::psearch_ybwc(const board &bd, int alpha, int beta, const YBWC_Type type) {
   std::array<board, 60> next_buffer;
   int puttable_count = state::next_states(bd, next_buffer);
@@ -249,11 +258,11 @@ int GameSolver::psearch_ybwc(const board &bd, int alpha, int beta, const YBWC_Ty
   std::vector<std::future<int>> vf;
   for (int i = seq_count; i < puttable_count; ++i) {
     vf.push_back(std::async(
-          std::launch::async, &GameSolver::psearch, this, std::get<3>(nexts[i]), -beta, -alpha,
+          std::launch::async, &GameSolver::null_window_search_impl, this, std::get<3>(nexts[i]), alpha, beta,
           (i ? uneldest_child(type) : eldest_child(type)) ));
   }
   for (auto &&f : vf) {
-    result = std::max(result, -f.get());
+    result = std::max(result, f.get());
   }
   return result;
 }
