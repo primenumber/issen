@@ -133,7 +133,7 @@ int num_value(const board & bd) {
   return 100 * fixed_diff_num(bd);
 }
 
-int statistic_value (const board &bd) {
+int statistic_value_impl(const board bd) {
   int index = val_indeces[64 - bit_manipulations::stone_sum(bd)];
   auto indeces = subboard::serialize(bd, bits);
   int res = const_offset[index];
@@ -143,6 +143,20 @@ int statistic_value (const board &bd) {
   res += state::puttable_black_count(bd) * puttable_coeff[index];
   res += state::puttable_black_count(board::reverse_board(bd)) * puttable_op_coeff[index];
   return std::max(-6400, std::min(6400, res));
+}
+
+int statistic_value (const board &bd) {
+  int pcnt = state::puttable_black_count(bd);
+  if (pcnt == 0) {
+    pcnt = state::puttable_black_count(bd);
+    if (pcnt == 0) {
+      return num_value(bd);
+    } else {
+      return -statistic_value_impl(board::reverse_board(bd));
+    }
+  } else {
+    return statistic_value_impl(bd);
+  }
 }
 
 } // namespace value
