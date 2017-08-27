@@ -69,4 +69,8 @@ uint64_t puttable_black(const board &bd) {
       puttable_black_diag(bd)) & ~bm::stones(bd);
 }
 
+int puttable_black_count(const board &bd) {
+  return _popcnt64(puttable_black(bd));
+}
+
 } // namespace state

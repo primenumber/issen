@@ -7,6 +7,7 @@
 namespace state {
 
 uint64_t puttable_black(const board &);
+int puttable_black_count(const board &);
 bool is_gameover(const board &);
 board put_black_at(const board &, int);
 board put_black_at(const board &, int, int);

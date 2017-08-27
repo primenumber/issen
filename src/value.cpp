@@ -125,10 +125,6 @@ int puttable_diff(const board &bd) {
   return b - w;
 }
 
-int puttable_black_count(const board &bd) {
-  return _popcnt64(state::puttable_black(bd));
-}
-
 int value(const board & bd) {
   return statistic_value(bd);
 }
@@ -144,8 +140,8 @@ int statistic_value (const board &bd) {
   for (int i : indeces) {
     res += vals[index][i];
   }
-  res += puttable_black_count(bd) * puttable_coeff[index];
-  res += puttable_black_count(board::reverse_board(bd)) * puttable_op_coeff[index];
+  res += state::puttable_black_count(bd) * puttable_coeff[index];
+  res += state::puttable_black_count(board::reverse_board(bd)) * puttable_op_coeff[index];
   return std::max(-6400, std::min(6400, res));
 }
 

@@ -11,6 +11,7 @@
 #include "utils.hpp"
 #include "subboard.hpp"
 #include "value.hpp"
+#include "state.hpp"
 #include "bit_manipulations.hpp"
 
 namespace sv_gen {
@@ -28,8 +29,8 @@ void generate_lsprob() {
       std::cout << i << ' ' << index << ' ' << 1 << '\n';
     }
     int offset = subboard::index_max+1;
-    std::cout << i << ' ' << offset << ' ' << value::puttable_black_count(bd) << '\n';
-    std::cout << i << ' ' << (offset+1) << ' ' << value::puttable_black_count(board::reverse_board(bd)) << '\n';
+    std::cout << i << ' ' << offset << ' ' << state::puttable_black_count(bd) << '\n';
+    std::cout << i << ' ' << (offset+1) << ' ' << state::puttable_black_count(board::reverse_board(bd)) << '\n';
     std::cout << i << ' ' << (offset+2) << ' ' << 1 << '\n';
     std::cin>>res[i];
   }
@@ -61,8 +62,8 @@ void lsprob2_worker(const int n, const int stride, const int offset) {
     for (int index : v) {
       ss_out << index << ' ';
     }
-    int pt_p = value::puttable_black_count(bd);
-    int pt_o = value::puttable_black_count(board::reverse_board(bd));
+    int pt_p = state::puttable_black_count(bd);
+    int pt_o = state::puttable_black_count(board::reverse_board(bd));
     ss_out << pt_p << ' '
         << pt_o << ' '
         << score << '\n';

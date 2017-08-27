@@ -110,7 +110,7 @@ int GameSolver::iddfs_ordering(
   if (stone_sum > 54) {
     for (int i = 0; i < puttable_count; ++i) {
       const auto &next = next_buffer[i];
-      out_hash[count_out++] = std::make_tuple(_popcnt64(state::puttable_black(next)), next);
+      out_hash[count_out++] = std::make_tuple(state::puttable_black_count(next), next);
     }
   } else {
     for (int i = 0; i < puttable_count; ++i) {
@@ -118,7 +118,7 @@ int GameSolver::iddfs_ordering(
       if (auto val_opt = tb[1][next]) {
         in_hash[count_in++] = std::make_tuple(val_opt->val_max, val_opt->val_min, next);
       } else {
-        out_hash[count_out++] = std::make_tuple(_popcnt64(state::puttable_black(next)), next);
+        out_hash[count_out++] = std::make_tuple(state::puttable_black_count(next), next);
       }
     }
   }
@@ -226,7 +226,7 @@ int GameSolver::psearch_ybwc(const board &bd, int alpha, int beta, const YBWC_Ty
   int count_in = 0;
   for (int i = 0; i < puttable_count; ++i) {
     const auto &next = next_buffer[i];
-    int pcnt = _popcnt64(state::puttable_black(next));
+    int pcnt = state::puttable_black_count(next);
     if (auto val_opt = tb[1][next]) {
       nexts[i] = std::make_tuple(val_opt->val_max, val_opt->val_min, pcnt, next);
       ++count_in;
@@ -287,7 +287,7 @@ int GameSolver::psearch_ordering(const board &bd, int alpha, int beta, const YBW
     if (auto val_opt = tb[1][next]) {
       in_hash[count_in++] = std::make_tuple(val_opt->val_max, val_opt->val_min, next);
     } else {
-      out_hash[count_out++] = std::make_tuple(_popcnt64(state::puttable_black(next)), next);
+      out_hash[count_out++] = std::make_tuple(state::puttable_black_count(next), next);
     }
   }
   int result = -64; // fail soft
