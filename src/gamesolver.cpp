@@ -10,6 +10,16 @@
 #include "bit_manipulations.hpp"
 
 constexpr int psearch_ordering_th = 57;
+constexpr int ONE_PLY = 64;
+int reduction_table[2][8] = {
+  {64, 72, 80, 88, 96,104,112,120},
+  {32, 64, 64, 64, 64, 64, 64, 64}
+};
+
+template <bool is_PV>
+int reduction(int move_count) {
+  return reduction_table[is_PV][std::min(move_count, 7)];
+}
 
 std::atomic<uint64_t> nodes(0);
 GameSolver::GameSolver(size_t hash_size)
@@ -20,10 +30,10 @@ int GameSolver::solve(const board &bd, const GameSolverParam solver_param) {
   nodes = 0;
   rem_stones = 64 - bit_manipulations::stone_sum(bd);
   int res = 0;
-  for (int depth = std::min(rem_stones * param.iddfs_pv_extension, 1000); depth <= rem_stones * 100 - 1200; depth += 100) {
+  for (int depth = std::min(rem_stones * reduction<true>(0), ONE_PLY * 10); depth <= (rem_stones - 8) * ONE_PLY; depth += ONE_PLY) {
     tb[0].clear();
-    if (param.debug) std::cerr << "depth: " << (depth/100) << std::endl;
-    res = iddfs(bd, -value::VALUE_MAX, value::VALUE_MAX, depth, true);
+    if (param.debug) std::cerr << "depth: " << (depth/ONE_PLY) << std::endl;
+    res = iddfs<true>(bd, -value::VALUE_MAX, value::VALUE_MAX, depth);
     if (param.debug) std::cerr << res << std::endl;
     std::swap(tb[0], tb[1]);
   }
@@ -62,36 +72,38 @@ board get_board(const std::tuple<int, int, board> &t) {
   return std::get<2>(t);
 }
 
-template <typename InputIt>
+template <typename InputIt, bool is_PV>
 bool GameSolver::iddfs_ordering_impl(
     InputIt next_first, InputIt next_last,
     int &alpha, int beta, int &result,
-    int depth, bool is_pn, bool &first) {
+    int depth, int &count) {
   using T = typename std::iterator_traits<InputIt>::value_type;
   std::sort(next_first, next_last, (bool(*)(const T&, const T&))order_impl);
-  for (auto itr = next_first; itr != next_last; ++itr) {
+  auto itr = next_first;
+  if (itr == next_last) return false;
+  if (count == 0) {
     const auto &next = *itr;
-    if (!first) {
-      result = std::max(result,
-          -iddfs(get_board(next), -alpha-1, -alpha, depth-100, false));
-      if (result >= beta) return true;
-      if (result <= alpha) continue;
-      alpha = result;
-    } else {
-      first = false;
-    }
-    result = std::max(result,
-        -iddfs(get_board(next), -beta, -alpha, depth-(first?param.iddfs_pv_extension:100), is_pn && first));
-    if (result >= beta) {
-      return true;
-    }
+    result = std::max(result, -iddfs<is_PV>(get_board(next), -beta, -alpha, depth-reduction<is_PV>(0)));
+    ++count;
+    if (result >= beta) return true;
+    alpha = std::max(alpha, result);
+    ++itr;
+  }
+  for (; itr != next_last; ++itr, ++count) {
+    const auto &next = *itr;
+    result = std::max(result, -iddfs<false>(get_board(next), -alpha-1, -alpha, depth-reduction<false>(count)));
+    if (result >= beta) return true;
+    if (result <= alpha) continue;
+    alpha = result;
+    result = std::max(result, -iddfs<false>(get_board(next), -beta, -alpha, depth-reduction<false>(count)));
+    if (result >= beta) return true;
     alpha = std::max(alpha, result);
   }
   return false;
 }
 
-int GameSolver::iddfs_ordering(
-    const board &bd, int alpha, int beta, int depth, bool is_pn) {
+template <bool is_PV> int GameSolver::iddfs_ordering(
+    const board &bd, int alpha, int beta, int depth) {
   int stone_sum = bit_manipulations::stone_sum(bd);
   std::array<board, 60> next_buffer;
   int puttable_count = state::next_states(bd, next_buffer);
@@ -100,7 +112,7 @@ int GameSolver::iddfs_ordering(
     if (state::puttable_black(rev_bd) == 0) {
       return value::num_value(bd);
     } else {
-      return -iddfs(rev_bd, -beta, -alpha, depth, is_pn);
+      return -iddfs<is_PV>(rev_bd, -beta, -alpha, depth);
     }
   }
   std::array<std::tuple<int, int, board>, 60> in_hash;
@@ -123,28 +135,28 @@ int GameSolver::iddfs_ordering(
     }
   }
   int result = -value::VALUE_MAX; // fail soft
-  bool first = true;
-  if (iddfs_ordering_impl(std::begin(in_hash), std::begin(in_hash) + count_in,
-        alpha, beta, result, depth, is_pn, first))
+  int count = 0;
+  if (iddfs_ordering_impl<decltype(std::begin(in_hash)), is_PV>(std::begin(in_hash), std::begin(in_hash) + count_in,
+        alpha, beta, result, depth, count))
     return result;
   alpha = std::max(alpha, result);
-  iddfs_ordering_impl(std::begin(out_hash), std::begin(out_hash) + count_out,
-      alpha, beta, result, depth, is_pn, first);
+  iddfs_ordering_impl<decltype(std::begin(out_hash)), is_PV>(std::begin(out_hash), std::begin(out_hash) + count_out,
+      alpha, beta, result, depth, count);
   return result;
 }
 
-int GameSolver::iddfs_impl(
-    const board &bd, int alpha, int beta, int depth, bool is_pn) {
+template <bool is_PV> int GameSolver::iddfs_impl(
+    const board &bd, int alpha, int beta, int depth) {
   int stones = bit_manipulations::stone_sum(bd);
   if (stones < 60) {
-    return iddfs_ordering(bd, alpha, beta, depth, is_pn);
+    return iddfs_ordering<is_PV>(bd, alpha, beta, depth);
   } else {
     return psearch_impl(bd, alpha, beta, YBWC_Type::NoYBWC) * 100;
   }
 }
 
-int GameSolver::iddfs(
-    const board &bd, int alpha, int beta, int depth, bool is_pn) {
+template <bool is_PV> int GameSolver::iddfs(
+    const board &bd, int alpha, int beta, int depth) {
   ++nodes;
   int stones = bit_manipulations::stone_sum(bd);
   if (depth <= 0) {
@@ -161,17 +173,17 @@ int GameSolver::iddfs(
         table::Range new_ab = cache && table::Range(alpha, beta);
         alpha = new_ab.val_min;
         beta = new_ab.val_max;
-        auto res = iddfs_impl(bd, alpha, beta, depth, is_pn);
+        auto res = iddfs_impl<is_PV>(bd, alpha, beta, depth);
         tb[0].update(bd, new_ab, res);
         return res;
       } 
     } else {
-      auto res = iddfs_impl(bd, alpha, beta, depth, is_pn);
+      auto res = iddfs_impl<is_PV>(bd, alpha, beta, depth);
       tb[0].update(bd, table::Range(alpha, beta), res);
       return res;
     }
   } else {
-    return iddfs_impl(bd, alpha, beta, depth, is_pn);
+    return iddfs_impl<is_PV>(bd, alpha, beta, depth);
   }
 }
 

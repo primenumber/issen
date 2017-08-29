@@ -29,7 +29,7 @@ void worker() {
     if (que.empty()) return;
     board bd = que.front(); que.pop();
     ul.unlock();
-    GameSolverParam param = {false, false, false, 50};
+    GameSolverParam param = {false, false, false};
     int pt = gs.solve(bd, param);
     std::string base81 = bit_manipulations::toBase81(bd);
     std::lock_guard<std::mutex> lg(mtx2);
@@ -95,7 +95,7 @@ void solver(const std::vector<board> &vb, std::vector<int> &result, std::stack<i
     int i = stack.top();
     stack.pop();
     lk.unlock();
-    GameSolverParam param = {false, false, true, 50};
+    GameSolverParam param = {false, false, true};
     result[i] = gs.solve(vb[i], param);
   }
 }
@@ -131,27 +131,38 @@ void solve_81(int depth) {
   std::cout << std::flush;
 }
 
+hand to_hand_500k(const std::string str) {
+  int i = str[1] - '1';
+  int j = str[0] - 'A';
+  return i * 8 + j;
+}
+
 void to_base81(int m) {
+  std::ios::sync_with_stdio(false);
   board init = board::initial_board();//= utils::input_ffo().first;
   int n;
   std::cin >> n;
-  std::cout << n << std::endl;
+  GameSolver gs(10001);
   for (int i = 0; i < n; ++i) {
     board bd = init;
     std::string record;
-    std::cin >> record;
+    int score;
+    std::cin >> record >> score;
     int l = record.size()/2;
     for (int j = 0; j < l; ++j) {
-      if (64 - bit_manipulations::stone_sum(bd) == m &&
-          state::puttable_black(bd)) {
+      if (state::puttable_black(bd) == 0) {
+        bd = board::reverse_board(bd);
+      }
+      if (64 - bit_manipulations::stone_sum(bd) == m) {
         std::cout << bit_manipulations::toBase81(bd) << '\n';
         break;
       }
-      hand h = to_hand(record.substr(j*2, 2));
-      if (h != PASS)
-        bd = state::put_black_at_rev(bd, h/8, h%8);
-      else
-        bd = board::reverse_board(bd);
+      hand h = to_hand_500k(record.substr(j*2, 2));
+      uint64_t puttable = state::puttable_black(bd);
+      if (((puttable >> h) & 1) == 0) {
+        break;
+      }
+      bd = state::put_black_at_rev(bd, h);
     }
   }
 }

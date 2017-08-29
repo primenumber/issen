@@ -2,14 +2,14 @@
 #include "board.hpp"
 #include "table.hpp"
 
+
 struct GameSolverParam {
   bool parallel_search;
   bool debug;
   bool perfect;
-  int iddfs_pv_extension = 50;
 };
 
-constexpr GameSolverParam solve_perfect = {false, false, true, 50};
+constexpr GameSolverParam solve_perfect = {false, false, true};
 
 enum class YBWC_Type {
   Type1,
@@ -54,12 +54,12 @@ class GameSolver {
   table::Table tb[2];
   GameSolverParam param;
   int rem_stones;
-  int iddfs(const board &bd, int alpha, int beta, int depth, bool is_pn);
-  template <typename InputIt>
+  template <bool is_PV> int iddfs(const board &bd, int alpha, int beta, int depth);
+  template <typename InputIt, bool is_PV>
   bool iddfs_ordering_impl(InputIt next_first, InputIt next_last,
-      int &alpha, int beta, int &result, int depth, bool is_pn, bool &first);
-  int iddfs_ordering(const board &bd, int alpha, int beta, int depth, bool is_pn);
-  int iddfs_impl(const board &bd, int alpha, int beta, int depth, bool is_pn);
+      int &alpha, int beta, int &result, int depth, int &count);
+  template <bool is_PV> int iddfs_ordering(const board &bd, int alpha, int beta, int depth);
+  template <bool is_PV> int iddfs_impl(const board &bd, int alpha, int beta, int depth);
   int psearch(const board &bd, int alpha, int beta, const YBWC_Type type);
   int psearch_nohash(const board &bd, int alpha, int beta);
   int psearch_impl(const board &bd, int alpha, int beta, const YBWC_Type type);

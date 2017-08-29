@@ -26,7 +26,7 @@ void ffotest() {
   std::cout << utils::to_s(bd);
   boost::timer::cpu_timer timer;
   GameSolver egs(10000001);
-  GameSolverParam param = {true, true, true, 25};
+  GameSolverParam param = {true, true, true};
   int pt = egs.solve(bd, param);
   std::cout << pt << std::endl;
   std::cout << timer.format() << std::endl;
@@ -43,7 +43,7 @@ void obftest() {
     bool is_black;
     std::tie(bd, num, is_black) = utils::input_obf();
     std::cerr << "num: " << num << ", sscore: " << value::statistic_value(bd) << std::endl;
-    GameSolverParam param = {false, false, true, 50};
+    GameSolverParam param = {false, false, true};
     int pt = egs.solve(bd, param);
     if (pt != num) {
       std::cerr << utils::to_s(bd);
@@ -73,7 +73,7 @@ void check_score() {
     std::string b81;
     int score;
     std::tie(b81, score) = vp[i];
-    GameSolverParam param = {false, false, true, 50};
+    GameSolverParam param = {false, false, true};
     int pt = egs.solve(bit_manipulations::toBoard(b81), param);
     if (pt != score) {
       std::cerr << i << ' ' << b81 << ' ' << pt << ' ' << score << std::endl;
