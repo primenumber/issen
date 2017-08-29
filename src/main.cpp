@@ -120,6 +120,14 @@ void solve81(const std::vector<std::string> &args) {
   generator::solve_81(n);
 }
 
+void think(const std::vector<std::string> &args) {
+  board bd = bit_manipulations::toBoard(args[2]);
+  std::cerr << utils::to_s(bd) << std::flush;
+  GameSolver gs(1000001);
+  hand h = gs.think(bd, {true, true, false}, 14);
+  std::cout << to_s(h) << std::endl;
+}
+
 template<typename Container>
 bool has_opt(Container c, std::string s) {
   return std::count(std::begin(c), std::end(c), s);
@@ -150,5 +158,7 @@ int main(int argc, char **argv) {
     ggs_archive_parser();
   else if (has_opt(args, "--record-view"))
     record_view();
+  else if (has_opt(args, "--think"))
+    think(args);
   return 0;
 }

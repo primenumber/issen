@@ -21,9 +21,52 @@ int reduction(int move_count) {
   return reduction_table[is_PV][std::min(move_count, 7)];
 }
 
+bool order_impl(const std::tuple<int, board> &lhs,
+    const std::tuple<int, board> &rhs) {
+  using std::get;
+  return get<0>(lhs) < get<0>(rhs);
+}
+
+bool order_impl(const std::tuple<int, int, board> &lhs,
+    const std::tuple<int, int, board> &rhs) {
+  using std::get;
+  return get<0>(lhs) == get<0>(rhs) ? get<1>(lhs) < get<1>(rhs) : get<0>(lhs) < get<0>(rhs);
+}
+
+board get_board(const std::tuple<int, board> &t) {
+  return std::get<1>(t);
+}
+
+board get_board(const std::tuple<int, int, board> &t) {
+  return std::get<2>(t);
+}
+
 std::atomic<uint64_t> nodes(0);
 GameSolver::GameSolver(size_t hash_size)
     : tb{table::Table(hash_size), table::Table(hash_size)} {}
+
+hand GameSolver::think(const board &bd, const GameSolverParam solver_param, int depth_max) {
+  param = solver_param;
+  nodes = 0;
+  rem_stones = 64 - bit_manipulations::stone_sum(bd);
+  for (int depth = 6 * ONE_PLY; depth <= depth_max * ONE_PLY; depth += ONE_PLY) {
+    tb[0].clear();
+    if (param.debug) std::cerr << "depth: " << (depth/ONE_PLY) << std::endl;
+    int res = iddfs<true>(bd, -value::VALUE_MAX, value::VALUE_MAX, depth);
+    if (param.debug) std::cerr << res << std::endl;
+    std::swap(tb[0], tb[1]);
+  }
+  std::tuple<int, int, board> mx(value::VALUE_MAX, value::VALUE_MAX, bd);
+  for (const auto &next : state::next_states(bd)) {
+    if (auto val_opt = tb[1][next]) {
+      auto t = std::make_tuple(val_opt->val_max, val_opt->val_min, next);
+      if (order_impl(t, mx)) {
+        mx = t;
+      }
+    }
+  }
+  return hand_from_diff(bd, std::get<2>(mx));
+}
 
 int GameSolver::solve(const board &bd, const GameSolverParam solver_param) {
   param = solver_param;
@@ -50,26 +93,6 @@ int GameSolver::solve(const board &bd, const GameSolverParam solver_param) {
     std::cerr << "hash conflict: " << (tb[0].conflict_num() + tb[1].conflict_num()) << std::endl;
   }
   return res;
-}
-
-bool order_impl(const std::tuple<int, board> &lhs,
-    const std::tuple<int, board> &rhs) {
-  using std::get;
-  return get<0>(lhs) < get<0>(rhs);
-}
-
-bool order_impl(const std::tuple<int, int, board> &lhs,
-    const std::tuple<int, int, board> &rhs) {
-  using std::get;
-  return get<0>(lhs) == get<0>(rhs) ? get<1>(lhs) < get<1>(rhs) : get<0>(lhs) < get<0>(rhs);
-}
-
-board get_board(const std::tuple<int, board> &t) {
-  return std::get<1>(t);
-}
-
-board get_board(const std::tuple<int, int, board> &t) {
-  return std::get<2>(t);
 }
 
 template <typename InputIt, bool is_PV>
