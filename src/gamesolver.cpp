@@ -45,7 +45,7 @@ std::atomic<uint64_t> nodes(0);
 GameSolver::GameSolver(size_t hash_size)
     : tb{table::Table(hash_size), table::Table(hash_size)} {}
 
-hand GameSolver::think(const board &bd, const GameSolverParam solver_param, int depth_max) {
+std::tuple<hand, int> GameSolver::think(const board &bd, const GameSolverParam solver_param, int depth_max) {
   param = solver_param;
   nodes = 0;
   rem_stones = 64 - bit_manipulations::stone_sum(bd);
@@ -65,7 +65,7 @@ hand GameSolver::think(const board &bd, const GameSolverParam solver_param, int 
       }
     }
   }
-  return hand_from_diff(bd, std::get<2>(mx));
+  return std::make_tuple(hand_from_diff(bd, std::get<2>(mx)), std::get<0>(mx)/100);
 }
 
 int GameSolver::solve(const board &bd, const GameSolverParam solver_param) {

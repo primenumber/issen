@@ -1,4 +1,5 @@
 #pragma once
+#include <tuple>
 #include "board.hpp"
 #include "hand.hpp"
 #include "table.hpp"
@@ -50,7 +51,7 @@ inline YBWC_Type uneldest_child(const YBWC_Type type) {
 class GameSolver {
  public:
   explicit GameSolver(size_t hash_size);
-  hand think(const board &, const GameSolverParam solver_param, int depth_max);
+  std::tuple<hand, int> think(const board &, const GameSolverParam solver_param, int depth_max);
   int solve(const board &, const GameSolverParam solver_param);
  private:
   table::Table tb[2];
