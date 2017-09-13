@@ -16,10 +16,11 @@
 namespace value {
 
 std::vector<std::string> files = {
-  "lsval60", "lsval59", "lsval58", "lsval57",
-  "lsval56", "lsval55", "lsval54", "lsval53",
-  "lsval52", "lsval51", "lsval50", "lsval49",
-  "lsval48", "lsval47", "lsval46"};
+  "lsval60_b", "lsval59_b", "lsval58_b", "lsval57_b",
+  "lsval56_b", "lsval55_b", "lsval54_b", "lsval53_b",
+  "lsval52_b", "lsval51_b", "lsval50_b", "lsval49_b",
+  "lsval48_b", "lsval47_b", "lsval46_b", "lsval38_b",
+  "lsval30_b"};
 std::vector<std::vector<double>> vals;
 std::vector<double> puttable_coeff;
 std::vector<double> puttable_op_coeff;
@@ -28,10 +29,10 @@ std::vector<double> const_offset;
 int val_indeces[60] = {
    0,  0,  0,  0,  0,  1,  2,  3,  4,  5,
    6,  7,  8,  9, 10, 11, 12, 13, 13, 13,
-  13, 13, 13, 13, 13, 13, 13, 13, 13, 13,
-  13, 13, 13, 13, 13, 13, 13, 13, 13, 13,
-  13, 13, 13, 13, 13, 13, 13, 13, 13, 13,
-  13, 13, 13, 13, 13, 13, 13, 13, 13, 13};
+  13, 13, 14, 14, 14, 14, 14, 14, 14, 14,
+  15, 15, 15, 15, 15, 15, 15, 15, 15, 15,
+  15, 15, 15, 15, 15, 15, 15, 15, 15, 15,
+  15, 15, 15, 15, 15, 15, 15, 15, 15, 15};
 
 void load16() {
 }
