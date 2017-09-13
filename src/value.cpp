@@ -20,10 +20,10 @@ std::vector<std::string> files = {
   "lsval56", "lsval55", "lsval54", "lsval53",
   "lsval52", "lsval51", "lsval50", "lsval49",
   "lsval48", "lsval47", "lsval46"};
-std::vector<std::vector<int16_t>> vals;
-std::vector<int16_t> puttable_coeff;
-std::vector<int16_t> puttable_op_coeff;
-std::vector<int16_t> const_offset;
+std::vector<std::vector<double>> vals;
+std::vector<double> puttable_coeff;
+std::vector<double> puttable_op_coeff;
+std::vector<double> const_offset;
 
 int val_indeces[60] = {
    0,  0,  0,  0,  0,  1,  2,  3,  4,  5,
@@ -73,17 +73,22 @@ void init() {
   for (int cnt = 0; cnt < n; ++cnt) {
     std::string val_pos = val_dir == nullptr ? files[cnt] : val_dir + ("/" + files[cnt]);
     std::ifstream ifs(val_pos);
-    if (!ifs) std::cerr << "cannot open file: " << val_pos << std::endl;
+    if (!ifs) {
+      std::cerr << "cannot open file: " << val_pos << std::endl;
+      continue;
+    }
+    vals[cnt].resize(offset_all);
+    ifs.read((char*)vals[cnt].data(), sizeof(double) * offset_all);
     for (int i = 0; i < offset_all; ++i) {
-      double v = 0;
-      ifs >> v;
-      vals[cnt].push_back(round(v * 100));
+      vals[cnt][i] *= 100;
     }
     double pc, poc, co;
-    ifs >> pc >> poc >> co;
-    puttable_coeff[cnt] = std::round(pc * 100);
-    puttable_op_coeff[cnt] = std::round(poc * 100);
-    const_offset[cnt] = std::round(co * 100);
+    ifs.read((char*)&pc, sizeof(double));
+    ifs.read((char*)&poc, sizeof(double));
+    ifs.read((char*)&co, sizeof(double));
+    puttable_coeff[cnt] = pc * 100;
+    puttable_op_coeff[cnt] = poc * 100;
+    const_offset[cnt] = co * 100;
   }
 }
 
