@@ -181,32 +181,27 @@ template <bool is_PV> int GameSolver::iddfs_impl(
 template <bool is_PV> int GameSolver::iddfs(
     const board &bd, int alpha, int beta, int depth) {
   ++nodes;
-  int stones = bit_manipulations::stone_sum(bd);
   if (depth <= 0) {
     return value::statistic_value(bd);
   }
-  if (stones <= 54) {
-    if (const auto cache_opt = tb[0][bd]) {
-      const auto & cache = *cache_opt;
-      if (cache.val_min >= beta) {
-        return cache.val_min;
-      } else if (cache.val_max <= alpha) {
-        return cache.val_max;
-      } else {
-        table::Range new_ab = cache && table::Range(alpha, beta);
-        alpha = new_ab.val_min;
-        beta = new_ab.val_max;
-        auto res = iddfs_impl<is_PV>(bd, alpha, beta, depth);
-        tb[0].update(bd, new_ab, res);
-        return res;
-      } 
+  if (const auto cache_opt = tb[0][bd]) {
+    const auto & cache = *cache_opt;
+    if (cache.val_min >= beta) {
+      return cache.val_min;
+    } else if (cache.val_max <= alpha) {
+      return cache.val_max;
     } else {
+      table::Range new_ab = cache && table::Range(alpha, beta);
+      alpha = new_ab.val_min;
+      beta = new_ab.val_max;
       auto res = iddfs_impl<is_PV>(bd, alpha, beta, depth);
-      tb[0].update(bd, table::Range(alpha, beta), res);
+      tb[0].update(bd, new_ab, res);
       return res;
-    }
+    } 
   } else {
-    return iddfs_impl<is_PV>(bd, alpha, beta, depth);
+    auto res = iddfs_impl<is_PV>(bd, alpha, beta, depth);
+    tb[0].update(bd, table::Range(alpha, beta), res);
+    return res;
   }
 }
 
