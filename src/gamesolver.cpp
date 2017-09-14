@@ -65,7 +65,7 @@ std::tuple<hand, int> GameSolver::think(const board &bd, const GameSolverParam s
       }
     }
   }
-  return std::make_tuple(hand_from_diff(bd, std::get<2>(mx)), std::get<0>(mx)/100);
+  return std::make_tuple(hand_from_diff(bd, std::get<2>(mx)), -std::get<0>(mx)/100);
 }
 
 int GameSolver::solve(const board &bd, const GameSolverParam solver_param) {
