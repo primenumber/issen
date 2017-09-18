@@ -63,6 +63,12 @@ std::tuple<hand, int> GameSolver::think(const board &bd, const GameSolverParam s
       if (order_impl(t, mx)) {
         mx = t;
       }
+    } else if (rem_stones < 5) {
+      int score = psearch_noordering(next, -64, 64) * 100;
+      auto t = std::make_tuple(score, score, next);
+      if (order_impl(t, mx)) {
+        mx = t;
+      }
     }
   }
   return std::make_tuple(hand_from_diff(bd, std::get<2>(mx)), -std::get<0>(mx)/100);
