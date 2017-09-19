@@ -124,7 +124,12 @@ void think(const std::vector<std::string> &args) {
   board bd = bit_manipulations::toBoard(args[2]);
   std::cerr << utils::to_s(bd) << std::flush;
   GameSolver gs(1000001);
-  hand h = std::get<0>(gs.think(bd, {true, true, false, true}, 14));
+  hand h;
+  if (bit_manipulations::stone_sum(bd) < 44) {
+    h = std::get<0>(gs.think(bd, {true, true, false, true}, 12));
+  } else {
+    h = std::get<0>(gs.think(bd, {true, true, false, true}, 22));
+  }
   std::cout << to_s(h) << std::endl;
 }
 
