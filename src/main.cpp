@@ -125,12 +125,13 @@ void think(const std::vector<std::string> &args) {
   std::cerr << utils::to_s(bd) << std::flush;
   GameSolver gs(1000001);
   hand h;
+  int score;
   if (bit_manipulations::stone_sum(bd) < 44) {
-    h = std::get<0>(gs.think(bd, {true, true, false, true}, 12));
+    std::tie(h, score) = gs.think(bd, {true, true, false, true}, 12);
   } else {
-    h = std::get<0>(gs.think(bd, {true, true, false, true}, 22));
+    std::tie(h, score) = gs.think(bd, {true, true, false, true}, 22);
   }
-  std::cout << to_s(h) << std::endl;
+  std::cout << to_s(h) << ' ' << score << std::endl;
 }
 
 template<typename Container>
