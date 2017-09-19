@@ -155,8 +155,8 @@ int statistic_value_impl(const board bd) {
 int statistic_value (const board &bd) {
   int pcnt = state::puttable_black_count(bd);
   if (pcnt == 0) {
-    pcnt = state::puttable_black_count(bd);
-    if (pcnt == 0) {
+    int ocnt = state::puttable_black_count(board::reverse_board(bd));
+    if (ocnt == 0) {
       return num_value(bd);
     } else {
       return -statistic_value_impl(board::reverse_board(bd));
