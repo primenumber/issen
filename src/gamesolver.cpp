@@ -51,29 +51,20 @@ std::tuple<hand, int> GameSolver::think(const board &bd, const GameSolverParam s
   param = solver_param;
   nodes = 0;
   rem_stones = 64 - bit_manipulations::stone_sum(bd);
-  for (int depth = 6 * ONE_PLY; depth <= depth_max * ONE_PLY; depth += ONE_PLY) {
+  for (int depth = 5 * ONE_PLY; depth <= (depth_max - 1) * ONE_PLY; depth += ONE_PLY) {
     tb[0].clear();
     if (param.debug) std::cerr << "depth: " << (depth/ONE_PLY) << std::endl;
     int res = iddfs<true>(bd, -value::VALUE_MAX, value::VALUE_MAX, depth);
     if (param.debug) std::cerr << res << std::endl;
     std::swap(tb[0], tb[1]);
   }
-  std::tuple<int, int, board> mx(value::VALUE_MAX, value::VALUE_MAX, bd);
+  std::tuple<int, hand> mx(-value::VALUE_MAX-1, PASS);
   for (const auto &next : state::next_states(bd)) {
-    if (auto val_opt = tb[1][next]) {
-      auto t = std::make_tuple(val_opt->val_max, val_opt->val_min, next);
-      if (order_impl(t, mx)) {
-        mx = t;
-      }
-    } else if (rem_stones < 5) {
-      int score = psearch_noordering(next, -64, 64) * 100;
-      auto t = std::make_tuple(score, score, next);
-      if (order_impl(t, mx)) {
-        mx = t;
-      }
-    }
+    hand h = hand_from_diff(bd, next);
+    int res = -iddfs<true>(next, -value::VALUE_MAX, -std::get<0>(mx), (depth_max - 1) * ONE_PLY);
+    mx = std::max(mx, std::make_tuple(res, h));
   }
-  return std::make_tuple(hand_from_diff(bd, std::get<2>(mx)), -std::get<0>(mx)/100);
+  return std::make_tuple(std::get<1>(mx), std::get<0>(mx)/100);
 }
 
 int GameSolver::solve(const board &bd, const GameSolverParam solver_param) {
