@@ -17,8 +17,10 @@ int reduction_table[2][8] = {
 };
 
 template <bool is_PV>
-int reduction(int move_count) {
-  return reduction_table[is_PV][std::min(move_count, 7)];
+int reduction(int move_count, bool enable_variable_reduction) {
+  return enable_variable_reduction
+    ? reduction_table[is_PV][std::min(move_count, 7)]
+    : ONE_PLY;
 }
 
 bool order_impl(const std::tuple<int, board> &lhs,
@@ -79,7 +81,7 @@ int GameSolver::solve(const board &bd, const GameSolverParam solver_param) {
   nodes = 0;
   rem_stones = 64 - bit_manipulations::stone_sum(bd);
   int res = 0;
-  for (int depth = std::min(rem_stones * reduction<true>(0), ONE_PLY * 10); depth <= (rem_stones - 8) * ONE_PLY; depth += ONE_PLY) {
+  for (int depth = std::min(rem_stones * reduction<true>(0, param.enable_variable_reduction), ONE_PLY * 10); depth <= (rem_stones - 8) * ONE_PLY; depth += ONE_PLY) {
     tb[0].clear();
     if (param.debug) std::cerr << "depth: " << (depth/ONE_PLY) << std::endl;
     res = iddfs<true>(bd, -value::VALUE_MAX, value::VALUE_MAX, depth);
@@ -112,7 +114,7 @@ bool GameSolver::iddfs_ordering_impl(
   if (itr == next_last) return false;
   if (count == 0) {
     const auto &next = *itr;
-    result = std::max(result, -iddfs<is_PV>(get_board(next), -beta, -alpha, depth-reduction<is_PV>(0)));
+    result = std::max(result, -iddfs<is_PV>(get_board(next), -beta, -alpha, depth-reduction<is_PV>(0, param.enable_variable_reduction)));
     ++count;
     if (result >= beta) return true;
     alpha = std::max(alpha, result);
@@ -120,11 +122,11 @@ bool GameSolver::iddfs_ordering_impl(
   }
   for (; itr != next_last; ++itr, ++count) {
     const auto &next = *itr;
-    result = std::max(result, -iddfs<false>(get_board(next), -alpha-1, -alpha, depth-reduction<false>(count)));
+    result = std::max(result, -iddfs<false>(get_board(next), -alpha-1, -alpha, depth-reduction<false>(count, param.enable_variable_reduction)));
     if (result >= beta) return true;
     if (result <= alpha) continue;
     alpha = result;
-    result = std::max(result, -iddfs<false>(get_board(next), -beta, -alpha, depth-reduction<false>(count)));
+    result = std::max(result, -iddfs<false>(get_board(next), -beta, -alpha, depth-reduction<false>(count, param.enable_variable_reduction)));
     if (result >= beta) return true;
     alpha = std::max(alpha, result);
   }

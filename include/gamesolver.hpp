@@ -9,9 +9,10 @@ struct GameSolverParam {
   bool parallel_search;
   bool debug;
   bool perfect;
+  bool enable_variable_reduction;
 };
 
-constexpr GameSolverParam solve_perfect = {false, false, true};
+constexpr GameSolverParam solve_perfect = {false, false, true, true};
 
 enum class YBWC_Type {
   Type1,

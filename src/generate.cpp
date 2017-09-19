@@ -29,7 +29,7 @@ void worker() {
     if (que.empty()) return;
     board bd = que.front(); que.pop();
     ul.unlock();
-    GameSolverParam param = {false, false, false};
+    GameSolverParam param = {false, false, false, true};
     int pt = gs.solve(bd, param);
     std::string base81 = bit_manipulations::toBase81(bd);
     std::lock_guard<std::mutex> lg(mtx2);
@@ -95,7 +95,7 @@ void solver(const std::vector<board> &vb, std::vector<int> &result, std::stack<i
     int i = stack.top();
     stack.pop();
     lk.unlock();
-    GameSolverParam param = {false, false, true};
+    GameSolverParam param = {false, false, true, false};
     result[i] = std::get<1>(gs.think(vb[i], param, 8));
   }
 }
