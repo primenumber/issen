@@ -126,12 +126,20 @@ void think(const std::vector<std::string> &args) {
   GameSolver gs(1000001);
   hand h;
   int score;
-  if (bit_manipulations::stone_sum(bd) < 44) {
+  if (bit_manipulations::stone_sum(bd) < 42) {
     std::tie(h, score) = gs.think(bd, {true, true, false, true}, 12);
   } else {
-    std::tie(h, score) = gs.think(bd, {true, true, false, true}, 22);
+    std::tie(h, score) = gs.think(bd, {true, true, false, false}, 22);
   }
   std::cout << to_s(h) << ' ' << score << std::endl;
+}
+
+void think_solve(const std::vector<std::string> &args) {
+  board bd = bit_manipulations::toBoard(args[2]);
+  std::cerr << utils::to_s(bd) << std::flush;
+  GameSolver gs(1000001);
+  int score = gs.solve(bd, {true, true, true, true});
+  std::cout << score << std::endl;
 }
 
 template<typename Container>
@@ -164,6 +172,8 @@ int main(int argc, char **argv) {
     ggs_archive_parser();
   else if (has_opt(args, "--record-view"))
     record_view();
+  else if (has_opt(args, "--think-solve"))
+    think_solve(args);
   else if (has_opt(args, "--think"))
     think(args);
   return 0;
