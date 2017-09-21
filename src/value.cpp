@@ -19,21 +19,29 @@ std::vector<std::string> files = {
   "lsval60_b", "lsval59_b", "lsval58_b", "lsval57_b",
   "lsval56_b", "lsval55_b", "lsval54_b", "lsval53_b",
   "lsval52_b", "lsval51_b", "lsval50_b", "lsval49_b",
-  "lsval48_b", "lsval47_b", "lsval46_b", "lsval40_b",
-  "lsval34_b", "lsval28_b", "lsval22_b", "lsval16_b"};
+  "lsval48_b", "lsval47_b", "lsval46_b", "lsval45_b",
+  "lsval44_b", "lsval43_b", "lsval42_b", "lsval41_b",
+  "lsval40_b", "lsval39_b", "lsval38_b", "lsval37_b",
+  "lsval36_b", "lsval35_b", "lsval34_b", "lsval33_b",
+  "lsval32_b", "lsval31_b", "lsval30_b", "lsval29_b",
+  "lsval28_b", "lsval27_b", "lsval26_b", "lsval25_b",
+  "lsval24_b", "lsval23_b", "lsval22_b", "lsval21_b",
+  "lsval20_b", "lsval19_b", "lsval18_b", "lsval17_b",
+  "lsval16_b", "lsval15_b", "lsval14_b", "lsval13_b"};
 
 std::vector<std::vector<double>> vals;
 std::vector<double> puttable_coeff;
 std::vector<double> puttable_op_coeff;
 std::vector<double> const_offset;
 
-int val_indeces[60] = {
+int val_indeces[61] = {
    0,  0,  0,  0,  0,  1,  2,  3,  4,  5,
-   6,  7,  8,  9, 10, 11, 12, 13, 14, 14,
-  14, 14, 14, 14, 15, 15, 15, 15, 15, 15,
-  16, 16, 16, 16, 16, 16, 17, 17, 17, 17,
-  17, 17, 18, 18, 18, 18, 18, 18, 19, 19,
-  19, 19, 19, 19, 19, 19, 19, 19, 19, 19};
+   6,  7,  8,  9, 10, 11, 12, 13, 14, 15,
+  16, 17, 18, 19, 20, 21, 22, 23, 24, 25,
+  26, 27, 28, 29, 30, 31, 32, 33, 34, 35,
+  36, 37, 38, 39, 40, 41, 42, 43, 44, 45,
+  46, 47, 47, 47, 47, 47, 47, 47, 47, 47,
+  47};
 
 void load16() {
 }
