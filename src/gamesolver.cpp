@@ -174,7 +174,7 @@ template <bool is_PV> int GameSolver::iddfs_impl(
   if (stones < 60) {
     return iddfs_ordering<is_PV>(bd, alpha, beta, depth);
   } else {
-    return psearch(bd, alpha, beta, YBWC_Type::NoYBWC) * 100;
+    return psearch(bd, -64, 64, YBWC_Type::NoYBWC) * 100;
   }
 }
 
