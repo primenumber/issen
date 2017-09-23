@@ -142,6 +142,54 @@ void think_solve(const std::vector<std::string> &args) {
   std::cout << score << std::endl;
 }
 
+void play(const std::vector<std::string> &args) {
+  board bd = board::initial_board();
+  bool my_color = args[2] == "black";
+  bool turn = true;
+  GameSolver gs(1000001);
+  while (!state::is_gameover(bd)) {
+    std::cout << utils::to_s(bd) << std::endl;
+    hand h;
+    if (my_color == turn) {
+      int score;
+      if (bit_manipulations::stone_sum(bd) < 42) {
+        std::tie(h, score) = gs.think(bd, {true, true, false, true}, 12);
+      } else {
+        std::tie(h, score) = gs.think(bd, {true, true, false, false}, 22);
+      }
+      std::cout << to_s(h) << ' ' << score << std::endl;
+    } else {
+      std::string str;
+      while (true) {
+        std::cin >> str;
+        try {
+          h = to_hand(str);
+          if (h == PASS) {
+            if (state::puttable_black(bd)) {
+              throw "invalid pass";
+            }
+          } else {
+            if (((state::puttable_black(bd) >> h) & 1) == 0) {
+              throw "invalid move";
+            }
+          }
+          break;
+        } catch(const char *e) {
+          std::cerr << e << std::endl;
+          continue;
+        }
+      }
+    }
+    if (h == PASS) {
+      bd = board::reverse_board(bd);
+    } else {
+      bd = state::put_black_at_rev(bd, h);
+    }
+    turn = !turn;
+  }
+  std::cout << utils::to_s(bd) << std::endl;
+}
+
 template<typename Container>
 bool has_opt(Container c, std::string s) {
   return std::count(std::begin(c), std::end(c), s);
@@ -176,5 +224,7 @@ int main(int argc, char **argv) {
     think_solve(args);
   else if (has_opt(args, "--think"))
     think(args);
+  else if (has_opt(args, "--play"))
+    play(args);
   return 0;
 }
