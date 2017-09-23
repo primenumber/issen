@@ -58,14 +58,18 @@ std::tuple<hand, int> GameSolver::think(const board &bd, const GameSolverParam s
     if (param.debug) std::cerr << res << std::endl;
     std::swap(tb[0], tb[1]);
   }
-  std::tuple<int, hand> mx(-value::VALUE_MAX-1, PASS);
   tb[0].clear();
+  int alpha = -value::VALUE_MAX;
+  hand mx = PASS;
   for (const auto &next : state::next_states(bd)) {
     hand h = hand_from_diff(bd, next);
-    int res = -iddfs<true>(next, -value::VALUE_MAX, value::VALUE_MAX, (depth_max - 1) * ONE_PLY);
-    mx = std::max(mx, std::make_tuple(res, h));
+    int res = -iddfs<true>(next, -value::VALUE_MAX, -alpha, (depth_max - 1) * ONE_PLY);
+    if (res > alpha) {
+      alpha = res;
+      mx = h;
+    }
   }
-  return std::make_tuple(std::get<1>(mx), std::get<0>(mx)/100);
+  return std::make_tuple(mx, alpha/100);
 }
 
 int GameSolver::solve(const board &bd, const GameSolverParam solver_param) {
