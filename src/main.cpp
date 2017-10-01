@@ -14,7 +14,6 @@
 #include "hand.hpp"
 #include "utils.hpp"
 #include "generate.hpp"
-#include "statistic_value_generator.hpp"
 #include "ggs_archive_parser.hpp"
 #include "gamesolver.hpp"
 #include "bit_manipulations.hpp"
@@ -212,10 +211,6 @@ int main(int argc, char **argv) {
     solve81(args);
   else if (has_opt(args, "--check-base81"))
     check_score();
-  else if (has_opt(args, "--gen-lsprob2"))
-    sv_gen::generate_lsprob2();
-  else if (has_opt(args, "--gen-lsprob"))
-    sv_gen::generate_lsprob();
   else if (has_opt(args, "--ggs-parse"))
     ggs_archive_parser();
   else if (has_opt(args, "--record-view"))
