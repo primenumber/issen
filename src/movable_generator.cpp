@@ -25,7 +25,7 @@ double_board flippable_right_p4(double_board dbd1, double_board dbd2) {
 
 uint64_t puttable_black_horizontal(const board &bd) {
   board tmp = puttable_black_backward_p2(bd, bm::mirrorHorizontal(bd));
-  return tmp.black() | bm::mirrorHorizontal(tmp.white());
+  return tmp.player() | bm::mirrorHorizontal(tmp.opponent());
 }
 
 uint64_t puttable_black_horizontal_and_vertical(const board &bd) {
@@ -37,7 +37,7 @@ uint64_t puttable_black_horizontal_and_vertical(const board &bd) {
   board res1 = resp.board1();
   board res2 = bm::mirrorHorizontal(resp.board2());
   board resb = _mm_or_si128(res1, res2);
-  return resb.black() | bm::flipDiagA1H8(resb.white());
+  return resb.player() | bm::flipDiagA1H8(resb.opponent());
 }
 
 uint64_t puttable_black_diag_implA8H1(const board &bd) {

@@ -84,8 +84,8 @@ int to_index_asymmetry(uint64_t black, uint64_t white) {
 }
 
 int get_index_horizontal_no_offset(const board &bd, int index) {
-  return to_index(0xFF & (bd.black() >> (index*8)),
-          0xFF & (bd.white() >> (index*8)), 8);
+  return to_index(0xFF & (bd.player() >> (index*8)),
+          0xFF & (bd.opponent() >> (index*8)), 8);
 }
 
 int get_index_horizontal(const board &bd, int index) {
@@ -96,11 +96,11 @@ int get_index_horizontal(const board &bd, int index) {
 int get_index_diagonal_no_offset(const board &rtbd, int index) {
   uint8_t black_bit, white_bit;
   if (index >= 0) {
-    black_bit = (rtbd.black() >> (index*9)) & (0xFF >> index);
-    white_bit = (rtbd.white() >> (index*9)) & (0xFF >> index);
+    black_bit = (rtbd.player() >> (index*9)) & (0xFF >> index);
+    white_bit = (rtbd.opponent() >> (index*9)) & (0xFF >> index);
   } else {
-    black_bit = (rtbd.black() >> ((8+index)*8)) & (0xFF >> -index);
-    white_bit = (rtbd.white() >> ((8+index)*8)) & (0xFF >> -index);
+    black_bit = (rtbd.player() >> ((8+index)*8)) & (0xFF >> -index);
+    white_bit = (rtbd.opponent() >> ((8+index)*8)) & (0xFF >> -index);
   }
   return to_index(black_bit, white_bit, 8-std::abs(index));
 }
@@ -121,7 +121,7 @@ uint16_t get_edge_bits(const half_board &bbd) {
 }
 
 int get_index_edge_no_offset(const board &bd) {
-  return to_index(get_edge_bits(bd.black()), get_edge_bits(bd.white()), 10);
+  return to_index(get_edge_bits(bd.player()), get_edge_bits(bd.opponent()), 10);
 }
 
 int get_index_edge(const board &bd) {
@@ -131,8 +131,8 @@ int get_index_edge(const board &bd) {
 
 int get_index_corner_3x3_no_offset(const board &bd) {
   return to_index_diag(
-      _pext_u64(bd.black(), 0x070707),
-      _pext_u64(bd.white(), 0x070707));
+      _pext_u64(bd.player(), 0x070707),
+      _pext_u64(bd.opponent(), 0x070707));
 }
 
 int get_index_corner_3x3(const board &bd) {
@@ -141,8 +141,8 @@ int get_index_corner_3x3(const board &bd) {
 
 int get_index_corner_2x5_no_offset(const board &bd) {
   return to_index_asymmetry(
-      _pext_u64(bd.black(), 0x1F1F),
-      _pext_u64(bd.white(), 0x1F1F));
+      _pext_u64(bd.player(), 0x1F1F),
+      _pext_u64(bd.opponent(), 0x1F1F));
 }
 int get_index_corner_2x5(const board &bd) {
   return index_begin[10] + get_index_corner_2x5_no_offset(bd);

@@ -25,15 +25,15 @@ struct board {
   __m128i data;
   board() = default;
   board(const board &) = default;
-  board(const uint64_t black, const uint64_t white)
-    : data(_mm_setr_epi64x(black, white)) {}
+  board(const uint64_t player, const uint64_t opponent)
+    : data(_mm_setr_epi64x(player, opponent)) {}
   board(__m128i data) : data(data) {}
   operator __m128i() { return data; }
   operator __m128i() const { return data; }
   board &operator=(const board &) = default;
   board &operator=(board &&) = default;
-  const half_board black() const { return _mm_cvtsi128_si64(data); }
-  const half_board white() const {
+  const half_board player() const { return _mm_cvtsi128_si64(data); }
+  const half_board opponent() const {
     return _mm_extract_epi64(data, 1);
   }
   static board initial_board() {
@@ -55,9 +55,9 @@ struct double_board {
     : data(_mm256_setr_m128i(bd1, bd2)) {}
   explicit double_board(const board &bd)
     : data(_mm256_broadcastsi128_si256(bd)) {}
-  double_board(const uint64_t black1, const uint64_t white1,
-      const uint64_t black2, const uint64_t white2)
-    : data(_mm256_setr_epi64x(black1, white1, black2, white2)) {}
+  double_board(const uint64_t player1, const uint64_t opponent1,
+      const uint64_t player2, const uint64_t opponent2)
+    : data(_mm256_setr_epi64x(player1, opponent1, player2, opponent2)) {}
   double_board(const __m256i data) : data(data) {}
   operator __m256i() { return data; }
   operator __m256i() const { return data; }
@@ -82,7 +82,7 @@ template<>
 struct hash<board> {
  public:
   size_t operator()(const board &bd) const {
-    return _bswap64(bd.black()) + bd.white() * 17;
+    return _bswap64(bd.player()) + bd.opponent() * 17;
   }
 };
 

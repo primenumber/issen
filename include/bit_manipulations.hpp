@@ -239,6 +239,6 @@ inline bool operator==(const board &lhs, const board &rhs) {
 }
 
 inline bool operator<(const board &lhs, const board &rhs) {
-  return (lhs.black() == rhs.black()) ?
-      (lhs.white() < rhs.white()) : (lhs.black() < rhs.black());
+  return (lhs.player() == rhs.player()) ?
+      (lhs.opponent() < rhs.opponent()) : (lhs.player() < rhs.player());
 }

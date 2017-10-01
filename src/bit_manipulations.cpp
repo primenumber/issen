@@ -256,8 +256,8 @@ uint64_t rotate90antiClockwise(uint64_t bits) {
 
 __m128i rotr(__m128i bits, int index) {
   board bd(bits);
-  return board(_lrotr(bd.black(), index),
-      _lrotr(bd.white(), index));
+  return board(_lrotr(bd.player(), index),
+      _lrotr(bd.opponent(), index));
 }
 
 __m256i rotr8_epi64(__m256i bits, int index) {
@@ -332,7 +332,7 @@ uint64_t tails(uint64_t bits) {
 }
 
 board tails(board bd) {
-  return board(tails(bd.black()), tails(bd.white()));
+  return board(tails(bd.player()), tails(bd.opponent()));
 }
 
 board definites_horizontal_top(board bd) {

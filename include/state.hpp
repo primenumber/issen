@@ -23,7 +23,7 @@ int next_states(const board & bd, std::array<board, N> &res) {
   for (uint64_t bits = ~bit_manipulations::stones(bd); bits; bits = _blsr_u64(bits)) {
     int pos = bit_manipulations::bit_to_pos(_blsi_u64(bits));
     board next = put_black_at_rev(bd, pos);
-    if (next.black() != bd.white()) {
+    if (next.player() != bd.opponent()) {
       res[index++] = next;
       is_pass = false;
     }

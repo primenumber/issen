@@ -28,8 +28,8 @@ std::array<uint32_t, 8*N> serialize(const board &bd, const std::array<uint64_t, 
   for (size_t i = 0; i < N; ++i) {
     uint64_t bit = bits[i];
     for (size_t j = 0; j < 8; ++j) {
-      uint64_t me_bits = _pext_u64(transed_bd[j].black(), bit);
-      uint64_t op_bits = _pext_u64(transed_bd[j].white(), bit);
+      uint64_t me_bits = _pext_u64(transed_bd[j].player(), bit);
+      uint64_t op_bits = _pext_u64(transed_bd[j].opponent(), bit);
       result[i*8 + j] = offset + toBase3(me_bits, op_bits);
     }
     int count = _popcnt64(bit);

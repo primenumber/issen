@@ -89,7 +89,7 @@ void record_view() {
   std::cin >> record;
   int n = record.size()/2;
   for (int i = 0; i < n; ++i) {
-    if (_popcnt64(bd.black()|bd.white()) == 54) {
+    if (bit_manipulations::stone_sum(bd) == 54) {
       std::cout << value::statistic_value(bd) << std::endl;
     }
     hand h = to_hand(record.substr(i*2, 2));

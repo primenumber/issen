@@ -377,7 +377,7 @@ int GameSolver::psearch_noordering(const board &bd, int alpha, int beta) {
     const uint64_t bit = _blsi_u64(puttable_bits);
     const uint8_t pos = bit_manipulations::bit_to_pos(bit);
     const board next = state::put_black_at_rev(bd, pos);
-    if (next.black() == bd.white()) continue;
+    if (next.player() == bd.opponent()) continue;
     pass = false;
     result = std::max(result, -psearch_nohash(next, -beta, -alpha));
     if (result >= beta) {
@@ -401,9 +401,9 @@ int GameSolver::psearch_leaf(const board &bd) {
   uint64_t pos_bit = ~bit_manipulations::stones(bd);
   int pos = bit_manipulations::bit_to_pos(pos_bit);
   const board nx = state::put_black_at(bd, pos);
-  if (nx.white() == bd.white()) {
+  if (nx.opponent() == bd.opponent()) {
     const board nx2 = state::put_black_at(board::reverse_board(bd), pos);
-    if (nx2.white() == bd.black()) {
+    if (nx2.opponent() == bd.player()) {
       return value::fixed_diff_num(bd);
     } else {
       ++nodes;
@@ -415,23 +415,23 @@ int GameSolver::psearch_leaf(const board &bd) {
 }
 
 int GameSolver::psearch_2(const board &bd, int alpha, int beta) {
-  const uint64_t black = bd.black();
-  const uint64_t white = bd.white();
+  const uint64_t black = bd.player();
+  const uint64_t white = bd.opponent();
   const uint64_t puttable_bits = ~bit_manipulations::stones(bd);
   const uint64_t bit1 = _blsi_u64(puttable_bits);
   const uint8_t pos1 = bit_manipulations::bit_to_pos(bit1);
   board next = state::put_black_at_rev(bd, pos1);
   const uint64_t bit2 = _blsr_u64(puttable_bits);
   const uint8_t pos2 = bit_manipulations::bit_to_pos(bit2);
-  if (next.black() == white) {
+  if (next.player() == white) {
     next = state::put_black_at_rev(bd, pos2);
-    if (next.black() == white) {
+    if (next.player() == white) {
       ++nodes;
       const board rev_bd = board::reverse_board(bd);
       next = state::put_black_at_rev(rev_bd, pos1);
-      if (next.black() == black) {
+      if (next.player() == black) {
         next = state::put_black_at_rev(rev_bd, pos2);
-        if (next.black() == black) {
+        if (next.player() == black) {
           return value::fixed_diff_num(bd);
         } else {
           return psearch_leaf(next);
@@ -442,7 +442,7 @@ int GameSolver::psearch_2(const board &bd, int alpha, int beta) {
           return result;
         }
         next = state::put_black_at_rev(rev_bd, pos2);
-        if (next.black() == black) {
+        if (next.player() == black) {
           return result;
         }
         return std::min(result, psearch_leaf(next));
@@ -455,7 +455,7 @@ int GameSolver::psearch_2(const board &bd, int alpha, int beta) {
       return result;
     }
     next = state::put_black_at_rev(bd, pos2);
-    if (next.black() == white) {
+    if (next.player() == white) {
       return result;
     }
     return std::max(result, -psearch_leaf(next));

@@ -36,9 +36,9 @@ std::string to_s(const board &bd) {
     res +=(char)('1' + i);
     res += '|';
     for (int j = 0; j < 8; ++j) {
-      if (bd.black().get(i*8+j)) {
+      if (bd.player().get(i*8+j)) {
         res += 'x';
-      } else if (bd.white().get(i*8+j)) {
+      } else if (bd.opponent().get(i*8+j)) {
         res += 'o';
       } else {
         res += '.';
@@ -53,9 +53,9 @@ std::string to_s_ffo(const board &bd) {
   std::string res;
   for (int i = 0; i < 8; ++i) {
     for (int j = 0; j < 8; ++j) {
-      if (bd.black().get(i*8+j)) {
+      if (bd.player().get(i*8+j)) {
         res += 'X';
-      } else if (bd.white().get(i*8+j)) {
+      } else if (bd.opponent().get(i*8+j)) {
         res += 'O';
       } else {
         res += '-';

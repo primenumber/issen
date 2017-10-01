@@ -38,7 +38,7 @@ bool next_states(const board & bd, std::vector<board> &res) {
   for (uint64_t bits = ~bm::stones(bd); bits; bits = _blsr_u64(bits)) {
     int pos = bm::bit_to_pos(_blsi_u64(bits));
     board next = put_black_at_rev(bd, pos);
-    if (next.black() != bd.white()) {
+    if (next.player() != bd.opponent()) {
       res.emplace_back(next);
       is_pass = false;
     }

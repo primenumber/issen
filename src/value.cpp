@@ -103,14 +103,14 @@ void init() {
 }
 
 int diff_num(const board &bd) {
-  int bn = _popcnt64(bd.black());
-  int wn = _popcnt64(bd.white());
+  int bn = _popcnt64(bd.player());
+  int wn = _popcnt64(bd.opponent());
   return bn - wn;
 }
 
 int fixed_diff_num(const board &bd) {
-  int bn = _popcnt64(bd.black());
-  int wn = _popcnt64(bd.white());
+  int bn = _popcnt64(bd.player());
+  int wn = _popcnt64(bd.opponent());
   if (bn > wn) {
     return 64 - 2*wn;
   } else if (wn > bn) {
