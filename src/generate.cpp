@@ -89,14 +89,29 @@ void generate_score(int m) {
 void solver(const std::vector<board> &vb, std::vector<int> &result, std::stack<int> &stack) {
   using lock = std::unique_lock<std::mutex>;
   GameSolver gs(1025);
+  int cnt = 0;
   while(true) {
     lock lk(mtx1);
     if (stack.empty()) break;
     int i = stack.top();
     stack.pop();
     lk.unlock();
+    bool flipped = false;
+    board bd = vb[i];
     GameSolverParam param = {false, false, true, false};
-    result[i] = std::get<1>(gs.think(vb[i], param, 8));
+    int score = value::fixed_diff_num(bd);
+    while (!state::is_gameover(bd)) {
+      hand h;
+      std::tie(h, score) = gs.think(bd, param, 6);
+      if (h != PASS)
+        bd = state::put_black_at_rev(bd, h);
+      else
+        bd = board::reverse_board(bd);
+      flipped = !flipped;
+    }
+    result[i] = flipped ? -score : score;
+    ++cnt;
+    if (cnt % 1000 == 0) std::cerr << cnt << std::endl;
   }
 }
 
@@ -149,12 +164,14 @@ void to_base81(int m) {
     int score;
     std::cin >> record >> score;
     int l = record.size()/2;
+    bool black = true;
     for (int j = 0; j < l; ++j) {
       if (state::puttable_black(bd) == 0) {
         bd = board::reverse_board(bd);
+        black = !black;
       }
       if (64 - bit_manipulations::stone_sum(bd) == m) {
-        std::cout << bit_manipulations::toBase81(bd) << '\n';
+        std::cout << bit_manipulations::toBase81(bd) << ' ' << (black ? score : -score) << '\n';
         break;
       }
       hand h = to_hand_500k(record.substr(j*2, 2));
@@ -163,6 +180,7 @@ void to_base81(int m) {
         break;
       }
       bd = state::put_black_at_rev(bd, h);
+      black = !black;
     }
   }
 }
