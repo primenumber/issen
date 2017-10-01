@@ -15,17 +15,17 @@ namespace state {
 
 
 bool is_gameover(const board &bd) {
-  return puttable_black(bd) == 0 &&
-      puttable_black(board::reverse_board(bd)) == 0;
+  return mobility_pos(bd) == 0 &&
+      mobility_pos(board::reverse_board(bd)) == 0;
 }
 
 std::vector<board> next_states(const board & bd) {
   std::vector<board> res;
   res.reserve(16);
   bool is_pass = true;
-  for (uint64_t bits = puttable_black(bd); bits; bits = _blsr_u64(bits)) {
+  for (uint64_t bits = mobility_pos(bd); bits; bits = _blsr_u64(bits)) {
     int pos = bm::bit_to_pos(_blsi_u64(bits));
-    res.emplace_back(put_black_at_rev(bd, pos / 8, pos % 8));
+    res.emplace_back(move(bd, pos / 8, pos % 8));
     is_pass = false;
   }
   if (is_pass) res.emplace_back(board::reverse_board(bd));
@@ -37,7 +37,7 @@ bool next_states(const board & bd, std::vector<board> &res) {
   bool is_pass = true;
   for (uint64_t bits = ~bm::stones(bd); bits; bits = _blsr_u64(bits)) {
     int pos = bm::bit_to_pos(_blsi_u64(bits));
-    board next = put_black_at_rev(bd, pos);
+    board next = move(bd, pos);
     if (next.player() != bd.opponent()) {
       res.emplace_back(next);
       is_pass = false;
@@ -53,7 +53,7 @@ std::vector<board> next_states(const board & bd, uint64_t bits) {
   if (bits == 0) res.emplace_back(board::reverse_board(bd));
   for (; bits; bits = _blsr_u64(bits)) {
     int pos = bm::bit_to_pos(_blsi_u64(bits));
-    res.emplace_back(put_black_at_rev(bd, pos));
+    res.emplace_back(move(bd, pos));
   }
   return res;
 }
@@ -64,7 +64,7 @@ bool next_states(const board & bd, uint64_t bits, std::vector<board> &res) {
   if (is_pass) res.emplace_back(board::reverse_board(bd));
   for (; bits; bits = _blsr_u64(bits)) {
     int pos = bm::bit_to_pos(_blsi_u64(bits));
-    res.emplace_back(put_black_at_rev(bd, pos));
+    res.emplace_back(move(bd, pos));
   }
   return is_pass;
 }

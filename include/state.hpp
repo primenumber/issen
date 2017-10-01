@@ -6,13 +6,13 @@
 
 namespace state {
 
-uint64_t puttable_black(const board &);
-int puttable_black_count(const board &);
+uint64_t mobility_pos(const board &);
+int mobility_count(const board &);
 bool is_gameover(const board &);
-board put_black_at(const board &, int);
-board put_black_at(const board &, int, int);
-board put_black_at_rev(const board &, int);
-board put_black_at_rev(const board &, int, int);
+board move_rev(const board &, int);
+board move_rev(const board &, int, int);
+board move(const board &, int);
+board move(const board &, int, int);
 std::vector<board> next_states(const board &);
 bool next_states(const board &, std::vector<board> &res);
 
@@ -22,7 +22,7 @@ int next_states(const board & bd, std::array<board, N> &res) {
   bool is_pass = true;
   for (uint64_t bits = ~bit_manipulations::stones(bd); bits; bits = _blsr_u64(bits)) {
     int pos = bit_manipulations::bit_to_pos(_blsi_u64(bits));
-    board next = put_black_at_rev(bd, pos);
+    board next = move(bd, pos);
     if (next.player() != bd.opponent()) {
       res[index++] = next;
       is_pass = false;

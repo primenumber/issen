@@ -121,8 +121,8 @@ int fixed_diff_num(const board &bd) {
 }
 
 int puttable_value(const board &bd) {
-  int b = _popcnt64(state::puttable_black(bd));
-  int w = _popcnt64(state::puttable_black(board::reverse_board(bd)));
+  int b = state::mobility_count(bd);
+  int w = state::mobility_count(board::reverse_board(bd));
   if (b) {
     if (w) {
       return 10 * (b - w);
@@ -135,8 +135,8 @@ int puttable_value(const board &bd) {
 }
 
 int puttable_diff(const board &bd) {
-  int b = _popcnt64(state::puttable_black(bd));
-  int w = _popcnt64(state::puttable_black(board::reverse_board(bd)));
+  int b = state::mobility_count(bd);
+  int w = state::mobility_count(board::reverse_board(bd));
   return b - w;
 }
 
@@ -155,15 +155,15 @@ int statistic_value_impl(const board bd) {
   for (int i : indeces) {
     res += vals[index][i];
   }
-  res += state::puttable_black_count(bd) * puttable_coeff[index];
-  res += state::puttable_black_count(board::reverse_board(bd)) * puttable_op_coeff[index];
+  res += state::mobility_count(bd) * puttable_coeff[index];
+  res += state::mobility_count(board::reverse_board(bd)) * puttable_op_coeff[index];
   return std::max(-6400, std::min(6400, res));
 }
 
 int statistic_value (const board &bd) {
-  int pcnt = state::puttable_black_count(bd);
+  int pcnt = state::mobility_count(bd);
   if (pcnt == 0) {
-    int ocnt = state::puttable_black_count(board::reverse_board(bd));
+    int ocnt = state::mobility_count(board::reverse_board(bd));
     if (ocnt == 0) {
       return num_value(bd);
     } else {

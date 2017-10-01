@@ -122,24 +122,24 @@ __m128i flip(const board &bd, int pos) {
   return hor(flipped);
 }
 
-board put_black_at(const board & bd, int pos) {
+board move_rev(const board & bd, int pos) {
   __m128i bits = flip(bd, pos);
   return _mm_or_si128(_mm_xor_si128(bd, bits),
       _mm_set_epi64x(0, UINT64_C(1) << pos));
 }
 
-board put_black_at(const board & bd, int i, int j) {
-  return put_black_at(bd, i*8 + j);
+board move_rev(const board & bd, int i, int j) {
+  return move_rev(bd, i*8 + j);
 }
 
-board put_black_at_rev(const board & bd, int pos) {
+board move(const board & bd, int pos) {
   __m128i bits = flip(bd, pos);
   return _mm_or_si128(_mm_xor_si128(board::reverse_board(bd), bits),
       _mm_set_epi64x(UINT64_C(1) << pos, 0));
 }
 
-board put_black_at_rev(const board & bd, int i, int j) {
-  return put_black_at_rev(bd, i*8 + j);
+board move(const board & bd, int i, int j) {
+  return move(bd, i*8 + j);
 }
 
 } // namespace state

@@ -65,13 +65,13 @@ void generate_score(int m) {
     int l = record.size()/2;
     for (int j = 0; j < l; ++j) {
       if (64 - bit_manipulations::stone_sum(bd) == m &&
-          state::puttable_black(bd)) {
+          state::mobility_pos(bd)) {
         que.push(bd);
         break;
       }
       hand h = to_hand(record.substr(j*2, 2));
       if (h != PASS)
-        bd = state::put_black_at_rev(bd, h/8, h%8);
+        bd = state::move(bd, h/8, h%8);
       else
         bd = board::reverse_board(bd);
     }
@@ -104,7 +104,7 @@ void solver(const std::vector<board> &vb, std::vector<int> &result, std::stack<i
       hand h;
       std::tie(h, score) = gs.think(bd, param, 6);
       if (h != PASS)
-        bd = state::put_black_at_rev(bd, h);
+        bd = state::move(bd, h);
       else
         bd = board::reverse_board(bd);
       flipped = !flipped;
@@ -166,7 +166,7 @@ void to_base81(int m) {
     int l = record.size()/2;
     bool black = true;
     for (int j = 0; j < l; ++j) {
-      if (state::puttable_black(bd) == 0) {
+      if (state::mobility_pos(bd) == 0) {
         bd = board::reverse_board(bd);
         black = !black;
       }
@@ -175,11 +175,11 @@ void to_base81(int m) {
         break;
       }
       hand h = to_hand_500k(record.substr(j*2, 2));
-      uint64_t puttable = state::puttable_black(bd);
+      uint64_t puttable = state::mobility_pos(bd);
       if (((puttable >> h) & 1) == 0) {
         break;
       }
-      bd = state::put_black_at_rev(bd, h);
+      bd = state::move(bd, h);
       black = !black;
     }
   }

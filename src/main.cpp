@@ -93,7 +93,7 @@ void record_view() {
     }
     hand h = to_hand(record.substr(i*2, 2));
     if (h != PASS)
-      bd = state::put_black_at_rev(bd, h/8, h%8);
+      bd = state::move(bd, h/8, h%8);
     else
       bd = board::reverse_board(bd);
   }
@@ -164,11 +164,11 @@ void play(const std::vector<std::string> &args) {
         try {
           h = to_hand(str);
           if (h == PASS) {
-            if (state::puttable_black(bd)) {
+            if (state::mobility_pos(bd)) {
               throw "invalid pass";
             }
           } else {
-            if (((state::puttable_black(bd) >> h) & 1) == 0) {
+            if (((state::mobility_pos(bd) >> h) & 1) == 0) {
               throw "invalid move";
             }
           }
@@ -182,7 +182,7 @@ void play(const std::vector<std::string> &args) {
     if (h == PASS) {
       bd = board::reverse_board(bd);
     } else {
-      bd = state::put_black_at_rev(bd, h);
+      bd = state::move(bd, h);
     }
     turn = !turn;
   }

@@ -75,7 +75,7 @@ std::tuple<boost::optional<record::game_record>, int> game(const std::string &s,
       hand h = to_hand(fix_hand_str(body));
       gr.hands.push_back(h);
       if (h != PASS)
-        bd = state::put_black_at_rev(bd, h / 8, h % 8);
+        bd = state::move(bd, h / 8, h % 8);
       else
         bd = board::reverse_board(bd);
       is_black = !is_black;

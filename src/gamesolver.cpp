@@ -136,7 +136,7 @@ template <bool is_PV> int GameSolver::iddfs_ordering(
   int puttable_count = state::next_states(bd, next_buffer);
   if (puttable_count == 0) {
     board rev_bd = board::reverse_board(bd);
-    if (state::puttable_black(rev_bd) == 0) {
+    if (state::mobility_pos(rev_bd) == 0) {
       return value::num_value(bd);
     } else {
       return -iddfs<is_PV>(rev_bd, -beta, -alpha, depth);
@@ -149,7 +149,7 @@ template <bool is_PV> int GameSolver::iddfs_ordering(
   if (stone_sum > 54) {
     for (int i = 0; i < puttable_count; ++i) {
       const auto &next = next_buffer[i];
-      out_hash[count_out++] = std::make_tuple(state::puttable_black_count(next), next);
+      out_hash[count_out++] = std::make_tuple(state::mobility_count(next), next);
     }
   } else {
     for (int i = 0; i < puttable_count; ++i) {
@@ -157,7 +157,7 @@ template <bool is_PV> int GameSolver::iddfs_ordering(
       if (auto val_opt = tb[1][next]) {
         in_hash[count_in++] = std::make_tuple(val_opt->val_max, val_opt->val_min, next);
       } else {
-        out_hash[count_out++] = std::make_tuple(state::puttable_black_count(next), next);
+        out_hash[count_out++] = std::make_tuple(state::mobility_count(next), next);
       }
     }
   }
@@ -250,7 +250,7 @@ int GameSolver::psearch_ybwc(const board &bd, int alpha, int beta, const YBWC_Ty
   int puttable_count = state::next_states(bd, next_buffer);
   if (puttable_count == 0) {
     board rev_bd = board::reverse_board(bd);
-    if (state::puttable_black(rev_bd) == 0) {
+    if (state::mobility_pos(rev_bd) == 0) {
       return value::fixed_diff_num(bd);
     } else {
       return -psearch(rev_bd, -beta, -alpha, eldest_child(type));
@@ -260,7 +260,7 @@ int GameSolver::psearch_ybwc(const board &bd, int alpha, int beta, const YBWC_Ty
   int count_in = 0;
   for (int i = 0; i < puttable_count; ++i) {
     const auto &next = next_buffer[i];
-    int pcnt = state::puttable_black_count(next);
+    int pcnt = state::mobility_count(next);
     if (auto val_opt = tb[1][next]) {
       nexts[i] = std::make_tuple(val_opt->val_max, val_opt->val_min, pcnt, next);
       ++count_in;
@@ -306,7 +306,7 @@ int GameSolver::psearch_ordering(const board &bd, int alpha, int beta, const YBW
   int puttable_count = state::next_states(bd, next_buffer);
   if (puttable_count == 0) {
     board rev_bd = board::reverse_board(bd);
-    if (state::puttable_black(rev_bd) == 0) {
+    if (state::mobility_pos(rev_bd) == 0) {
       return value::fixed_diff_num(bd);
     } else {
       return -psearch(rev_bd, -beta, -alpha, eldest_child(type));
@@ -321,7 +321,7 @@ int GameSolver::psearch_ordering(const board &bd, int alpha, int beta, const YBW
     if (auto val_opt = tb[1][next]) {
       in_hash[count_in++] = std::make_tuple(val_opt->val_max, val_opt->val_min, next);
     } else {
-      out_hash[count_out++] = std::make_tuple(state::puttable_black_count(next), next);
+      out_hash[count_out++] = std::make_tuple(state::mobility_count(next), next);
     }
   }
   int result = -64; // fail soft
@@ -340,7 +340,7 @@ int GameSolver::psearch_static_ordering(const board &bd, int alpha, int beta) {
   int puttable_count = state::next_states(bd, next_buffer);
   if (puttable_count == 0) {
     board rev_bd = board::reverse_board(bd);
-    if (state::puttable_black(rev_bd) == 0) {
+    if (state::mobility_pos(rev_bd) == 0) {
       return value::fixed_diff_num(bd);
     } else {
       return -psearch_nohash(rev_bd, -beta, -alpha);
@@ -350,7 +350,7 @@ int GameSolver::psearch_static_ordering(const board &bd, int alpha, int beta) {
   int count_ary = 0;
   for (int i = 0; i < puttable_count; ++i) {
     const auto &next = next_buffer[i];
-    index_ary[count_ary++] = std::make_tuple(_popcnt64(state::puttable_black(next)), i);
+    index_ary[count_ary++] = std::make_tuple(state::mobility_count(next), i);
   }
   std::sort(std::begin(index_ary), std::begin(index_ary) + puttable_count,
       [](const auto &lhs, const auto &rhs) { return std::get<0>(lhs) < std::get<0>(rhs); });
@@ -376,7 +376,7 @@ int GameSolver::psearch_noordering(const board &bd, int alpha, int beta) {
   for (; puttable_bits; puttable_bits = _blsr_u64(puttable_bits)) {
     const uint64_t bit = _blsi_u64(puttable_bits);
     const uint8_t pos = bit_manipulations::bit_to_pos(bit);
-    const board next = state::put_black_at_rev(bd, pos);
+    const board next = state::move(bd, pos);
     if (next.player() == bd.opponent()) continue;
     pass = false;
     result = std::max(result, -psearch_nohash(next, -beta, -alpha));
@@ -387,7 +387,7 @@ int GameSolver::psearch_noordering(const board &bd, int alpha, int beta) {
   }
   if (pass) {
     const board rev_bd = board::reverse_board(bd);
-    if (state::puttable_black(rev_bd) == 0) {
+    if (state::mobility_pos(rev_bd) == 0) {
       return value::fixed_diff_num(bd);
     } else {
       return -psearch_nohash(rev_bd, -beta, -alpha);
@@ -400,9 +400,9 @@ int GameSolver::psearch_leaf(const board &bd) {
   ++nodes;
   uint64_t pos_bit = ~bit_manipulations::stones(bd);
   int pos = bit_manipulations::bit_to_pos(pos_bit);
-  const board nx = state::put_black_at(bd, pos);
+  const board nx = state::move_rev(bd, pos);
   if (nx.opponent() == bd.opponent()) {
-    const board nx2 = state::put_black_at(board::reverse_board(bd), pos);
+    const board nx2 = state::move_rev(board::reverse_board(bd), pos);
     if (nx2.opponent() == bd.player()) {
       return value::fixed_diff_num(bd);
     } else {
@@ -420,17 +420,17 @@ int GameSolver::psearch_2(const board &bd, int alpha, int beta) {
   const uint64_t puttable_bits = ~bit_manipulations::stones(bd);
   const uint64_t bit1 = _blsi_u64(puttable_bits);
   const uint8_t pos1 = bit_manipulations::bit_to_pos(bit1);
-  board next = state::put_black_at_rev(bd, pos1);
+  board next = state::move(bd, pos1);
   const uint64_t bit2 = _blsr_u64(puttable_bits);
   const uint8_t pos2 = bit_manipulations::bit_to_pos(bit2);
   if (next.player() == white) {
-    next = state::put_black_at_rev(bd, pos2);
+    next = state::move(bd, pos2);
     if (next.player() == white) {
       ++nodes;
       const board rev_bd = board::reverse_board(bd);
-      next = state::put_black_at_rev(rev_bd, pos1);
+      next = state::move(rev_bd, pos1);
       if (next.player() == black) {
-        next = state::put_black_at_rev(rev_bd, pos2);
+        next = state::move(rev_bd, pos2);
         if (next.player() == black) {
           return value::fixed_diff_num(bd);
         } else {
@@ -441,7 +441,7 @@ int GameSolver::psearch_2(const board &bd, int alpha, int beta) {
         if (result <= alpha) {
           return result;
         }
-        next = state::put_black_at_rev(rev_bd, pos2);
+        next = state::move(rev_bd, pos2);
         if (next.player() == black) {
           return result;
         }
@@ -454,7 +454,7 @@ int GameSolver::psearch_2(const board &bd, int alpha, int beta) {
     if (result >= beta) {
       return result;
     }
-    next = state::put_black_at_rev(bd, pos2);
+    next = state::move(bd, pos2);
     if (next.player() == white) {
       return result;
     }
