@@ -28,7 +28,7 @@ $ cmake .
 
 [ffotest](http://www.radagast.se/othello/ffotest.html)
 
-    $ ./issen --ffotest < input.pos
+    $ src/issen --ffotest < input.pos
 
 ## TODO
 
