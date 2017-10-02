@@ -24,13 +24,9 @@ $ cmake .
 
 [ffotest](http://www.radagast.se/othello/ffotest.html)
 
-    $ ./issen --ffotest < input.pos
+    $ src/issen --ffotest < input.pos
     
 ベンチ結果は[こちら](http://primenumber.github.io/issen/)
-
-## TODO
-
-- 実際に対戦ができるようにする
 
 ## Base81
 
