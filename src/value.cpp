@@ -89,7 +89,7 @@ void init() {
     }
     vals[cnt].resize(offset_all);
     ifs.read((char*)vals[cnt].data(), sizeof(double) * offset_all);
-    for (int i = 0; i < offset_all; ++i) {
+    for (size_t i = 0; i < offset_all; ++i) {
       vals[cnt][i] *= 100;
     }
     double pc, poc, co;
