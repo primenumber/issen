@@ -69,7 +69,7 @@ std::tuple<hand, int> GameSolver::think(const board &bd, const GameSolverParam s
       mx = h;
     }
   }
-  return std::make_tuple(mx, alpha/100);
+  return std::make_tuple(mx, alpha);
 }
 
 int GameSolver::solve(const board &bd, const GameSolverParam solver_param) {
