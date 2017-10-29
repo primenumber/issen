@@ -16,6 +16,7 @@
 #include "utils.hpp"
 #include "value.hpp"
 #include "gamesolver.hpp"
+#include "book.hpp"
 
 namespace generator {
 
@@ -136,6 +137,58 @@ void solve_81(int depth) {
   std::vector<std::thread> vt;
   for (size_t i = 0; i < std::thread::hardware_concurrency(); ++i) {
     vt.emplace_back(solver, std::cref(vb), std::ref(result), std::ref(stack));
+  }
+  for (auto &&th : vt) {
+    th.join();
+  }
+  for (size_t i = 0; i < vb.size(); ++i) {
+    std::cout << bit_manipulations::toBase81(vb[i]) << ' ' << result[i] << '\n';
+  }
+  std::cout << std::flush;
+}
+
+void thinker(const std::vector<board> &vb, std::vector<int> &result, std::stack<int> &stack, const int depth) {
+  using lock = std::unique_lock<std::mutex>;
+  GameSolver gs(65537);
+  int cnt = 0;
+  while(true) {
+    lock lk(mtx1);
+    if (stack.empty()) break;
+    int i = stack.top();
+    stack.pop();
+    lk.unlock();
+    board bd = vb[i];
+    GameSolverParam param = {false, false, true, false};
+    int score;
+    hand h;
+    std::tie(h, score) = gs.think(bd, param, depth);
+    result[i] = score;
+    ++cnt;
+    if (cnt % 100 == 0) std::cerr << cnt << std::endl;
+  }
+}
+
+void book_81(int expand_depth, int search_depth) {
+  std::ios::sync_with_stdio(false);
+  int n;
+  std::cin >> n;
+  std::vector<board> vb;
+  std::stack<int> stack;
+  int cnt = 0;
+  for (int i = 0; i < n; ++i) {
+    std::string base81;
+    std::cin>>base81;
+    board bd = bit_manipulations::toBoard(base81);
+    auto desc = book::expand_with_think(bd, expand_depth);
+    vb.insert(std::end(vb), std::begin(desc), std::end(desc));
+    for (size_t j = 0; j < desc.size(); ++j) {
+      stack.push(cnt++);
+    }
+  }
+  std::vector<int> result(vb.size());
+  std::vector<std::thread> vt;
+  for (size_t i = 0; i < std::thread::hardware_concurrency(); ++i) {
+    vt.emplace_back(thinker, std::cref(vb), std::ref(result), std::ref(stack), search_depth);
   }
   for (auto &&th : vt) {
     th.join();

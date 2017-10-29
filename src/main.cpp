@@ -17,6 +17,7 @@
 #include "ggs_archive_parser.hpp"
 #include "gamesolver.hpp"
 #include "bit_manipulations.hpp"
+#include "book.hpp"
 
 void ffotest() {
   board bd;
@@ -119,13 +120,21 @@ void solve81(const std::vector<std::string> &args) {
   generator::solve_81(n);
 }
 
+void book81(const std::vector<std::string> &args) {
+  int n = std::stoi(args[2]);
+  int m = std::stoi(args[3]);
+  generator::book_81(n, m);
+}
+
 void think(const std::vector<std::string> &args) {
   board bd = bit_manipulations::toBoard(args[2]);
   std::cerr << utils::to_s(bd) << std::flush;
   GameSolver gs(1000001);
   hand h;
   int score;
-  if (bit_manipulations::stone_sum(bd) < 42) {
+  if (bit_manipulations::stone_sum(bd) < 12) {
+    std::tie(h, score) = book::book.think(bd);
+  } else if (bit_manipulations::stone_sum(bd) < 42) {
     std::tie(h, score) = gs.think(bd, {true, true, false, true}, 12);
   } else {
     std::tie(h, score) = gs.think(bd, {true, true, false, false}, 22);
@@ -151,7 +160,9 @@ void play(const std::vector<std::string> &args) {
     hand h;
     if (my_color == turn) {
       int score;
-      if (bit_manipulations::stone_sum(bd) < 42) {
+      if (bit_manipulations::stone_sum(bd) < 12) {
+        std::tie(h, score) = book::book.think(bd);
+      } else if (bit_manipulations::stone_sum(bd) < 42) {
         std::tie(h, score) = gs.think(bd, {true, true, false, true}, 12);
       } else {
         std::tie(h, score) = gs.think(bd, {true, true, false, false}, 22);
@@ -209,6 +220,8 @@ int main(int argc, char **argv) {
     to_base81(args);
   else if (has_opt(args, "--solve-base81"))
     solve81(args);
+  else if (has_opt(args, "--book-base81"))
+    book81(args);
   else if (has_opt(args, "--check-base81"))
     check_score();
   else if (has_opt(args, "--ggs-parse"))

@@ -7,6 +7,7 @@
 #include "state.hpp"
 #include "generate.hpp"
 #include "subboard.hpp"
+#include "book.hpp"
 
 namespace utils {
 
@@ -14,6 +15,7 @@ void init_all() {
   bit_manipulations::init();
   subboard::init();
   value::init();
+  book::init();
 }
 
 std::string to_s(uint64_t bits) {
