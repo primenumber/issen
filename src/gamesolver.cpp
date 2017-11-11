@@ -52,6 +52,7 @@ std::tuple<hand, int> GameSolver::think(const board &bd, const GameSolverParam s
   nodes = 0;
   rem_stones = 64 - bit_manipulations::stone_sum(bd);
   for (int depth = 5 * ONE_PLY; depth <= (depth_max - 1) * ONE_PLY; depth += ONE_PLY) {
+    if (param.perfect) tb[0].range_max = value::VALUE_MAX;
     tb[0].clear();
     if (param.debug) std::cerr << "depth: " << (depth/ONE_PLY) << std::endl;
     int res = iddfs<true>(bd, -value::VALUE_MAX, value::VALUE_MAX, depth);
@@ -87,6 +88,7 @@ int GameSolver::solve(const board &bd, const GameSolverParam solver_param) {
   rem_stones = 64 - bit_manipulations::stone_sum(bd);
   int res = 0;
   for (int depth = std::min(rem_stones * reduction<true>(0, param.enable_variable_reduction), ONE_PLY * 10); depth <= (rem_stones - 8) * ONE_PLY; depth += ONE_PLY) {
+    if (param.perfect) tb[0].range_max = value::VALUE_MAX;
     tb[0].clear();
     if (param.debug) std::cerr << "depth: " << (depth/ONE_PLY) << std::endl;
     res = iddfs<true>(bd, -value::VALUE_MAX, value::VALUE_MAX, depth);
