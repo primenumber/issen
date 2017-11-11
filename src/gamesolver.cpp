@@ -59,17 +59,25 @@ std::tuple<hand, int> GameSolver::think(const board &bd, const GameSolverParam s
     std::swap(tb[0], tb[1]);
   }
   tb[0].clear();
-  int alpha = -value::VALUE_MAX;
+  int alpha = param.perfect ? -64 : -value::VALUE_MAX;
   hand mx = PASS;
   for (const auto &next : state::next_states(bd)) {
     hand h = hand_from_diff(bd, next);
-    int res = -iddfs<true>(next, -value::VALUE_MAX, -alpha, (depth_max - 1) * ONE_PLY);
+    int res;
+    if (param.perfect) {
+      res = -psearch<false>(next, -64, -alpha, YBWC_Type::NoYBWC);
+    } else {
+      res = -iddfs<true>(next, -value::VALUE_MAX, -alpha, (depth_max - 1) * ONE_PLY);
+    }
     if (res > alpha) {
       alpha = res;
       mx = h;
     }
   }
-  return std::make_tuple(mx, alpha);
+  if (param.perfect)
+    return std::make_tuple(mx, alpha*100);
+  else
+    return std::make_tuple(mx, alpha);
 }
 
 int GameSolver::solve(const board &bd, const GameSolverParam solver_param) {
@@ -89,8 +97,13 @@ int GameSolver::solve(const board &bd, const GameSolverParam solver_param) {
   }
   tb[0].range_max = 64;
   tb[0].clear();
+  //if (param.debug) std::cerr << "pre search" << std::endl;
+  //res = psearch<true>(bd, -64, 64, param.parallel_search ? YBWC_Type::Type1 : YBWC_Type::NoYBWC);
+  //if (param.debug) std::cerr << res << std::endl;
+  //std::swap(tb[0], tb[1]);
+  //tb[0].clear();
   if (param.debug) std::cerr << "full search" << std::endl;
-  res = psearch(bd, -64, 64, param.parallel_search ? YBWC_Type::Type1 : YBWC_Type::NoYBWC);
+  res = psearch<false>(bd, -64, 64, param.parallel_search ? YBWC_Type::Type1 : YBWC_Type::NoYBWC);
   if (param.debug) {
     std::cerr << "nodes total: " << nodes.load() << std::endl;
     std::cerr << "hash update: " << (tb[0].update_num() + tb[1].update_num()) << std::endl;
@@ -178,7 +191,7 @@ template <bool is_PV> int GameSolver::iddfs_impl(
   if (stones < 60) {
     return iddfs_ordering<is_PV>(bd, alpha, beta, depth);
   } else {
-    return psearch(bd, -64, 64, YBWC_Type::NoYBWC) * 100;
+    return psearch<false>(bd, -64, 64, YBWC_Type::NoYBWC) * 100;
   }
 }
 
@@ -209,7 +222,7 @@ template <bool is_PV> int GameSolver::iddfs(
   }
 }
 
-template <typename InputIt>
+template <typename InputIt, bool probcut>
 bool GameSolver::psearch_ordering_impl(
     InputIt next_first, InputIt next_last,
     int &alpha, int beta, int &result, bool &first, const YBWC_Type type) {
@@ -218,8 +231,9 @@ bool GameSolver::psearch_ordering_impl(
   for (auto itr = next_first; itr != next_last; ++itr) {
     const auto &next = *itr;
     if (!first) {
+      if (probcut && -value::statistic_value(get_board(next)) + 1200 < alpha * 100) continue;
       result = std::max(result,
-          -psearch(get_board(next), -alpha-1, -alpha, type));
+          -psearch<probcut>(get_board(next), -alpha-1, -alpha, type));
       if (result >= beta) return true;
       if (result <= alpha) continue;
       alpha = result;
@@ -227,7 +241,7 @@ bool GameSolver::psearch_ordering_impl(
       first = false;
     }
     result = std::max(result,
-        -psearch(get_board(next), -beta, -alpha, type));
+        -psearch<probcut>(get_board(next), -beta, -alpha, type));
     if (result >= beta) {
       return true;
     }
@@ -236,16 +250,16 @@ bool GameSolver::psearch_ordering_impl(
   return false;
 }
 
-int GameSolver::null_window_search_impl(const board &bd, int alpha, int beta, const YBWC_Type type) {
-  int result = -psearch(bd, -alpha-1, -alpha, type);
+template <bool probcut> int GameSolver::null_window_search_impl(const board &bd, int alpha, int beta, const YBWC_Type type) {
+  int result = -psearch<probcut>(bd, -alpha-1, -alpha, type);
   if (result >= beta) return result;
   if (result >= alpha) {
-    result = -psearch(bd, -beta, -result, type);
+    result = -psearch<probcut>(bd, -beta, -result, type);
   }
   return result;
 }
 
-int GameSolver::psearch_ybwc(const board &bd, int alpha, int beta, const YBWC_Type type) {
+template <bool probcut> int GameSolver::psearch_ybwc(const board &bd, int alpha, int beta, const YBWC_Type type) {
   std::array<board, 60> next_buffer;
   int puttable_count = state::next_states(bd, next_buffer);
   if (puttable_count == 0) {
@@ -253,7 +267,7 @@ int GameSolver::psearch_ybwc(const board &bd, int alpha, int beta, const YBWC_Ty
     if (state::mobility_pos(rev_bd) == 0) {
       return value::fixed_diff_num(bd);
     } else {
-      return -psearch(rev_bd, -beta, -alpha, eldest_child(type));
+      return -psearch<probcut>(rev_bd, -beta, -alpha, eldest_child(type));
     }
   }
   std::array<std::tuple<int, int, int, board>, 60> nexts;
@@ -285,14 +299,14 @@ int GameSolver::psearch_ybwc(const board &bd, int alpha, int beta, const YBWC_Ty
   }
   int result = -64; // fail soft
   for (int i = 0; i < seq_count; ++i) {
-    result = std::max(result, -psearch(std::get<3>(nexts[i]), -beta, -alpha, i ? uneldest_child(type) : eldest_child(type)));
+    result = std::max(result, -psearch<probcut>(std::get<3>(nexts[i]), -beta, -alpha, i ? uneldest_child(type) : eldest_child(type)));
     if (result >= beta) return result;
     alpha = std::max(alpha, result);
   }
   std::vector<std::future<int>> vf;
   for (int i = seq_count; i < puttable_count; ++i) {
     vf.push_back(std::async(
-          std::launch::async, &GameSolver::null_window_search_impl, this, std::get<3>(nexts[i]), alpha, beta,
+          std::launch::async, &GameSolver::null_window_search_impl<probcut>, this, std::get<3>(nexts[i]), alpha, beta,
           (i ? uneldest_child(type) : eldest_child(type)) ));
   }
   for (auto &&f : vf) {
@@ -301,7 +315,7 @@ int GameSolver::psearch_ybwc(const board &bd, int alpha, int beta, const YBWC_Ty
   return result;
 }
 
-int GameSolver::psearch_ordering(const board &bd, int alpha, int beta, const YBWC_Type type) {
+template <bool probcut> int GameSolver::psearch_ordering(const board &bd, int alpha, int beta, const YBWC_Type type) {
   std::array<board, 60> next_buffer;
   int puttable_count = state::next_states(bd, next_buffer);
   if (puttable_count == 0) {
@@ -309,7 +323,7 @@ int GameSolver::psearch_ordering(const board &bd, int alpha, int beta, const YBW
     if (state::mobility_pos(rev_bd) == 0) {
       return value::fixed_diff_num(bd);
     } else {
-      return -psearch(rev_bd, -beta, -alpha, eldest_child(type));
+      return -psearch<probcut>(rev_bd, -beta, -alpha, eldest_child(type));
     }
   }
   std::array<std::tuple<int, int, board>, 60> in_hash;
@@ -326,16 +340,16 @@ int GameSolver::psearch_ordering(const board &bd, int alpha, int beta, const YBW
   }
   int result = -64; // fail soft
   bool first = true;
-  if (psearch_ordering_impl(std::begin(in_hash), std::begin(in_hash) + count_in,
+  if (psearch_ordering_impl<decltype(in_hash)::iterator, probcut>(std::begin(in_hash), std::begin(in_hash) + count_in,
         alpha, beta, result, first, type))
     return result;
   alpha = std::max(alpha, result);
-  psearch_ordering_impl(std::begin(out_hash), std::begin(out_hash) + count_out,
+  psearch_ordering_impl<decltype(out_hash)::iterator, probcut>(std::begin(out_hash), std::begin(out_hash) + count_out,
       alpha, beta, result, first, type);
   return result;
 }
 
-int GameSolver::psearch_static_ordering(const board &bd, int alpha, int beta) {
+template <bool probcut> int GameSolver::psearch_static_ordering(const board &bd, int alpha, int beta) {
   std::array<board, 60> next_buffer;
   int puttable_count = state::next_states(bd, next_buffer);
   if (puttable_count == 0) {
@@ -343,7 +357,7 @@ int GameSolver::psearch_static_ordering(const board &bd, int alpha, int beta) {
     if (state::mobility_pos(rev_bd) == 0) {
       return value::fixed_diff_num(bd);
     } else {
-      return -psearch_nohash(rev_bd, -beta, -alpha);
+      return -psearch_nohash<probcut>(rev_bd, -beta, -alpha);
     }
   }
   std::array<std::tuple<int, int>, 60> index_ary;
@@ -354,22 +368,22 @@ int GameSolver::psearch_static_ordering(const board &bd, int alpha, int beta) {
   }
   std::sort(std::begin(index_ary), std::begin(index_ary) + puttable_count,
       [](const auto &lhs, const auto &rhs) { return std::get<0>(lhs) < std::get<0>(rhs); });
-  int result = -psearch_nohash(next_buffer[std::get<1>(index_ary[0])], -beta, -alpha);
+  int result = -psearch_nohash<probcut>(next_buffer[std::get<1>(index_ary[0])], -beta, -alpha);
   if (result >= beta) return result;
   alpha = std::max(alpha, result);
   for (int i = 1; i < puttable_count; ++i) {
-    result = std::max(result, -psearch_nohash(next_buffer[std::get<1>(index_ary[i])], -alpha-1, -alpha));
+    result = std::max(result, -psearch_nohash<probcut>(next_buffer[std::get<1>(index_ary[i])], -alpha-1, -alpha));
     if (result >= beta) return result;
     if (result <= alpha) continue;
     alpha = result;
-    result = std::max(result, -psearch_nohash(next_buffer[std::get<1>(index_ary[i])], -beta, -alpha));
+    result = std::max(result, -psearch_nohash<probcut>(next_buffer[std::get<1>(index_ary[i])], -beta, -alpha));
     if (result >= beta) return result;
     alpha = std::max(alpha, result);
   }
   return result;
 }
 
-int GameSolver::psearch_noordering(const board &bd, int alpha, int beta) {
+template <bool probcut> int GameSolver::psearch_noordering(const board &bd, int alpha, int beta) {
   bool pass = true;
   int result = -64; // fail soft
   uint64_t puttable_bits = ~bit_manipulations::stones(bd);
@@ -379,7 +393,7 @@ int GameSolver::psearch_noordering(const board &bd, int alpha, int beta) {
     const board next = state::move(bd, pos);
     if (next.player() == bd.opponent()) continue;
     pass = false;
-    result = std::max(result, -psearch_nohash(next, -beta, -alpha));
+    result = std::max(result, -psearch_nohash<probcut>(next, -beta, -alpha));
     if (result >= beta) {
       return result;
     }
@@ -390,7 +404,7 @@ int GameSolver::psearch_noordering(const board &bd, int alpha, int beta) {
     if (state::mobility_pos(rev_bd) == 0) {
       return value::fixed_diff_num(bd);
     } else {
-      return -psearch_nohash(rev_bd, -beta, -alpha);
+      return -psearch_nohash<probcut>(rev_bd, -beta, -alpha);
     }
   }
   return result;
@@ -462,28 +476,28 @@ int GameSolver::psearch_2(const board &bd, int alpha, int beta) {
   }
 }
 
-int GameSolver::psearch_impl(const board &bd, int alpha, int beta, const YBWC_Type type) {
+template <bool probcut> int GameSolver::psearch_impl(const board &bd, int alpha, int beta, const YBWC_Type type) {
   int stones = bit_manipulations::stone_sum(bd);
   if (64 - stones >= rem_stones - 2 && type != YBWC_Type::NoYBWC) {
-    return psearch_ybwc(bd, alpha, beta, type);
+    return psearch_ybwc<probcut>(bd, alpha, beta, type);
   } else {
-    return psearch_ordering(bd, alpha, beta, type);
+    return psearch_ordering<probcut>(bd, alpha, beta, type);
   }
 }
 
-int GameSolver::psearch_nohash(const board &bd, int alpha, int beta) {
+template <bool probcut> int GameSolver::psearch_nohash(const board &bd, int alpha, int beta) {
   ++nodes;
   int stones = bit_manipulations::stone_sum(bd);
   if (stones <= 57) {
-    return psearch_static_ordering(bd, alpha, beta);
+    return psearch_static_ordering<probcut>(bd, alpha, beta);
   } else if (stones <= 61) {
-    return psearch_noordering(bd, alpha, beta);
+    return psearch_noordering<probcut>(bd, alpha, beta);
   } else {
     return psearch_2(bd, alpha, beta);
   }
 }
 
-int GameSolver::psearch(const board &bd, int alpha, int beta, const YBWC_Type type) {
+template <bool probcut> int GameSolver::psearch(const board &bd, int alpha, int beta, const YBWC_Type type) {
   ++nodes;
   int stones = bit_manipulations::stone_sum(bd);
   if (stones <= 54) {
@@ -497,16 +511,16 @@ int GameSolver::psearch(const board &bd, int alpha, int beta, const YBWC_Type ty
         table::Range new_ab = cache && table::Range(alpha, beta);
         alpha = new_ab.val_min;
         beta = new_ab.val_max;
-        auto res = psearch_impl(bd, alpha, beta, type);
+        auto res = psearch_impl<probcut>(bd, alpha, beta, type);
         tb[0].update(bd, new_ab, res);
         return res;
       } 
     } else {
-      auto res = psearch_impl(bd, alpha, beta, type);
+      auto res = psearch_impl<probcut>(bd, alpha, beta, type);
       tb[0].update(bd, table::Range(alpha, beta), res);
       return res;
     }
   } else {
-    return psearch_nohash(bd, alpha, beta);
+    return psearch_nohash<probcut>(bd, alpha, beta);
   }
 }

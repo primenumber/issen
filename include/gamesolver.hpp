@@ -64,17 +64,17 @@ class GameSolver {
       int &alpha, int beta, int &result, int depth, int &count);
   template <bool is_PV> int iddfs_ordering(const board &bd, int alpha, int beta, int depth);
   template <bool is_PV> int iddfs_impl(const board &bd, int alpha, int beta, int depth);
-  int psearch(const board &bd, int alpha, int beta, const YBWC_Type type);
-  int psearch_nohash(const board &bd, int alpha, int beta);
-  int psearch_impl(const board &bd, int alpha, int beta, const YBWC_Type type);
-  int null_window_search_impl(const board &bd, int alpha, int beta, const YBWC_Type type);
-  int psearch_ybwc(const board &bd, int alpha, int beta, const YBWC_Type type);
-  template <typename InputIt>
+  template <bool probcut> int psearch(const board &bd, int alpha, int beta, const YBWC_Type type);
+  template <bool probcut> int psearch_nohash(const board &bd, int alpha, int beta);
+  template <bool probcut> int psearch_impl(const board &bd, int alpha, int beta, const YBWC_Type type);
+  template <bool probcut> int null_window_search_impl(const board &bd, int alpha, int beta, const YBWC_Type type);
+  template <bool probcut> int psearch_ybwc(const board &bd, int alpha, int beta, const YBWC_Type type);
+  template <typename InputIt, bool probcut>
   bool psearch_ordering_impl(InputIt next_first, InputIt next_last,
       int &alpha, int beta, int &result, bool &first, const YBWC_Type type);
-  int psearch_ordering(const board &bd, int alpha, int beta, const YBWC_Type type);
-  int psearch_static_ordering(const board &bd, int alpha, int beta);
-  int psearch_noordering(const board &bd, int alpha, int beta);
+  template <bool probcut> int psearch_ordering(const board &bd, int alpha, int beta, const YBWC_Type type);
+  template <bool probcut> int psearch_static_ordering(const board &bd, int alpha, int beta);
+  template <bool probcut> int psearch_noordering(const board &bd, int alpha, int beta);
   int psearch_leaf(const board &bd);
   int psearch_2(const board &bd, int alpha, int beta);
 };
