@@ -137,7 +137,7 @@ void think(const std::vector<std::string> &args) {
   } else if (bit_manipulations::stone_sum(bd) < 42) {
     std::tie(h, score) = gs.think(bd, {true, true, false, true}, 12);
   } else {
-    std::tie(h, score) = gs.think(bd, {true, true, false, false}, 22);
+    std::tie(h, score) = gs.think(bd, {true, true, true, false}, 64 - bit_manipulations::stone_sum(bd));
   }
   std::cout << to_s(h) << ' ' << score << std::endl;
 }
