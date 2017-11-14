@@ -102,9 +102,7 @@ std::pair<board, bool> input() {
   }
 }
 
-board input_bd() {
-  std::string line;
-  std::cin >> line;
+board line_to_bd(const std::string &line) {
   half_board black = 0;
   half_board white = 0;
   for (int i = 0; i < 64; ++i) {
@@ -124,6 +122,12 @@ board input_bd() {
     }
   }
   return board(black, white);
+}
+
+board input_bd() {
+  std::string line;
+  std::cin >> line;
+  return line_to_bd(line);
 }
 
 std::pair<board, bool> input_ffo() {
