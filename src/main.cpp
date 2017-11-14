@@ -143,6 +143,7 @@ void think_impl(const board &bd) {
 
 void think(const std::vector<std::string> &args) {
   board bd = utils::line_to_bd(args[2]);
+  if (args[3] == "White") bd = board::reverse_board(bd);
   think_impl(bd);
 }
 
