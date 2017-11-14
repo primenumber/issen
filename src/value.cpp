@@ -16,18 +16,18 @@
 namespace value {
 
 std::vector<std::string> files = {
-  "lsval60_b", "lsval59_b", "lsval58_b", "lsval57_b",
-  "lsval56_b", "lsval55_b", "lsval54_b", "lsval53_b",
-  "lsval52_b", "lsval51_b", "lsval50_b", "lsval49_b",
-  "lsval48_b", "lsval47_b", "lsval46_b", "lsval45_b",
-  "lsval44_b", "lsval43_b", "lsval42_b", "lsval41_b",
-  "lsval40_b", "lsval39_b", "lsval38_b", "lsval37_b",
-  "lsval36_b", "lsval35_b", "lsval34_b", "lsval33_b",
-  "lsval32_b", "lsval31_b", "lsval30_b", "lsval29_b",
-  "lsval28_b", "lsval27_b", "lsval26_b", "lsval25_b",
-  "lsval24_b", "lsval23_b", "lsval22_b", "lsval21_b",
-  "lsval20_b", "lsval19_b", "lsval18_b", "lsval17_b",
-  "lsval16_b", "lsval15_b", "lsval14_b", "lsval13_b"};
+  "lsval60_b_2", "lsval59_b_2", "lsval58_b_2", "lsval57_b_2",
+  "lsval56_b_2", "lsval55_b_2", "lsval54_b_2", "lsval53_b_2",
+  "lsval52_b_2", "lsval51_b_2", "lsval50_b_2", "lsval49_b_2",
+  "lsval48_b_2", "lsval47_b_2", "lsval46_b_2", "lsval45_b_2",
+  "lsval44_b_2", "lsval43_b_2", "lsval42_b_2", "lsval41_b_2",
+  "lsval40_b_2", "lsval39_b_2", "lsval38_b_2", "lsval37_b_2",
+  "lsval36_b_2", "lsval35_b_2", "lsval34_b_2", "lsval33_b_2",
+  "lsval32_b_2", "lsval31_b_2", "lsval30_b_2", "lsval29_b_2",
+  "lsval28_b_2", "lsval27_b_2", "lsval26_b_2", "lsval25_b_2",
+  "lsval24_b_2", "lsval23_b_2", "lsval22_b_2", "lsval21_b_2",
+  "lsval20_b_2", "lsval19_b_2", "lsval18_b_2", "lsval17_b_2",
+  "lsval16_b_2", "lsval15_b_2", "lsval14_b_2", "lsval13_b_2"};
 
 std::vector<std::vector<double>> vals;
 std::vector<double> puttable_coeff;
@@ -92,12 +92,8 @@ void init() {
     for (size_t i = 0; i < offset_all; ++i) {
       vals[cnt][i] *= 100;
     }
-    double pc, poc, co;
-    ifs.read((char*)&pc, sizeof(double));
-    ifs.read((char*)&poc, sizeof(double));
+    double co;
     ifs.read((char*)&co, sizeof(double));
-    puttable_coeff[cnt] = pc * 100;
-    puttable_op_coeff[cnt] = poc * 100;
     const_offset[cnt] = co * 100;
   }
 }
@@ -155,8 +151,6 @@ int statistic_value_impl(const board bd) {
   for (int i : indeces) {
     res += vals[index][i];
   }
-  res += state::mobility_count(bd) * puttable_coeff[index];
-  res += state::mobility_count(board::reverse_board(bd)) * puttable_op_coeff[index];
   return std::max(-6400, std::min(6400, res));
 }
 
