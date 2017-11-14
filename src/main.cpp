@@ -126,8 +126,7 @@ void book81(const std::vector<std::string> &args) {
   generator::book_81(n, m);
 }
 
-void think(const std::vector<std::string> &args) {
-  board bd = bit_manipulations::toBoard(args[2]);
+void think_impl(const board &bd) {
   std::cerr << utils::to_s(bd) << std::flush;
   GameSolver gs(1000001);
   hand h;
@@ -140,6 +139,16 @@ void think(const std::vector<std::string> &args) {
     std::tie(h, score) = gs.think(bd, {true, true, true, false}, 64 - bit_manipulations::stone_sum(bd) - 4);
   }
   std::cout << to_s(h) << ' ' << score << std::endl;
+}
+
+void think(const std::vector<std::string> &args) {
+  board bd = utils::line_to_bd(args[2]);
+  think_impl(bd);
+}
+
+void think_base81(const std::vector<std::string> &args) {
+  board bd = bit_manipulations::toBoard(args[2]);
+  think_impl(bd);
 }
 
 void think_solve(const std::vector<std::string> &args) {
@@ -230,6 +239,8 @@ int main(int argc, char **argv) {
     record_view();
   else if (has_opt(args, "--think-solve"))
     think_solve(args);
+  else if (has_opt(args, "--think-base81"))
+    think_base81(args);
   else if (has_opt(args, "--think"))
     think(args);
   else if (has_opt(args, "--play"))
