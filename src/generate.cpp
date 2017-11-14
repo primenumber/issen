@@ -2,6 +2,7 @@
 
 #include <cstdio>
 
+#include <atomic>
 #include <random>
 #include <mutex>
 #include <queue>
@@ -87,30 +88,15 @@ void generate_score(int m) {
   }
 }
 
-void solver(const std::vector<board> &vb, std::vector<int> &result, std::stack<int> &stack) {
-  using lock = std::unique_lock<std::mutex>;
+void solver(const std::vector<board> &vb, std::vector<int> &result, std::atomic<size_t> &index) {
   GameSolver gs(1025);
   int cnt = 0;
   while(true) {
-    lock lk(mtx1);
-    if (stack.empty()) break;
-    int i = stack.top();
-    stack.pop();
-    lk.unlock();
-    bool flipped = false;
+    size_t i = index++;
+    if (i >= vb.size()) break;
     board bd = vb[i];
     GameSolverParam param = {false, false, true, false};
-    int score = value::fixed_diff_num(bd);
-    while (!state::is_gameover(bd)) {
-      hand h;
-      std::tie(h, score) = gs.think(bd, param, 6);
-      if (h != PASS)
-        bd = state::move(bd, h);
-      else
-        bd = board::reverse_board(bd);
-      flipped = !flipped;
-    }
-    result[i] = flipped ? -score : score;
+    result[i] = gs.solve(bd, param);
     ++cnt;
     if (cnt % 1000 == 0) std::cerr << cnt << std::endl;
   }
@@ -121,22 +107,20 @@ void solve_81(int depth) {
   int n;
   std::cin >> n;
   std::vector<board> vb;
-  std::stack<int> stack;
-  int cnt = 0;
   for (int i = 0; i < n; ++i) {
     std::string base81;
     std::cin>>base81;
     board bd = bit_manipulations::toBoard(base81);
     auto desc = expand_desc(bd, depth);
     vb.insert(std::end(vb), std::begin(desc), std::end(desc));
-    for (size_t j = 0; j < desc.size(); ++j) {
-      stack.push(cnt++);
-    }
   }
+  std::sort(std::begin(vb), std::end(vb));
+  vb.erase(std::unique(std::begin(vb), std::end(vb)), std::end(vb));
   std::vector<int> result(vb.size());
   std::vector<std::thread> vt;
+  std::atomic<size_t> index(0);
   for (size_t i = 0; i < std::thread::hardware_concurrency(); ++i) {
-    vt.emplace_back(solver, std::cref(vb), std::ref(result), std::ref(stack));
+    vt.emplace_back(solver, std::cref(vb), std::ref(result), std::ref(index));
   }
   for (auto &&th : vt) {
     th.join();
