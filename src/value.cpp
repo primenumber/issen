@@ -151,7 +151,7 @@ int statistic_value_impl(const board bd) {
   for (int i : indeces) {
     res += vals[index][i];
   }
-  return std::max(-6400, std::min(6400, res));
+  return std::max(-6399, std::min(6399, res));
 }
 
 int statistic_value (const board &bd) {
