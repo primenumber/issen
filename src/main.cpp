@@ -110,6 +110,11 @@ void generate_score(const std::vector<std::string> &args) {
   generator::generate_score(n);
 }
 
+void gen_rand(const std::vector<std::string> &args) {
+  int n = std::stoi(args[2]);
+  generator::gen_rand(n);
+}
+
 void to_base81(const std::vector<std::string> &args) {
   int n = std::stoi(args[2]);
   generator::to_base81(n);
@@ -226,6 +231,8 @@ int main(int argc, char **argv) {
     obftest();
   else if (has_opt(args, "--gen-score"))
     generate_score(args);
+  else if (has_opt(args, "--gen-rand"))
+    gen_rand(args);
   else if (has_opt(args, "--to-base81"))
     to_base81(args);
   else if (has_opt(args, "--solve-base81"))

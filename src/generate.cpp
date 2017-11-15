@@ -222,4 +222,27 @@ void to_base81(int m) {
   }
 }
 
+std::string gen_rand_impl(std::mt19937 &mt) {
+  board bd = board::initial_board();
+  std::string res;
+  while (!state::is_gameover(bd)) {
+    auto nexts = state::next_states(bd);
+    std::uniform_int_distribution<size_t> uni(0, nexts.size()-1);
+    board next = nexts[uni(mt)];
+    res += to_s(hand_from_diff(bd, next));
+    bd = next;
+  }
+  return res;
+}
+
+void gen_rand(int n) {
+  std::ios::sync_with_stdio(false);
+  std::random_device rd;
+  std::mt19937 mt(rd());
+  for (int i = 0; i < n; ++i) {
+    std::cout << gen_rand_impl(mt) << '\n';
+  }
+  std::cout << std::flush;
+}
+
 } // namespace generator
