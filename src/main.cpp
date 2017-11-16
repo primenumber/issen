@@ -137,7 +137,11 @@ void think_impl(const board &bd) {
   hand h;
   int score;
   if (bit_manipulations::stone_sum(bd) < 12) {
-    std::tie(h, score) = book::book.think(bd);
+    try {
+      std::tie(h, score) = book::book.think(bd);
+    } catch (...) {
+      std::tie(h, score) = gs.think(bd, {true, true, false, true}, 12);
+    }
   } else if (bit_manipulations::stone_sum(bd) < 42) {
     std::tie(h, score) = gs.think(bd, {true, true, false, true}, 12);
   } else {
@@ -176,7 +180,11 @@ void play(const std::vector<std::string> &args) {
     if (my_color == turn) {
       int score;
       if (bit_manipulations::stone_sum(bd) < 12) {
-        std::tie(h, score) = book::book.think(bd);
+        try {
+          std::tie(h, score) = book::book.think(bd);
+        } catch (...) {
+          std::tie(h, score) = gs.think(bd, {true, true, false, true}, 12);
+        }
       } else if (bit_manipulations::stone_sum(bd) < 42) {
         std::tie(h, score) = gs.think(bd, {true, true, false, true}, 12);
       } else {
