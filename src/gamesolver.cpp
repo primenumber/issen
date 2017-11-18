@@ -62,8 +62,9 @@ std::tuple<hand, int> GameSolver::think(const board &bd, const GameSolverParam s
   if (param.perfect) tb[0].range_max = 64;
   tb[0].clear();
   int alpha = param.perfect ? -64 : -value::VALUE_MAX;
-  hand mx = PASS;
-  for (const auto &next : state::next_states(bd)) {
+  auto nexts = state::next_states(bd);
+  hand mx = hand_from_diff(bd, nexts.front());
+  for (const auto &next : nexts) {
     hand h = hand_from_diff(bd, next);
     int res;
     if (param.perfect) {
