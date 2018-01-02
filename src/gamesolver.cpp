@@ -366,7 +366,15 @@ template <bool probcut> int GameSolver::psearch_static_ordering(const board &bd,
   }
   std::array<std::tuple<int, int>, 60> index_ary;
   int count_ary = 0;
-  for (int i = 0; i < puttable_count; ++i) {
+  for (int i = 0; i < puttable_count; i += 2) {
+    const auto &next = next_buffer[i];
+    const auto &next2 = next_buffer[i+1];
+    auto counts = state::mobility_count(double_board(next, next2));
+    index_ary[count_ary++] = std::make_tuple(counts[0], i);
+    index_ary[count_ary++] = std::make_tuple(counts[1], i+1);
+  }
+  if ((puttable_count % 2) == 1) {
+    int i = puttable_count - 1;
     const auto &next = next_buffer[i];
     index_ary[count_ary++] = std::make_tuple(state::mobility_count(next), i);
   }
