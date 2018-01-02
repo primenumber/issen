@@ -1,4 +1,5 @@
 #pragma once
+#include <array>
 #include <vector>
 
 #include "board.hpp"
@@ -7,7 +8,9 @@
 namespace state {
 
 uint64_t mobility_pos(const board &);
+__m128i mobility_pos(const double_board &);
 int mobility_count(const board &);
+std::array<int, 2> mobility_count(const double_board &);
 bool is_gameover(const board &);
 board move_rev(const board &, int);
 board move_rev(const board &, int, int);
