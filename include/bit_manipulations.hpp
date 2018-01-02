@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include <array>
 
 #include "board.hpp"
 
@@ -220,9 +221,12 @@ uint64_t pseudoRotate45antiClockwise(uint64_t);
 board definites(board);
 
 uint64_t stones(board);
+__m128i stones(double_board);
 int stone_sum(board);
 
 int bit_to_pos(uint64_t);
+__m256i rotr8_epi64(__m256i, int);
+__m128i rotr8_epi64(__m128i, int);
 uint64_t rotr(uint64_t, int);
 
 uint16_t toBase3(uint16_t, uint16_t);

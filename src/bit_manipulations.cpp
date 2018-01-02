@@ -355,6 +355,11 @@ uint64_t stones(board bd) {
   return _mm_cvtsi128_si64(_mm_or_si128(_mm_alignr_epi8(bd, bd, 8), bd));
 }
 
+__m128i stones(double_board dbd) {
+  __m256i res = _mm256_or_si256(_mm256_alignr_epi8(dbd, dbd, 8), dbd);
+  return _mm256_castsi256_si128(_mm256_permute4x64_epi64(res, 0x08));
+}
+
 int stone_sum(board bd) {
   return _popcnt64(stones(bd));
 }
