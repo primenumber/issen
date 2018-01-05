@@ -135,20 +135,19 @@ void think_impl(const board &bd, const int level = 1) {
   int depth[2] = {2, 12};
   std::cerr << utils::to_s(bd) << std::flush;
   GameSolver gs(1000001);
-  hand h;
-  int score;
+  Result res;
   if (bit_manipulations::stone_sum(bd) < 12) {
     try {
-      std::tie(h, score) = book::book.think(bd);
+      res = book::book.think(bd);
     } catch (...) {
-      std::tie(h, score) = gs.think(bd, {true, true, false, false}, 12);
+      res = gs.think(bd, {true, true, false, false}, 12);
     }
   } else if (level == 1 && bit_manipulations::stone_sum(bd) < 43 || level == 0 && bit_manipulations::stone_sum(bd) < 50) {
-    std::tie(h, score) = gs.think(bd, {true, true, false, false}, depth[level]);
+    res = gs.think(bd, {true, true, false, false}, depth[level]);
   } else {
-    std::tie(h, score) = gs.think(bd, {true, true, true, false}, 64 - bit_manipulations::stone_sum(bd) - 4);
+    res = gs.think(bd, {true, true, true, false}, 64 - bit_manipulations::stone_sum(bd) - 4);
   }
-  std::cout << to_s(h) << ' ' << score << std::endl;
+  std::cout << to_s(res.h) << ' ' << res.value << std::endl;
 }
 
 void think(const std::vector<std::string> &args) {
@@ -178,33 +177,32 @@ void play(const std::vector<std::string> &args) {
   GameSolver gs(1000001);
   while (!state::is_gameover(bd)) {
     std::cout << utils::to_s(bd) << std::endl;
-    hand h;
+    Result res;
     if (my_color == turn) {
-      int score;
       if (bit_manipulations::stone_sum(bd) < 12) {
         try {
-          std::tie(h, score) = book::book.think(bd);
+          res = book::book.think(bd);
         } catch (...) {
-          std::tie(h, score) = gs.think(bd, {true, true, false, true}, 12);
+          res = gs.think(bd, {true, true, false, true}, 12);
         }
       } else if (bit_manipulations::stone_sum(bd) < 42) {
-        std::tie(h, score) = gs.think(bd, {true, true, false, true}, 12);
+        res = gs.think(bd, {true, true, false, true}, 12);
       } else {
-        std::tie(h, score) = gs.think(bd, {true, true, true, false}, 64 - bit_manipulations::stone_sum(bd) - 4);
+        res = gs.think(bd, {true, true, true, false}, 64 - bit_manipulations::stone_sum(bd) - 4);
       }
-      std::cout << to_s(h) << ' ' << score << std::endl;
+      std::cout << to_s(res.h) << ' ' << res.value << std::endl;
     } else {
       std::string str;
       while (true) {
         std::cin >> str;
         try {
-          h = to_hand(str);
-          if (h == PASS) {
+          res.h = to_hand(str);
+          if (res.h == PASS) {
             if (state::mobility_pos(bd)) {
               throw "invalid pass";
             }
           } else {
-            if (((state::mobility_pos(bd) >> h) & 1) == 0) {
+            if (((state::mobility_pos(bd) >> res.h) & 1) == 0) {
               throw "invalid move";
             }
           }
@@ -215,10 +213,10 @@ void play(const std::vector<std::string> &args) {
         }
       }
     }
-    if (h == PASS) {
+    if (res.h == PASS) {
       bd = board::reverse_board(bd);
     } else {
-      bd = state::move(bd, h);
+      bd = state::move(bd, res.h);
     }
     turn = !turn;
   }

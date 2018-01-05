@@ -143,10 +143,9 @@ void thinker(const std::vector<board> &vb, std::vector<int> &result, std::stack<
     lk.unlock();
     board bd = vb[i];
     GameSolverParam param = {false, false, true, false};
-    int score;
-    hand h;
-    std::tie(h, score) = gs.think(bd, param, depth);
-    result[i] = score;
+    Result res;
+    res = gs.think(bd, param, depth);
+    result[i] = res.value;
     ++cnt;
     if (cnt % 100 == 0) std::cerr << cnt << std::endl;
   }

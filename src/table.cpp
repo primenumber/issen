@@ -20,13 +20,14 @@ boost::optional<Range> Table::operator[](const board &bd) const {
 }
 
 void Table::update(
-    const board &bd, const Range range, const int32_t value) {
+    const board &bd, const Range range, const Result result) {
+  const int32_t value = result.value;
   ++update_count;
   uint64_t h = bd_hash(bd);
   std::size_t index = h % hash_size;
   Entry e = table.load(index);
   if (range.val_min < value && value < range.val_max) {
-    e = Entry(bd, Range(value));
+    e = Entry(bd, Range(value), result.h);
   } else {
     if (e.get_board() == bd) {
       Range r = e.get_range();
@@ -36,6 +37,7 @@ void Table::update(
         r.update_max(value);
       }
       e.set_range(r);
+      e.set_pv(result.h);
     } else {
       if (!(e.get_board() == board::empty_board())) {
         ++conflict_count;
@@ -47,7 +49,7 @@ void Table::update(
       } else if (value <= range.val_min) {
         r.update_max(value);
       }
-      e = Entry(bd, r);
+      e = Entry(bd, r, result.h);
     }
   }
   table.store(index, e);

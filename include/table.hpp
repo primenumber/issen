@@ -10,6 +10,7 @@
 #include "board.hpp"
 #include "bit_manipulations.hpp"
 #include "value.hpp"
+#include "result.hpp"
 
 namespace table {
 
@@ -57,9 +58,10 @@ union RangeUint64 {
 class Entry {
  public:
   Entry() : data(_mm256_setzero_si256()) {}
-  Entry(board bd, Range range) : data(_mm256_castsi128_si256(bd)) {
+  Entry(board bd, Range range, hand h) : data(_mm256_castsi128_si256(bd)) {
     RangeUint64 ru = range;
     data = _mm256_insert_epi64(data, ru.data, 2);
+    data = _mm256_insert_epi32(data, h, 6);
   }
   explicit Entry(int32_t range_max)
     : data(_mm256_setr_epi64x(0, 0, RangeUint64(Range(range_max)).data, 0)) {}
@@ -75,6 +77,12 @@ class Entry {
   }
   void set_range(const Range &r) {
     data = _mm256_insert_epi64(data, RangeUint64(r).data, 2);
+  }
+  hand get_pv() const {
+    return _mm256_extract_epi32(data, 6);
+  }
+  void set_pv(const hand &h) {
+    data = _mm256_insert_epi32(data, h, 6);
   }
  private:
   __m256i data;
@@ -112,7 +120,7 @@ class Table {
   Table &operator=(const Table &) = default;
   Table &operator=(Table &&) = default;
   boost::optional<Range> operator[](const board &bd) const;
-  void update(const board &bd, const Range range, const int32_t value);
+  void update(const board &bd, const Range range, const Result result);
   void clear();
   uint64_t conflict_num() const { return conflict_count; }
   uint64_t update_num() const { return update_count; }

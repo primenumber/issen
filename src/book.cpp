@@ -19,7 +19,7 @@ void init() {
   }
 }
 
-std::tuple<hand, int> Book::think(const board bd) const {
+Result Book::think(const board bd) const {
   hand h = PASS;
   int score = -value::VALUE_MAX;
   for (auto next : state::next_states(bd)) {
@@ -29,7 +29,7 @@ std::tuple<hand, int> Book::think(const board bd) const {
       score = res;
     }
   }
-  return std::make_tuple(h, score);
+  return Result(h, score);
 }
 
 std::vector<board> expand_with_think_impl(const board bd, int depth) {
@@ -45,7 +45,7 @@ std::vector<board> expand_with_think_impl(const board bd, int depth) {
 std::vector<board> expand_with_think(const board bd, int depth) {
   if (depth == 0) return std::vector<board>(1, bd);
   if (depth == 1) return expand_with_think_impl(bd, depth);
-  hand h = std::get<0>(book.think(bd));
+  hand h = book.think(bd).h;
   if (h == PASS) {
     return expand_with_think_impl(board::reverse_board(bd), depth-1);
   } else {

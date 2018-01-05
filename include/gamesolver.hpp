@@ -1,9 +1,10 @@
 #pragma once
 #include <tuple>
+#include <boost/optional.hpp>
 #include "board.hpp"
 #include "hand.hpp"
 #include "table.hpp"
-
+#include "result.hpp"
 
 struct GameSolverParam {
   bool parallel_search;
@@ -52,7 +53,7 @@ inline YBWC_Type uneldest_child(const YBWC_Type type) {
 class GameSolver {
  public:
   explicit GameSolver(size_t hash_size);
-  std::tuple<hand, int> think(const board &, const GameSolverParam solver_param, int depth_max);
+  Result think(const board &, const GameSolverParam solver_param, int depth_max);
   int solve(const board &, const GameSolverParam solver_param);
  private:
   table::Table tb[2];
@@ -64,17 +65,17 @@ class GameSolver {
       int &alpha, int beta, int &result, int depth, int &count);
   template <bool is_PV> int iddfs_ordering(const board &bd, int alpha, int beta, int depth);
   template <bool is_PV> int iddfs_impl(const board &bd, int alpha, int beta, int depth);
-  template <bool probcut> int psearch(const board &bd, int alpha, int beta, const YBWC_Type type);
-  template <bool probcut> int psearch_nohash(const board &bd, int alpha, int beta);
-  template <bool probcut> int psearch_impl(const board &bd, int alpha, int beta, const YBWC_Type type);
-  template <bool probcut> int null_window_search_impl(const board &bd, int alpha, int beta, const YBWC_Type type);
-  template <bool probcut> int psearch_ybwc(const board &bd, int alpha, int beta, const YBWC_Type type);
+  template <bool probcut> Result psearch(const board &bd, int alpha, int beta, const YBWC_Type type);
+  template <bool probcut> Result psearch_nohash(const board &bd, int alpha, int beta);
+  template <bool probcut> Result psearch_impl(const board &bd, int alpha, int beta, const YBWC_Type type);
+  template <bool probcut> Result null_window_search_impl(const board &bd, int alpha, int beta, const YBWC_Type type);
+  template <bool probcut> Result psearch_ybwc(const board &bd, int alpha, int beta, const YBWC_Type type);
   template <typename InputIt, bool probcut>
   bool psearch_ordering_impl(InputIt next_first, InputIt next_last,
-      int &alpha, int beta, int &result, bool &first, const YBWC_Type type);
-  template <bool probcut> int psearch_ordering(const board &bd, int alpha, int beta, const YBWC_Type type);
-  template <bool probcut> int psearch_static_ordering(const board &bd, int alpha, int beta);
-  template <bool probcut> int psearch_noordering(const board &bd, int alpha, int beta);
-  int psearch_leaf(const board &bd);
-  int psearch_2(const board &bd, int alpha, int beta);
+      int &alpha, int beta, Result &result, bool &first, const YBWC_Type type);
+  template <bool probcut> Result psearch_ordering(const board &bd, int alpha, int beta, const YBWC_Type type);
+  template <bool probcut> Result psearch_static_ordering(const board &bd, int alpha, int beta);
+  template <bool probcut> Result psearch_noordering(const board &bd, int alpha, int beta);
+  Result psearch_leaf(const board &bd);
+  Result psearch_2(const board &bd, int alpha, int beta);
 };

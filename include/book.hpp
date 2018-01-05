@@ -4,6 +4,7 @@
 #include <tuple>
 #include "board.hpp"
 #include "hand.hpp"
+#include "result.hpp"
 
 namespace book {
 
@@ -22,7 +23,7 @@ class Book {
   void set(const board bd, int score) {
     table[bd] = score;
   }
-  std::tuple<hand, int> think(const board) const;
+  Result think(const board) const;
  private:
   std::unordered_map<board, int> table;
 };
