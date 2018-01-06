@@ -59,19 +59,19 @@ class GameSolver {
   table::Table tb[2];
   GameSolverParam param;
   int rem_stones;
-  template <bool is_PV> int iddfs(const board &bd, int alpha, int beta, int depth);
+  template <bool is_PV> Result iddfs(const board &bd, int alpha, int beta, int depth);
   template <typename InputIt, bool is_PV>
-  bool iddfs_ordering_impl(InputIt next_first, InputIt next_last,
-      int &alpha, int beta, int &result, int depth, int &count);
-  template <bool is_PV> int iddfs_ordering(const board &bd, int alpha, int beta, int depth);
-  template <bool is_PV> int iddfs_impl(const board &bd, int alpha, int beta, int depth);
+  bool iddfs_ordering_impl(const board &bd, InputIt next_first, InputIt next_last,
+      int &alpha, int beta, Result &result, int depth, int &count);
+  template <bool is_PV> Result iddfs_ordering(const board &bd, int alpha, int beta, int depth);
+  template <bool is_PV> Result iddfs_impl(const board &bd, int alpha, int beta, int depth);
   template <bool probcut> Result psearch(const board &bd, int alpha, int beta, const YBWC_Type type);
   template <bool probcut> Result psearch_nohash(const board &bd, int alpha, int beta);
   template <bool probcut> Result psearch_impl(const board &bd, int alpha, int beta, const YBWC_Type type);
-  template <bool probcut> Result null_window_search_impl(const board &bd, int alpha, int beta, const YBWC_Type type);
+  template <bool probcut> Result null_window_search_impl(const hand h, const board &bd, int alpha, int beta, const YBWC_Type type);
   template <bool probcut> Result psearch_ybwc(const board &bd, int alpha, int beta, const YBWC_Type type);
   template <typename InputIt, bool probcut>
-  bool psearch_ordering_impl(InputIt next_first, InputIt next_last,
+  bool psearch_ordering_impl(const board &bd, InputIt next_first, InputIt next_last,
       int &alpha, int beta, Result &result, bool &first, const YBWC_Type type);
   template <bool probcut> Result psearch_ordering(const board &bd, int alpha, int beta, const YBWC_Type type);
   template <bool probcut> Result psearch_static_ordering(const board &bd, int alpha, int beta);

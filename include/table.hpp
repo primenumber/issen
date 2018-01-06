@@ -119,7 +119,7 @@ class Table {
   Table(Table &&) = default;
   Table &operator=(const Table &) = default;
   Table &operator=(Table &&) = default;
-  boost::optional<Range> operator[](const board &bd) const;
+  boost::optional<std::tuple<Range, hand>> operator[](const board &bd) const;
   void update(const board &bd, const Range range, const Result result);
   void clear();
   uint64_t conflict_num() const { return conflict_count; }

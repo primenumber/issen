@@ -8,12 +8,12 @@ namespace table {
 
 using unique_lock = std::unique_lock<std::mutex>;
 
-boost::optional<Range> Table::operator[](const board &bd) const {
+boost::optional<std::tuple<Range, hand>> Table::operator[](const board &bd) const {
   uint64_t h = bd_hash(bd);
   std::size_t index = h % hash_size;
   Entry e = table.load(index);
   if (e.get_board() == bd) {
-    return e.get_range();
+    return std::make_tuple(e.get_range(), e.get_pv());
   } else {
     return boost::none;
   }
