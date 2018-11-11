@@ -131,7 +131,8 @@ void book81(const std::vector<std::string> &args) {
   generator::book_81(n, m);
 }
 
-void think_impl(const board &bd) {
+void think_impl(const board &bd, const int level = 1) {
+  int depth[2] = {2, 12};
   std::cerr << utils::to_s(bd) << std::flush;
   GameSolver gs(1000001);
   hand h;
@@ -142,8 +143,8 @@ void think_impl(const board &bd) {
     } catch (...) {
       std::tie(h, score) = gs.think(bd, {true, true, false, true}, 12);
     }
-  } else if (bit_manipulations::stone_sum(bd) < 42) {
-    std::tie(h, score) = gs.think(bd, {true, true, false, true}, 12);
+  } else if (level == 1 && bit_manipulations::stone_sum(bd) < 42 || level == 0 && bit_manipulations::stone_sum(bd) < 50) {
+    std::tie(h, score) = gs.think(bd, {true, true, false, true}, depth[level]);
   } else {
     std::tie(h, score) = gs.think(bd, {true, true, true, false}, 64 - bit_manipulations::stone_sum(bd) - 4);
   }
@@ -152,8 +153,9 @@ void think_impl(const board &bd) {
 
 void think(const std::vector<std::string> &args) {
   board bd = utils::line_to_bd(args[2]);
+  const int level = std::stoi(args[4]);
   if (args[3] == "White") bd = board::reverse_board(bd);
-  think_impl(bd);
+  think_impl(bd, level);
 }
 
 void think_base81(const std::vector<std::string> &args) {
