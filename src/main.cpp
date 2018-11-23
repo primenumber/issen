@@ -141,10 +141,10 @@ void think_impl(const board &bd, const int level = 1) {
     try {
       std::tie(h, score) = book::book.think(bd);
     } catch (...) {
-      std::tie(h, score) = gs.think(bd, {true, true, false, true}, 12);
+      std::tie(h, score) = gs.think(bd, {true, true, false, false}, 12);
     }
-  } else if (level == 1 && bit_manipulations::stone_sum(bd) < 42 || level == 0 && bit_manipulations::stone_sum(bd) < 50) {
-    std::tie(h, score) = gs.think(bd, {true, true, false, true}, depth[level]);
+  } else if (level == 1 && bit_manipulations::stone_sum(bd) < 43 || level == 0 && bit_manipulations::stone_sum(bd) < 50) {
+    std::tie(h, score) = gs.think(bd, {true, true, false, false}, depth[level]);
   } else {
     std::tie(h, score) = gs.think(bd, {true, true, true, false}, 64 - bit_manipulations::stone_sum(bd) - 4);
   }
