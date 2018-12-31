@@ -61,26 +61,12 @@ Result GameSolver::think(const board &bd, const GameSolverParam solver_param, in
   }
   if (param.perfect) tb[0].range_max = 64;
   tb[0].clear();
-  int alpha = param.perfect ? -64 : -value::VALUE_MAX;
-  auto nexts = state::next_states(bd);
-  hand mx = hand_from_diff(bd, nexts.front());
-  for (const auto &next : nexts) {
-    hand h = hand_from_diff(bd, next);
-    int res;
-    if (param.perfect) {
-      res = -psearch<false>(next, -64, -alpha, YBWC_Type::NoYBWC).value;
-    } else {
-      res = -iddfs<true>(next, -value::VALUE_MAX, -alpha, (depth_max - 1) * ONE_PLY).value;
-    }
-    if (res > alpha) {
-      alpha = res;
-      mx = h;
-    }
+  if (param.perfect) {
+    Result res = psearch<false>(bd, -64, 64, YBWC_Type::NoYBWC);
+    return Result(res.h, res.value*100);
+  } else {
+    return iddfs<true>(bd, -value::VALUE_MAX, value::VALUE_MAX, depth_max * ONE_PLY);
   }
-  if (param.perfect)
-    return Result(mx, alpha*100);
-  else
-    return Result(mx, alpha);
 }
 
 int GameSolver::solve(const board &bd, const GameSolverParam solver_param) {
