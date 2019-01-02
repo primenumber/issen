@@ -11,6 +11,7 @@
 
 constexpr int psearch_ordering_th = 57;
 constexpr int ONE_PLY = 64;
+constexpr int iddfs_table_th = 4 * ONE_PLY;
 int reduction_table[2][8] = {
   {64, 72, 80, 88, 96,104,112,120},
   {32, 64, 64, 64, 64, 64, 64, 64}
@@ -149,7 +150,7 @@ template <bool is_PV> Result GameSolver::iddfs_ordering(
   std::array<std::tuple<int, board>, 60> out_hash;
   int count_in = 0;
   int count_out = 0;
-  if (stone_sum > 54) {
+  if (stone_sum > 54 || depth <= iddfs_table_th) {
     for (int i = 0; i < puttable_count; ++i) {
       const auto &next = next_buffer[i];
       out_hash[count_out++] = std::make_tuple(state::mobility_count(next), next);
@@ -193,6 +194,9 @@ template <bool is_PV> Result GameSolver::iddfs(
   ++nodes;
   if (depth <= 0) {
     return Result(NOMOVE, value::statistic_value(bd));
+  }
+  if (depth <= iddfs_table_th) {
+    return iddfs_impl<is_PV>(bd, alpha, beta, depth);
   }
   if (const auto cache_opt = tb[0][bd]) {
     table::Range cache_r(-value::VALUE_MAX, value::VALUE_MAX);
