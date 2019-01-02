@@ -126,6 +126,11 @@ void solve81(const std::vector<std::string> &args) {
   generator::solve_81(n);
 }
 
+void playout81(const std::vector<std::string> &args) {
+  int n = std::stoi(args[2]);
+  generator::playout_81(n);
+}
+
 void book81(const std::vector<std::string> &args) {
   int n = std::stoi(args[2]);
   int m = std::stoi(args[3]);
@@ -293,6 +298,8 @@ int main(int argc, char **argv) {
     to_base81(args);
   else if (has_opt(args, "--solve-base81"))
     solve81(args);
+  else if (has_opt(args, "--playout-base81"))
+    playout81(args);
   else if (has_opt(args, "--book-base81"))
     book81(args);
   else if (has_opt(args, "--check-base81"))

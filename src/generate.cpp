@@ -7,6 +7,7 @@
 #include <mutex>
 #include <queue>
 #include <iostream>
+#include <sstream>
 #include <thread>
 #include <stack>
 #include <vector>
@@ -121,6 +122,60 @@ void solve_81(int depth) {
   std::atomic<size_t> index(0);
   for (size_t i = 0; i < std::thread::hardware_concurrency(); ++i) {
     vt.emplace_back(solver, std::cref(vb), std::ref(result), std::ref(index));
+  }
+  for (auto &&th : vt) {
+    th.join();
+  }
+}
+
+void player(const std::vector<board> &vb, std::vector<std::string> &result, std::atomic<size_t> &index, const int depth) {
+  GameSolver gs(1025);
+  int cnt = 0;
+  while(true) {
+    size_t i = index++;
+    if (i >= vb.size()) break;
+    board bd = vb[i];
+    bool flipped = false;
+    while (!state::is_gameover(bd)) {
+      GameSolverParam param_unsolve = {false, false, false, false};
+      GameSolverParam param_solve = {false, false, true, false};
+      hand h;
+      if (bit_manipulations::stone_sum(bd) < 54) {
+        h = gs.think(bd, param_unsolve, depth).h;
+      } else {
+        h = gs.think(bd, param_solve, depth).h;
+      }
+      result[i] += to_s(h);
+      if (h == PASS) {
+        bd = board::reverse_board(bd);
+      } else {
+        bd = state::move(bd, h);
+      }
+      flipped = !flipped;
+    }
+    ++cnt;
+    if (cnt % 1000 == 0) std::cerr << cnt << std::endl;
+  }
+}
+
+void playout_81(int depth) {
+  std::ios::sync_with_stdio(false);
+  int n;
+  std::cin >> n;
+  std::vector<board> vb;
+  for (int i = 0; i < n; ++i) {
+    std::string base81;
+    std::cin>>base81;
+    board bd = bit_manipulations::toBoard(base81);
+    vb.push_back(bd);
+  }
+  std::sort(std::begin(vb), std::end(vb));
+  vb.erase(std::unique(std::begin(vb), std::end(vb)), std::end(vb));
+  std::vector<std::string> result(vb.size());
+  std::vector<std::thread> vt;
+  std::atomic<size_t> index(0);
+  for (size_t i = 0; i < std::thread::hardware_concurrency(); ++i) {
+    vt.emplace_back(player, std::cref(vb), std::ref(result), std::ref(index), depth);
   }
   for (auto &&th : vt) {
     th.join();
