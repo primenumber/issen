@@ -108,12 +108,19 @@ void solve_81(int depth) {
   int n;
   std::cin >> n;
   std::vector<board> vb;
+  std::vector<int> alpha;
+  std::vector<int> beta;
+  std::vector<int> res;
   for (int i = 0; i < n; ++i) {
     std::string base81;
-    std::cin>>base81;
+    int a, b, r;
+    std::cin>>base81>>a>>b>>r;
     board bd = bit_manipulations::toBoard(base81);
     auto desc = expand_desc(bd, depth);
     vb.insert(std::end(vb), std::begin(desc), std::end(desc));
+    alpha.push_back(a);
+    beta.push_back(b);
+    res.push_back(r);
   }
   std::sort(std::begin(vb), std::end(vb));
   vb.erase(std::unique(std::begin(vb), std::end(vb)), std::end(vb));
@@ -126,6 +133,17 @@ void solve_81(int depth) {
   for (auto &&th : vt) {
     th.join();
   }
+  for (size_t i = 0; i < vb.size(); ++i) {
+    if (alpha[i] < res[i] && res[i] < beta[i]) {
+      assert(res[i] == result[i]);
+    } else if (res[i] <= alpha[i]) {
+      assert(result[i] <= alpha[i]);
+    } else {
+      assert(result[i] >= beta[i]);
+    }
+    std::cout << bit_manipulations::toBase81(vb[i]) << ' ' << result[i] << '\n';
+  }
+  std::cout << std::flush;
 }
 
 void player(const std::vector<board> &vb, std::vector<std::string> &result, std::atomic<size_t> &index, const int depth) {
