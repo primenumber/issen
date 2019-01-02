@@ -268,29 +268,38 @@ void to_base81(int m) {
   std::cin >> n;
   GameSolver gs(10001);
   for (int i = 0; i < n; ++i) {
-    board bd = init;
+    std::string line;
+    std::getline(std::cin, line);
+    std::stringstream ss;
+    ss << line;
+    std::string b81;
+    ss >> b81;
+    board bd = bit_manipulations::toBoard(b81);
     std::string record;
-    int score;
-    std::cin >> record >> score;
+    ss >> record;
+    if ((record.size() % 2) == 1) {
+      std::cerr << "invalid record: " << i << std::endl;
+      continue;
+    }
     int l = record.size()/2;
     bool black = true;
+    board snap = bd;
+    bool black_snap = true;
     for (int j = 0; j < l; ++j) {
-      if (state::mobility_pos(bd) == 0) {
-        bd = board::reverse_board(bd);
-        black = !black;
-      }
       if (64 - bit_manipulations::stone_sum(bd) == m) {
-        std::cout << bit_manipulations::toBase81(bd) << ' ' << (black ? score : -score) << '\n';
-        break;
+        snap = bd;
+        black_snap = black;
       }
-      hand h = to_hand_500k(record.substr(j*2, 2));
-      uint64_t puttable = state::mobility_pos(bd);
-      if (((puttable >> h) & 1) == 0) {
-        break;
+      hand h = to_hand(record.substr(j*2, 2));
+      if (h == PASS) {
+        bd = board::reverse_board(bd);
+      } else {
+        bd = state::move(bd, h);
       }
-      bd = state::move(bd, h);
       black = !black;
     }
+    int score = value::fixed_diff_num(bd);
+    std::cout << bit_manipulations::toBase81(snap) << ' ' << (black == black_snap ? score : -score) << '\n';
   }
 }
 
