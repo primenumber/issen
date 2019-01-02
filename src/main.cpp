@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <fstream>
 #include <iostream>
 #include <string>
 #include <tuple>
@@ -131,6 +132,53 @@ void book81(const std::vector<std::string> &args) {
   generator::book_81(n, m);
 }
 
+void rev_to_record(const std::vector<std::string> &args) {
+  std::string prefix = args[2];
+  std::string o_prefix = args[3];
+  std::vector<std::unordered_map<board, int>> vm(40);
+  for (int i = 44; i >= 24; --i) {
+    std::cerr << i << std::endl;
+    std::string filename = prefix + std::to_string(i);
+    std::ifstream ifs(filename);
+    while (true) {
+      std::string s;
+      int val;
+      ifs >> s >> val;
+      if (ifs.eof()) break;
+      board bd = bit_manipulations::toBoard(s);
+      bool rev = false;
+      if (state::mobility_pos(bd) == 0) {
+        bd = board::reverse_board(bd);
+        rev = true;
+      }
+      auto nexts = state::next_states(bd);
+      int mx = -65;
+      for (const auto & next : nexts) {
+        if (state::is_gameover(next)) {
+          int score = -value::fixed_diff_num(next);
+          mx = std::max(mx, score);
+        } else if (i-24+1 < 40 && vm[i-24+1].count(next)) {
+          mx = std::max(mx, -vm[i-24+1][next]);
+        }
+      }
+      if (i == 44) mx = val;
+      vm[i-24][bd] = mx;
+      if (rev) {
+        vm[i-24][board::reverse_board(bd)] = -mx;
+      }
+      if (rev) {
+        mx = -mx;
+      }
+    }
+    filename = o_prefix + std::to_string(i);
+    std::ofstream ofs(filename);
+    ofs << vm[i-24].size() << std::endl;
+    for (auto p : vm[i-24]) {
+      ofs << bit_manipulations::toBase81(p.first) << ' ' << p.second << std::endl;
+    }
+  }
+}
+
 void think_impl(const board &bd, const int level = 1) {
   int depth[2] = {2, 12};
   std::cerr << utils::to_s(bd) << std::flush;
@@ -253,6 +301,8 @@ int main(int argc, char **argv) {
     ggs_archive_parser();
   else if (has_opt(args, "--record-view"))
     record_view();
+  else if (has_opt(args, "--reverse-to-record"))
+    rev_to_record(args);
   else if (has_opt(args, "--think-solve"))
     think_solve(args);
   else if (has_opt(args, "--think-base81"))
