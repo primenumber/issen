@@ -27,7 +27,7 @@ void ffotest() {
   std::cout << utils::to_s(bd);
   boost::timer::cpu_timer timer;
   GameSolver egs(10000001);
-  GameSolverParam param = {true, true, true, true};
+  GameSolverParam param = {true, true, true, true, true};
   int pt = egs.solve(bd, param);
   std::cout << pt << std::endl;
   std::cout << timer.format() << std::endl;
@@ -44,7 +44,7 @@ void obftest() {
     bool is_black;
     std::tie(bd, num, is_black) = utils::input_obf();
     std::cerr << "num: " << num << ", sscore: " << value::statistic_value(bd) << std::endl;
-    GameSolverParam param = {false, false, true, true};
+    GameSolverParam param = {false, false, true, true, true};
     int pt = egs.solve(bd, param);
     if (pt != num) {
       std::cerr << utils::to_s(bd);
@@ -74,7 +74,7 @@ void check_score() {
     std::string b81;
     int score;
     std::tie(b81, score) = vp[i];
-    GameSolverParam param = {false, false, true, true};
+    GameSolverParam param = {false, false, true, true, true};
     int pt = egs.solve(bit_manipulations::toBoard(b81), param);
     if (pt != score) {
       std::cerr << i << ' ' << b81 << ' ' << pt << ' ' << score << std::endl;
@@ -193,12 +193,12 @@ void think_impl(const board &bd, const int level = 1) {
     try {
       res = book::book.think(bd);
     } catch (...) {
-      res = gs.think(bd, {true, true, false, false}, 12);
+      res = gs.think(bd, {true, true, false, false, false}, 12);
     }
   } else if (level == 1 && bit_manipulations::stone_sum(bd) < 43 || level == 0 && bit_manipulations::stone_sum(bd) < 50) {
-    res = gs.think(bd, {true, true, false, false}, depth[level]);
+    res = gs.think(bd, {true, true, false, false, false}, depth[level]);
   } else {
-    res = gs.think(bd, {true, true, true, false}, 64 - bit_manipulations::stone_sum(bd) - 4);
+    res = gs.think(bd, {true, true, true, false, true}, 64 - bit_manipulations::stone_sum(bd) - 4);
   }
   std::cout << to_s(res.h) << ' ' << res.value << std::endl;
 }
@@ -219,7 +219,7 @@ void think_solve(const std::vector<std::string> &args) {
   board bd = bit_manipulations::toBoard(args[2]);
   std::cerr << utils::to_s(bd) << std::flush;
   GameSolver gs(1000001);
-  int score = gs.solve(bd, {true, true, true, true});
+  int score = gs.solve(bd, {true, true, true, true, true});
   std::cout << score << std::endl;
 }
 
@@ -236,12 +236,12 @@ void play(const std::vector<std::string> &args) {
         try {
           res = book::book.think(bd);
         } catch (...) {
-          res = gs.think(bd, {true, true, false, true}, 12);
+          res = gs.think(bd, {true, true, false, true, false}, 12);
         }
       } else if (bit_manipulations::stone_sum(bd) < 42) {
-        res = gs.think(bd, {true, true, false, true}, 12);
+        res = gs.think(bd, {true, true, false, true, false}, 12);
       } else {
-        res = gs.think(bd, {true, true, true, false}, 64 - bit_manipulations::stone_sum(bd) - 4);
+        res = gs.think(bd, {true, true, true, false, true}, 64 - bit_manipulations::stone_sum(bd) - 4);
       }
       std::cout << to_s(res.h) << ' ' << res.value << std::endl;
     } else {

@@ -32,7 +32,7 @@ void worker() {
     if (que.empty()) return;
     board bd = que.front(); que.pop();
     ul.unlock();
-    GameSolverParam param = {false, false, false, true};
+    GameSolverParam param = {false, false, false, true, true};
     int pt = gs.solve(bd, param);
     std::string base81 = bit_manipulations::toBase81(bd);
     std::lock_guard<std::mutex> lg(mtx2);
@@ -96,7 +96,7 @@ void solver(const std::vector<board> &vb, std::vector<int> &result, std::atomic<
     size_t i = index++;
     if (i >= vb.size()) break;
     board bd = vb[i];
-    GameSolverParam param = {false, false, true, false};
+    GameSolverParam param = {false, false, true, false, true};
     result[i] = gs.solve(bd, param);
     ++cnt;
     if (cnt % 1000 == 0) std::cerr << cnt << std::endl;
@@ -155,8 +155,8 @@ void player(const std::vector<board> &vb, std::vector<std::string> &result, std:
     board bd = vb[i];
     bool flipped = false;
     while (!state::is_gameover(bd)) {
-      GameSolverParam param_unsolve = {false, false, false, false};
-      GameSolverParam param_solve = {false, false, true, false};
+      GameSolverParam param_unsolve = {false, false, false, false, false};
+      GameSolverParam param_solve = {false, false, true, false, true};
       hand h;
       if (bit_manipulations::stone_sum(bd) < 54) {
         h = gs.think(bd, param_unsolve, depth).h;
@@ -215,7 +215,7 @@ void thinker(const std::vector<board> &vb, std::vector<int> &result, std::stack<
     stack.pop();
     lk.unlock();
     board bd = vb[i];
-    GameSolverParam param = {false, false, true, false};
+    GameSolverParam param = {false, false, true, false, true};
     Result res;
     res = gs.think(bd, param, depth);
     result[i] = res.value;
