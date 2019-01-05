@@ -167,13 +167,16 @@ void rev_to_record(const std::vector<std::string> &args) {
           mx = std::max(mx, -vm[i-24+1][next]);
         }
       }
-      if (i == start) mx = val;
+      if (i == start) {
+        if (rev) {
+          mx = -val;
+        } else {
+          mx = val;
+        }
+      }
       vm[i-24][bd] = mx;
       if (rev) {
         vm[i-24][board::reverse_board(bd)] = -mx;
-      }
-      if (rev) {
-        mx = -mx;
       }
     }
     filename = o_prefix + std::to_string(i);
