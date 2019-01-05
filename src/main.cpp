@@ -141,7 +141,8 @@ void rev_to_record(const std::vector<std::string> &args) {
   std::string prefix = args[2];
   std::string o_prefix = args[3];
   std::vector<std::unordered_map<board, int>> vm(40);
-  for (int i = 44; i >= 24; --i) {
+  int start = 42;
+  for (int i = start; i >= 24; --i) {
     std::cerr << i << std::endl;
     std::string filename = prefix + std::to_string(i);
     std::ifstream ifs(filename);
@@ -166,7 +167,7 @@ void rev_to_record(const std::vector<std::string> &args) {
           mx = std::max(mx, -vm[i-24+1][next]);
         }
       }
-      if (i == 44) mx = val;
+      if (i == start) mx = val;
       vm[i-24][bd] = mx;
       if (rev) {
         vm[i-24][board::reverse_board(bd)] = -mx;
