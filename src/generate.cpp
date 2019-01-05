@@ -172,7 +172,7 @@ void player(const std::vector<board> &vb, std::vector<std::string> &result, std:
       flipped = !flipped;
     }
     ++cnt;
-    if (cnt % 1000 == 0) std::cerr << cnt << std::endl;
+    /*if (cnt % 1000 == 0)*/ std::cerr << i << std::endl;
   }
 }
 
@@ -187,6 +187,7 @@ void playout_81(int depth) {
     board bd = bit_manipulations::toBoard(base81);
     vb.push_back(bd);
   }
+  std::cerr << "Loaded" << std::endl;
   std::sort(std::begin(vb), std::end(vb));
   vb.erase(std::unique(std::begin(vb), std::end(vb)), std::end(vb));
   std::vector<std::string> result(vb.size());
