@@ -11,8 +11,6 @@ issen
 ### 初期化
 
 ```
-$ git submodule init
-$ git submodule update
 $ cmake .
 ```
 
@@ -24,7 +22,7 @@ $ cmake .
 
 [ffotest](http://www.radagast.se/othello/ffotest.html)
 
-    $ src/issen --ffotest < input.pos
+    $ VAL_PATH=path/to/val src/issen --ffotest < input.pos
     
 ベンチ結果は[こちら](http://primenumber.github.io/issen/)
 
