@@ -3,6 +3,8 @@ issen
 
 高速なOthelloAIの実装
 
+This project isn't maintained anymore, moved to [issen-rs](https://github.com/primenumber/issen-rs).
+
 ## ビルドと実行
 
 - C++14に対応したコンパイラと、 Boost C++ Librariesが必要
