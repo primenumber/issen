@@ -8,8 +8,6 @@
 
 #include <boost/timer/timer.hpp>
 
-#include "picojson/picojson.h"
-
 #include "board.hpp"
 #include "state.hpp"
 #include "hand.hpp"
